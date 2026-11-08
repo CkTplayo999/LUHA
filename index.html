@@ -10539,7 +10539,10 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.angle = angle;
                 this.radius = radius;
             }
-            update() { this.life -= this.decay; }
+            update() {
+                if (gameState.timestopActive && this.color !== '#ffd700' && this.color !== '#bdc3c7') return;
+                this.life -= this.decay;
+            }
             draw() {
                 if (this.life <= 0) return;
                 ctx.save();
@@ -11750,6 +11753,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.velY = 0;
                 this.active = true;
                 this.landed = false;
+                this.landedTimer = 50;
             }
             update() {
                 if (!this.landed) {
@@ -11798,6 +11802,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             }
                         }
                     }
+                } else {
+                    this.landedTimer -= 1 * config.timeScale;
+                    if (this.landedTimer <= 0) this.active = false;
                 }
             }
             draw() {
@@ -21285,17 +21292,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                     // 3.6s freeze. Once it has covered the canvas, stop growing AND stop drawing.
                     const waveCap = Math.max(canvas.width, canvas.height);
                     if (gameState.timestopWaveRadius < waveCap) {
-                        gameState.timestopWaveRadius += 28 * config.timeScale;
-
-                        ctx.save();
-                        ctx.strokeStyle = 'rgba(0, 210, 255, 0.35)';
-                        ctx.lineWidth = 6;
-                        ctx.shadowColor = '#00d2ff';
-                        ctx.shadowBlur = 25;
-                        ctx.beginPath();
-                        ctx.arc(gameState.timestopCaster.x, gameState.timestopCaster.y - 45, gameState.timestopWaveRadius, 0, Math.PI * 2);
-                        ctx.stroke();
-                        ctx.restore();
+                        gameState.timestopWaveRadius += 32 * config.timeScale;
                     }
 
                     // Cancel block for non-casters in timestop
@@ -21351,7 +21348,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                 }
 
                 gameState.bgSymbols.forEach((s, idx) => {
-                    s.life -= (1 * config.timeScale);
+                    if (!gameState.timestopActive) s.life -= (1 * config.timeScale);
                     if (s.life <= 0) {
                         gameState.bgSymbols.splice(idx, 1);
                         return;
@@ -21389,8 +21386,6 @@ function drawPixelMage(fighter, frozenInDraw) {
                         if (rotX < 0) {
                             // Bên trái: Màu trắng phát sáng (Bloom)
                             ctx.fillStyle = '#ffffff';
-                            ctx.shadowColor = '#ffffff';
-                            ctx.shadowBlur = 18;
                             ctx.fillRect(cx + gx * P, cy + gy * P, P, P);
                             const inX = Math.round(rotX * 0.94);
                             const inY = Math.round(rotY * 0.94);
@@ -21398,8 +21393,6 @@ function drawPixelMage(fighter, frozenInDraw) {
                         } else {
                             // Bên phải: Màu đen hiệu ứng bloom
                             ctx.fillStyle = '#0a0d14';
-                            ctx.shadowColor = '#000000';
-                            ctx.shadowBlur = 20;
                             ctx.fillRect(cx + gx * P, cy + gy * P, P, P);
                             const inX = Math.round(rotX * 0.94);
                             const inY = Math.round(rotY * 0.94);
@@ -21440,13 +21433,9 @@ function drawPixelMage(fighter, frozenInDraw) {
                             ctx.save();
                             if (isWhiteHalf) {
                                 ctx.fillStyle = '#ffffff';
-                                ctx.shadowColor = '#ffffff';
-                                ctx.shadowBlur = 10;
                                 ctx.fillRect(cx + gx * P, cy + gy * P, P * fillStep, P * fillStep);
                             } else {
                                 ctx.fillStyle = '#0a0d14';
-                                ctx.shadowColor = '#000000';
-                                ctx.shadowBlur = 12;
                                 ctx.fillRect(cx + gx * P, cy + gy * P, P * fillStep, P * fillStep);
                             }
                             ctx.restore();
@@ -21464,12 +21453,8 @@ function drawPixelMage(fighter, frozenInDraw) {
                         ctx.save();
                         if (isLeft) {
                             ctx.fillStyle = '#ffffff';
-                            ctx.shadowColor = '#ffffff';
-                            ctx.shadowBlur = 16;
                         } else {
                             ctx.fillStyle = '#0a0d14';
-                            ctx.shadowColor = '#000000';
-                            ctx.shadowBlur = 18;
                         }
 
                         for (let bar = -1; bar <= 1; bar++) {
@@ -21504,14 +21489,6 @@ function drawPixelMage(fighter, frozenInDraw) {
                     }
                 });
 
-                gameState.roadrollers.forEach((r, idx) => {
-                    r.update();
-                    r.draw();
-                    if (!r.active) {
-                        gameState.roadrollers.splice(idx, 1);
-                    }
-                });
-
                 gameState.gorillaDrops.forEach((g, idx) => {
                     g.update();
                     g.draw();
@@ -21529,71 +21506,151 @@ function drawPixelMage(fighter, frozenInDraw) {
                     }
                 });
 
-                gameState.timestopActive ? ctx.save() : null;
-                if (gameState.timestopActive) {
-                    ctx.filter = 'grayscale(100%) brightness(40%) contrast(120%)';
+                // Cap particles to prevent unbounded buildup during heavy combat
+                if (gameState.particles.length > 180) {
+                    gameState.particles.splice(0, gameState.particles.length - 180);
                 }
 
                 if (gameState.timestopActive) {
+                    // 1) Draw frozen non-caster entities & effects first (zero ctx.filter overhead!)
+                    for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
+                        const b = gameState.deidaraBugs[i];
+                        b.update(); b.draw();
+                        if (!b.active) gameState.deidaraBugs.splice(i, 1);
+                    }
+                    for (let i = gameState.deidaraBombs.length - 1; i >= 0; i--) {
+                        const b = gameState.deidaraBombs[i];
+                        b.update(); b.draw();
+                        if (!b.active) gameState.deidaraBombs.splice(i, 1);
+                    }
+                    for (let i = gameState.particles.length - 1; i >= 0; i--) {
+                        const p = gameState.particles[i];
+                        if (p.color !== '#ffd700' && p.color !== '#bdc3c7') {
+                            p.update(); p.draw();
+                            if (p.life <= 0) gameState.particles.splice(i, 1);
+                        }
+                    }
+                    for (let i = gameState.slashes.length - 1; i >= 0; i--) {
+                        const s = gameState.slashes[i];
+                        if (s.color !== '#ffd700' && s.color !== '#bdc3c7') {
+                            s.update(); s.draw();
+                            if (s.life <= 0) gameState.slashes.splice(i, 1);
+                        }
+                    }
+                    for (let i = gameState.pixelEffects.length - 1; i >= 0; i--) {
+                        const fx = gameState.pixelEffects[i];
+                        fx.update(); fx.draw();
+                        if (fx.life <= 0) gameState.pixelEffects.splice(i, 1);
+                    }
+
+                    // 2) Hardware-accelerated 16-Bit "ZA WARUDO" Frozen World Veil (replaces slow per-rect ctx.filter!)
                     ctx.save();
-                    ctx.filter = 'grayscale(100%) brightness(85%) contrast(130%)';
+                    ctx.imageSmoothingEnabled = false;
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = 'rgba(10, 14, 28, 0.56)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw frozen opponent on top of the dark arena veil so they remain crisp & readable,
+                    // with a subtle frozen-time slate tint over their silhouette
                     if (p1 !== gameState.timestopCaster) p1.draw();
                     if (p2 !== gameState.timestopCaster) p2.draw();
+                    ctx.fillStyle = 'rgba(18, 26, 48, 0.24)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // 16-Bit Pixel Expanding Octagonal Time-Stop Shockwave Ring (0 shadowBlur, 0 arc!)
+                    const waveCap = Math.max(canvas.width, canvas.height);
+                    if (gameState.timestopWaveRadius < waveCap && gameState.timestopCaster) {
+                        const P = 4;
+                        const wx = Math.round(gameState.timestopCaster.x / P) * P;
+                        const wy = Math.round((gameState.timestopCaster.y - 45) / P) * P;
+                        const r = Math.round(gameState.timestopWaveRadius / P) * P;
+                        const d = Math.round((r * 0.7) / P) * P;
+                        // Outer cyan & gold stepped pixel shockwave octagon
+                        ctx.fillStyle = '#00d2ff';
+                        ctx.fillRect(wx - d, wy - r, d * 2, P * 2);
+                        ctx.fillRect(wx - d, wy + r - P * 2, d * 2, P * 2);
+                        ctx.fillRect(wx - r, wy - d, P * 2, d * 2);
+                        ctx.fillRect(wx + r - P * 2, wy - d, P * 2, d * 2);
+                        // Diagonal stepped segments
+                        const steps = 6;
+                        for (let s = 1; s < steps; s++) {
+                            const t = s / steps;
+                            const ox = Math.round((d + (r - d) * t) / P) * P;
+                            const oy = Math.round((r - (r - d) * t) / P) * P;
+                            ctx.fillStyle = (s % 2 === 0) ? '#ffd700' : '#ffffff';
+                            ctx.fillRect(wx + ox - P, wy - oy, P * 2, P * 2);
+                            ctx.fillRect(wx - ox - P, wy - oy, P * 2, P * 2);
+                            ctx.fillRect(wx + ox - P, wy + oy - P * 2, P * 2, P * 2);
+                            ctx.fillRect(wx - ox - P, wy + oy - P * 2, P * 2, P * 2);
+                        }
+                    }
+
+                    // 16-Bit Frozen-Time Screen Frame HUD Ticks
+                    ctx.fillStyle = 'rgba(241, 196, 15, 0.45)';
+                    ctx.fillRect(0, 0, canvas.width, 4);
+                    ctx.fillRect(0, canvas.height - 4, canvas.width, 4);
+                    ctx.fillRect(0, 0, 4, canvas.height);
+                    ctx.fillRect(canvas.width - 4, 0, 4, canvas.height);
                     ctx.restore();
-                } else {
-                    p1.draw();
-                    p2.draw();
-                }
 
-                // Deidara bugs & bombs: drawn AFTER fighters so their explosions read on top.
-                gameState.deidaraBugs.forEach((b, idx) => {
-                    b.update();
-                    b.draw();
-                    if (!b.active) {
-                        gameState.deidaraBugs.splice(idx, 1);
+                    // 3) Draw Active Time-Stop Caster (DIO), Roadroller & Gold/Silver Effects in Full Vivid Color!
+                    for (let i = gameState.roadrollers.length - 1; i >= 0; i--) {
+                        const r = gameState.roadrollers[i];
+                        r.update(); r.draw();
+                        if (!r.active) gameState.roadrollers.splice(i, 1);
                     }
-                });
-                gameState.deidaraBombs.forEach((b, idx) => {
-                    b.update();
-                    b.draw();
-                    if (!b.active) {
-                        gameState.deidaraBombs.splice(idx, 1);
-                    }
-                });
-
-                gameState.particles.forEach((p, idx) => {
-                    if (p.color !== '#ffd700' && p.color !== '#bdc3c7') {
-                        p.update();
-                        p.draw();
-                        if (p.life <= 0) gameState.particles.splice(idx, 1);
-                    }
-                });
-
-                gameState.slashes.forEach((s, idx) => {
-                    s.update();
-                    s.draw();
-                    if (s.life <= 0) gameState.slashes.splice(idx, 1);
-                });
-
-                gameState.pixelEffects.forEach((fx, idx) => {
-                    fx.update();
-                    fx.draw();
-                    if (fx.life <= 0) gameState.pixelEffects.splice(idx, 1);
-                });
-
-                gameState.timestopActive ? ctx.restore() : null;
-
-                if (gameState.timestopActive) {
                     if (p1 === gameState.timestopCaster) p1.draw();
                     if (p2 === gameState.timestopCaster) p2.draw();
 
-                    gameState.particles.forEach((p, idx) => {
+                    for (let i = gameState.particles.length - 1; i >= 0; i--) {
+                        const p = gameState.particles[i];
                         if (p.color === '#ffd700' || p.color === '#bdc3c7') {
-                            p.update();
-                            p.draw();
-                            if (p.life <= 0) gameState.particles.splice(idx, 1);
+                            p.update(); p.draw();
+                            if (p.life <= 0) gameState.particles.splice(i, 1);
                         }
-                    });
+                    }
+                    for (let i = gameState.slashes.length - 1; i >= 0; i--) {
+                        const s = gameState.slashes[i];
+                        if (s.color === '#ffd700' || s.color === '#bdc3c7') {
+                            s.update(); s.draw();
+                            if (s.life <= 0) gameState.slashes.splice(i, 1);
+                        }
+                    }
+                } else {
+                    // Normal real-time rendering: ALL particles (including #ffd700 and #bdc3c7!) update & expire cleanly
+                    for (let i = gameState.roadrollers.length - 1; i >= 0; i--) {
+                        const r = gameState.roadrollers[i];
+                        r.update(); r.draw();
+                        if (!r.active) gameState.roadrollers.splice(i, 1);
+                    }
+                    p1.draw();
+                    p2.draw();
+
+                    for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
+                        const b = gameState.deidaraBugs[i];
+                        b.update(); b.draw();
+                        if (!b.active) gameState.deidaraBugs.splice(i, 1);
+                    }
+                    for (let i = gameState.deidaraBombs.length - 1; i >= 0; i--) {
+                        const b = gameState.deidaraBombs[i];
+                        b.update(); b.draw();
+                        if (!b.active) gameState.deidaraBombs.splice(i, 1);
+                    }
+                    for (let i = gameState.particles.length - 1; i >= 0; i--) {
+                        const p = gameState.particles[i];
+                        p.update(); p.draw();
+                        if (p.life <= 0) gameState.particles.splice(i, 1);
+                    }
+                    for (let i = gameState.slashes.length - 1; i >= 0; i--) {
+                        const s = gameState.slashes[i];
+                        s.update(); s.draw();
+                        if (s.life <= 0) gameState.slashes.splice(i, 1);
+                    }
+                    for (let i = gameState.pixelEffects.length - 1; i >= 0; i--) {
+                        const fx = gameState.pixelEffects[i];
+                        fx.update(); fx.draw();
+                        if (fx.life <= 0) gameState.pixelEffects.splice(i, 1);
+                    }
                 }
 
                 gameState.starEffects.forEach((star, idx) => {
