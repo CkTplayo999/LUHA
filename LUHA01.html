@@ -3388,6 +3388,95 @@
                   </svg>`;
               },
               get portrait() { return this.getPortrait(1); }
+            },
+            { id: 'hooper', name: 'HOOPER', tier: 'special', color: '#ff6b00', p2Color: '#00d2ff',
+              desc: '★ 16-Bit Streetball King! Rebound face-pass, 0.3s crossover dance + 0.4s stun, Zone Awakening Cutscene & Virtual Court Alley-Oop Dunk!',
+              stats: { atk: 4, def: 3, spd: 5, ult: 5 },
+              getPortrait(player) {
+                  const isP2 = player === 2;
+                  const jerseyMain  = isP2 ? '#00a8ff' : '#ff5e00';
+                  const jerseyShade = isP2 ? '#0069a8' : '#b83700';
+                  const jerseyTrim  = isP2 ? '#ffffff' : '#ffd32a';
+                  const bandCol     = isP2 ? '#00d2ff' : '#ff3838';
+                  const auraCol     = isP2 ? '#00d2ff' : '#ff9f1a';
+                  return `<svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+                      <!-- Streetball Zone Floor Glow & Electric Sparks -->
+                      <rect x="4" y="36" width="24" height="2" fill="${auraCol}" opacity="0.4"/>
+                      <rect x="2" y="13" width="2" height="1" fill="${auraCol}"/>
+                      <rect x="28" y="7" width="2" height="2" fill="${jerseyTrim}"/>
+                      <rect x="29" y="8" width="1" height="1" fill="#ffffff"/>
+
+                      <!-- Stylized Spiky Streetball Dread-Locs / Fade Hair (Hunched Forward) -->
+                      <rect x="10" y="3" width="11" height="5" fill="#090b10"/>
+                      <rect x="11" y="4" width="9" height="3" fill="#1e2430"/>
+                      <rect x="9" y="2" width="3" height="2" fill="#090b10"/>
+                      <rect x="13" y="2" width="3" height="2" fill="#090b10"/>
+                      <rect x="17" y="2" width="3" height="2" fill="#090b10"/>
+
+                      <!-- Head + Sweatband + Focused Zone Eyes (Hunched Low Dribble Stance) -->
+                      <rect x="10" y="7" width="11" height="8" fill="#090b10"/>
+                      <rect x="11" y="9" width="9" height="5" fill="#c68642"/>
+                      <rect x="11" y="9" width="2" height="5" fill="#8d5524"/>
+                      <!-- Streetball Headband -->
+                      <rect x="10" y="7" width="11" height="2" fill="${bandCol}"/>
+                      <rect x="12" y="7" width="3" height="1" fill="#ffffff"/>
+                      <rect x="8" y="8" width="2" height="2" fill="${bandCol}"/>
+                      <!-- Zone Blazing Eyes + Lightning Trail -->
+                      <rect x="14" y="10" width="2" height="2" fill="#090b10"/>
+                      <rect x="15" y="10" width="1" height="1" fill="${auraCol}"/>
+                      <rect x="18" y="10" width="2" height="2" fill="#090b10"/>
+                      <rect x="19" y="10" width="1" height="1" fill="#ffffff"/>
+                      <rect x="20" y="9" width="3" height="1" fill="${auraCol}"/>
+                      <!-- Confident Smirk -->
+                      <rect x="16" y="13" width="3" height="1" fill="#ffffff"/>
+
+                      <!-- Hunched-Forward Basketball Jersey #23 -->
+                      <rect x="7" y="15" width="13" height="11" fill="#090b10"/>
+                      <rect x="8" y="16" width="11" height="9" fill="${jerseyMain}"/>
+                      <rect x="8" y="16" width="3" height="9" fill="${jerseyShade}"/>
+                      <rect x="8" y="16" width="11" height="1" fill="${jerseyTrim}"/>
+                      <!-- Jersey Number 23 Pixel Markings -->
+                      <rect x="12" y="18" width="2" height="4" fill="#ffffff"/>
+                      <rect x="15" y="18" width="2" height="4" fill="${jerseyTrim}"/>
+
+                      <!-- Back Arm Guarding Ball -->
+                      <rect x="4" y="16" width="4" height="7" fill="#090b10"/>
+                      <rect x="5" y="17" width="2" height="5" fill="#8d5524"/>
+                      <rect x="5" y="20" width="2" height="1" fill="${bandCol}"/>
+
+                      <!-- Front Arm Dribbling Low + Wristband -->
+                      <rect x="19" y="16" width="5" height="6" fill="#090b10"/>
+                      <rect x="20" y="17" width="3" height="4" fill="#c68642"/>
+                      <rect x="21" y="20" width="2" height="1" fill="${bandCol}"/>
+                      <rect x="22" y="21" width="3" height="2" fill="#c68642"/>
+
+                      <!-- 16-Bit Pixel Basketball Bouncing Below Hand with Motion Smear -->
+                      <rect x="23" y="22" width="2" height="3" fill="${auraCol}" opacity="0.7"/>
+                      <rect x="21" y="25" width="8" height="8" fill="#090b10"/>
+                      <rect x="22" y="26" width="6" height="6" fill="#e65100"/>
+                      <rect x="23" y="26" width="4" height="5" fill="#ff6d00"/>
+                      <rect x="23" y="27" width="2" height="2" fill="#ffab40"/>
+                      <!-- Basketball Black Seam Lines -->
+                      <rect x="22" y="29" width="6" height="1" fill="#090b10"/>
+                      <rect x="25" y="26" width="1" height="6" fill="#090b10"/>
+
+                      <!-- Baggy Basketball Shorts & High-Top Sneakers (Bent Knees) -->
+                      <rect x="6" y="25" width="13" height="6" fill="#090b10"/>
+                      <rect x="7" y="25" width="5" height="5" fill="${jerseyShade}"/>
+                      <rect x="13" y="25" width="5" height="5" fill="${jerseyMain}"/>
+                      <rect x="7" y="29" width="11" height="1" fill="${jerseyTrim}"/>
+                      <!-- Legs & High-Tops -->
+                      <rect x="6" y="31" width="4" height="3" fill="#8d5524"/>
+                      <rect x="14" y="31" width="4" height="3" fill="#c68642"/>
+                      <rect x="5" y="34" width="6" height="3" fill="#090b10"/>
+                      <rect x="6" y="34" width="4" height="2" fill="#ffffff"/>
+                      <rect x="7" y="35" width="3" height="1" fill="${bandCol}"/>
+                      <rect x="13" y="34" width="6" height="3" fill="#090b10"/>
+                      <rect x="14" y="34" width="4" height="2" fill="#ffffff"/>
+                      <rect x="15" y="35" width="3" height="1" fill="${bandCol}"/>
+                  </svg>`;
+              },
+              get portrait() { return this.getPortrait(1); }
             }
         ];
 
@@ -3537,7 +3626,12 @@
             domainBattle: null,
             domainClashUsed: false, // true once a Six-Eyes vs Slasher clash has happened in this match — prevents repeat
             pendingThunderStrikes: [],
-            pixelEffects: []
+            pixelEffects: [],
+            hooperCutsceneActive: false,
+            hooperCutsceneTimer: 0,
+            hooperCutsceneDuration: 115,
+            hooperCutsceneCaster: null,
+            hooperBalls: []
         };
 
         function announceText(text, color) {
@@ -3653,6 +3747,10 @@
             gameState.endScheduled = false;
             gameState.pendingThunderStrikes = [];
             gameState.pixelEffects = [];
+            gameState.hooperCutsceneActive = false;
+            gameState.hooperCutsceneTimer = 0;
+            gameState.hooperCutsceneCaster = null;
+            gameState.hooperBalls = [];
             canvas.classList.remove('shake');
         }
 
@@ -3661,20 +3759,24 @@
             canvas.style.display = 'block';
             ui.style.display = 'flex';
             
-            const classNames = {martial: 'BRAWLER', sword: 'SWORDSMAN', scythe: 'REAPER', lancer: 'LANCER', swapper: 'SWAPPER', mage: 'MAGE', taichi: 'TAI CHI', shinobi: 'SHINOBI', gunslinger: 'DUELIST', werewolf: 'WEREWOLF', fisherman: 'FISHERMAN', zookeeper: 'ZOOKEEPER', phantom: 'PHANTOM', sixeye: 'SIX EYES', saiyan: 'SAIYAN', dio: 'DIO', raijin: 'INVENTOR', slasher: 'SLASHER', miner: 'MINER', deidara: 'DEIDARA'};
+            const classNames = {martial: 'BRAWLER', sword: 'SWORDSMAN', scythe: 'REAPER', lancer: 'LANCER', swapper: 'SWAPPER', mage: 'MAGE', taichi: 'TAI CHI', shinobi: 'SHINOBI', gunslinger: 'DUELIST', werewolf: 'WEREWOLF', fisherman: 'FISHERMAN', zookeeper: 'ZOOKEEPER', phantom: 'PHANTOM', sixeye: 'SIX EYES', saiyan: 'SAIYAN', dio: 'DIO', raijin: 'INVENTOR', slasher: 'SLASHER', miner: 'MINER', deidara: 'DEIDARA', hooper: 'HOOPER'};
             document.getElementById('p1-name').innerText = `P1: ${classNames[p1Class]}${isP1CPU ? ' (CPU)' : ''}`;
             document.getElementById('p2-name').innerText = `P2: ${classNames[p2Class]}${isCPUMode ? ' (CPU)' : ''}`;
 
-            p1 = new Stickman(200, p1Class === 'mage' ? '#9c27b0' : (p1Class === 'taichi' ? '#ffffff' : (p1Class === 'sixeye' ? '#bf55ec' : (p1Class === 'saiyan' ? '#00d2ff' : (p1Class === 'dio' ? '#ffd700' : (p1Class === 'phantom' ? '#0d47a1' : (p1Class === 'slasher' ? '#ff4757' : (p1Class === 'deidara' ? '#f39c12' : '#2ecc71'))))))), 1, p1Class);
-            p2 = new Stickman(650, p2Class === 'mage' ? '#00b4d8' : (p2Class === 'taichi' ? '#000000' : (p2Class === 'sixeye' ? '#3498db' : (p2Class === 'saiyan' ? '#ff2e4c' : (p2Class === 'dio' ? '#8b0000' : (p2Class === 'phantom' ? '#a82452' : (p2Class === 'slasher' ? '#5352ed' : (p2Class === 'deidara' ? '#e67e22' : '#e74c3c'))))))), 2, p2Class);
+            p1 = new Stickman(200, p1Class === 'mage' ? '#9c27b0' : (p1Class === 'taichi' ? '#ffffff' : (p1Class === 'sixeye' ? '#bf55ec' : (p1Class === 'saiyan' ? '#00d2ff' : (p1Class === 'dio' ? '#ffd700' : (p1Class === 'phantom' ? '#0d47a1' : (p1Class === 'slasher' ? '#ff4757' : (p1Class === 'deidara' ? '#f39c12' : (p1Class === 'hooper' ? '#ff6b00' : '#2ecc71')))))))), 1, p1Class);
+            p2 = new Stickman(650, p2Class === 'mage' ? '#00b4d8' : (p2Class === 'taichi' ? '#000000' : (p2Class === 'sixeye' ? '#3498db' : (p2Class === 'saiyan' ? '#ff2e4c' : (p2Class === 'dio' ? '#8b0000' : (p2Class === 'phantom' ? '#a82452' : (p2Class === 'slasher' ? '#5352ed' : (p2Class === 'deidara' ? '#e67e22' : (p2Class === 'hooper' ? '#00d2ff' : '#e74c3c')))))))), 2, p2Class);
             
             // Inventor color adjustment based on player id
             if (p1Class === 'raijin') p1.color = '#2ecc71';
             if (p2Class === 'raijin') p2.color = '#e74c3c';
             if (p1Class === 'taichi') p1.color = '#ffffff';
             if (p2Class === 'taichi') p2.color = '#000000';
-            document.getElementById('p1-v-cooldown-bar').style.display = (p1Class === 'miner' || p1Class === 'deidara') ? 'block' : 'none';
-            document.getElementById('p2-v-cooldown-bar').style.display = (p2Class === 'miner' || p2Class === 'deidara') ? 'block' : 'none';
+            document.getElementById('p1-v-cooldown-bar').style.display = (p1Class === 'miner' || p1Class === 'deidara' || p1Class === 'hooper') ? 'block' : 'none';
+            document.getElementById('p2-v-cooldown-bar').style.display = (p2Class === 'miner' || p2Class === 'deidara' || p2Class === 'hooper') ? 'block' : 'none';
+            gameState.hooperCutsceneActive = false;
+            gameState.hooperCutsceneTimer = 0;
+            gameState.hooperCutsceneCaster = null;
+            gameState.hooperBalls = [];
             // Slasher energy bars
             document.getElementById('p1-energy-bar').style.display = (p1Class === 'slasher') ? 'block' : 'none';
             document.getElementById('p2-energy-bar').style.display = (p2Class === 'slasher') ? 'block' : 'none';
@@ -12405,7 +12507,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 if (gameState.timestopActive && this.caster !== gameState.timestopCaster) return;
                 this.timer += (1 * config.timeScale);
 
-                const flightHeight = 245; // Higher altitude in the sky!
+                const flightHeight = 165; // Lower altitude closer to the ground!
 
                 if (this.phase === 'rise') {
                     const t = Math.min(1, this.timer / 30);
@@ -12606,6 +12708,223 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             }
         }
 
+
+        // ============== HOOPER: REBOUND BASKETBALL & ZONE ANKLE-BREAKER PASS ==============
+        class HooperBall {
+            constructor(owner, target, isZoneAnkle = false) {
+                this.owner = owner;
+                this.target = target;
+                this.facing = (target.x >= owner.x) ? 1 : -1;
+                this.x = owner.x + this.facing * 24;
+                this.y = owner.y - 44;
+                this.startX = this.x;
+                this.isZoneAnkle = isZoneAnkle;
+                this.speed = isZoneAnkle ? 17 : 16;
+                this.velX = this.facing * this.speed;
+                this.velY = -1.2;
+                this.state = 'outbound'; // 'outbound' | 'rebound'
+                this.active = true;
+                this.spin = 0;
+                this.age = 0;
+                owner.hooperHasBall = false;
+            }
+            update() {
+                if (!this.active) return;
+                if (gameState.timestopActive && this.owner !== gameState.timestopCaster) return;
+                if (gameState.hooperCutsceneActive) return;
+
+                this.age += 1 * config.timeScale;
+                this.spin += 0.35 * this.facing * config.timeScale;
+
+                if (this.state === 'outbound') {
+                    // Slight homing toward opponent's face height (target.y - 54)
+                    if (this.target && !this.target.isDead) {
+                        const targetFaceY = this.target.y - 54;
+                        this.velY += (targetFaceY - this.y) * 0.035;
+                        this.velY = Math.max(-5, Math.min(5, this.velY));
+                    }
+                    this.x += this.velX * config.timeScale;
+                    this.y += this.velY * config.timeScale;
+
+                    // Trail sparks in Zone mode
+                    if (this.isZoneAnkle && Math.floor(this.age) % 2 === 0) {
+                        gameState.pixelEffects.push(new PixelVFX('ki_spark', this.x - this.facing * 10, this.y + (Math.random() - 0.5) * 12, this.facing, this.owner.color));
+                    }
+
+                    // Check distance to opponent
+                    if (this.target && !this.target.isDead) {
+                        const dx = Math.abs(this.target.x - this.x);
+                        const dy = Math.abs((this.target.y - 50) - this.y);
+
+                        // UPGRADED ZONE C: When ball is about to touch opponent (~52px), Hooper dashes in and ANKLE BREAKS!
+                        if (this.isZoneAnkle && dx < 54 && dy < 65) {
+                            this.triggerZoneAnkleBreak();
+                            return;
+                        }
+
+                        // NORMAL C: Bounce off opponent's face and rebound back to Hooper's hand!
+                        if (!this.isZoneAnkle && dx < 28 && dy < 48) {
+                            if (this.target.isParrying) {
+                                this.target.reflectedThisFrame = true;
+                                gameState.pixelEffects.push(new PixelVFX('impact_burst', this.x, this.y, -this.facing, '#ffffff'));
+                            } else if (!(this.target.type === 'sixeye' && this.target.isInfinityShieldActive) && !this.target.isSaiyanDodging) {
+                                const dmg = this.target.isBlocking ? 2.5 : 8.5;
+                                this.target.health -= dmg;
+                                this.target.velX = this.facing * (this.target.isBlocking ? 3 : 6.5);
+                                this.target.velY = -2.5;
+                                gameState.shake = Math.max(gameState.shake || 0, 8);
+                                gameState.pixelEffects.push(new PixelVFX('impact_burst', this.target.x, this.target.y - 56, this.facing, '#ff6b00'));
+                                if (this.target.health <= 0) {
+                                    this.target.health = 0;
+                                    triggerWin(this.owner);
+                                }
+                            }
+                            // Switch to rebound arc back to Hooper's hands!
+                            this.state = 'rebound';
+                            this.velY = -6.5;
+                            return;
+                        }
+                    }
+
+                    // Max range reached without hitting -> rebound anyway (or if Zone Ankle, dash to ball!)
+                    if (Math.abs(this.x - this.startX) > 340 || this.x < 25 || this.x > canvas.width - 25) {
+                        if (this.isZoneAnkle && this.target && !this.target.isDead && Math.abs(this.target.x - this.x) < 110) {
+                            this.triggerZoneAnkleBreak();
+                            return;
+                        }
+                        this.state = 'rebound';
+                        this.velY = -5.5;
+                    }
+                } else if (this.state === 'rebound') {
+                    // Home smoothly back into Hooper's hands in a crisp rebound arc
+                    const handX = this.owner.x + this.owner.facing * 18;
+                    const handY = this.owner.y - 38;
+                    const dx = handX - this.x;
+                    const dy = handY - this.y;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist < 26 || this.age > 95) {
+                        this.active = false;
+                        this.owner.hooperHasBall = true;
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', handX, handY, this.owner.facing, this.owner.color));
+                        return;
+                    }
+                    const returnSpd = 17.5;
+                    this.x += (dx / dist) * returnSpd * config.timeScale;
+                    this.y += ((dy / dist) * returnSpd + this.velY * 0.35) * config.timeScale;
+                    this.velY += 0.42 * config.timeScale;
+                }
+            }
+            triggerZoneAnkleBreak() {
+                this.active = false;
+                const caster = this.owner;
+                const opp = this.target;
+                caster.hooperHasBall = true;
+
+                // Spawn high-speed neon afterimages along Hooper's dash path
+                const startX = caster.x;
+                const dashSide = (opp.x >= startX) ? 1 : -1;
+                const destX = Math.max(40, Math.min(canvas.width - 40, opp.x + dashSide * 44));
+                const steps = 4;
+                for (let s = 0; s < steps; s++) {
+                    const tx = startX + (destX - startX) * (s / steps);
+                    gameState.pixelEffects.push(new PixelVFX('saiyan_vanish_trail', tx, caster.y, dashSide, caster.color));
+                }
+
+                caster.x = destX;
+                caster.y = config.groundY;
+                caster.facing = -dashSide; // Crossed past opponent, looking back!
+                caster.hooperAnkleDashTimer = 16;
+                caster.attacking = true;
+                caster.attackType = 'hooper_ankle_break';
+                caster.attackMax = 16;
+                caster.attackTimer = 16;
+
+                // Slash/crossover lightning lines
+                gameState.slashes.push(new SlashEffect(startX, config.groundY - 35, destX, config.groundY - 35, caster.color, 7, true, true));
+                gameState.slashes.push(new SlashEffect(opp.x - 36, config.groundY - 12, opp.x + 36, config.groundY - 42, '#ffffff', 5, true, true));
+                gameState.pixelEffects.push(new PixelVFX('dust_puff', opp.x - 16, config.groundY, -1, caster.color));
+                gameState.pixelEffects.push(new PixelVFX('dust_puff', opp.x + 16, config.groundY, 1, caster.color));
+
+                if (opp.isParrying) {
+                    opp.reflectedThisFrame = true;
+                    caster.health -= 14;
+                    caster.velX = -dashSide * 14;
+                    caster.velY = -4;
+                    gameState.pixelEffects.push(new PixelVFX('impact_burst', caster.x, caster.y - 45, -dashSide, '#ffffff'));
+                    if (caster.health <= 0) { caster.health = 0; triggerWin(opp); }
+                    return;
+                }
+
+                if (!(opp.type === 'sixeye' && opp.isInfinityShieldActive) && !opp.isSaiyanDodging) {
+                    const dmg = opp.isBlocking ? 5 : 14;
+                    opp.health -= dmg;
+                    opp.isStunned = true;
+                    opp.stunTimer = Math.max(opp.stunTimer || 0, 32); // ~0.53s ankle-broken fall stun
+                    opp.hooperAnkleFallTimer = 32;
+                    opp.velX = -dashSide * 4;
+                    opp.velY = -3.5;
+                    gameState.shake = 22;
+                    gameState.flashAlpha = 0.38;
+                    gameState.flashColor = caster.color;
+                    announceText('ANKLE BREAKER!', caster.color);
+                    gameState.pixelEffects.push(new PixelVFX('impact_burst', opp.x, opp.y - 30, dashSide, caster.color, { maxFrames: 18, P: 4 }));
+                    if (opp.health <= 0) {
+                        opp.health = 0;
+                        triggerWin(caster);
+                    }
+                }
+            }
+            draw() {
+                if (!this.active) return;
+                drawPixelBasketball(this.x, this.y, this.spin, this.isZoneAnkle, this.owner ? this.owner.color : '#ff6b00');
+            }
+        }
+
+        function drawPixelBasketball(x, y, spin = 0, isZone = false, auraColor = '#ff6b00', scaleP = 3) {
+            const P = scaleP;
+            const bx = Math.round(x / P) * P;
+            const by = Math.round(y / P) * P;
+            ctx.save();
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+
+            const px = (gx, gy, gw, gh, col) => {
+                ctx.fillStyle = col;
+                ctx.fillRect(bx + gx * P, by + gy * P, gw * P, gh * P);
+            };
+
+            // Zone blazing aura halo around the basketball
+            if (isZone) {
+                const flick = Math.floor(Date.now() / 45) % 2;
+                px(-5, -3, 10, 6, auraColor);
+                px(-3, -5, 6, 10, auraColor);
+                px(-6 - flick, -1, 2, 2, '#ffffff');
+            }
+
+            // 16-bit Pixel Basketball (8x8 logical grid)
+            px(-3, -4, 6, 8, '#090b10');
+            px(-4, -3, 8, 6, '#090b10');
+            // Orange leather fill + shading
+            px(-2, -3, 4, 6, '#e65100');
+            px(-3, -2, 6, 4, '#e65100');
+            px(-2, -2, 4, 4, '#ff6d00');
+            px(-2, -2, 2, 2, '#ffab40'); // top-left specular highlight
+
+            // Rotating black basketball seam ribs
+            const seamPhase = Math.floor(Math.abs(spin) * 2) % 2;
+            px(-3, 0, 6, 1, '#090b10'); // horizontal equator seam
+            if (seamPhase === 0) {
+                px(0, -3, 1, 6, '#090b10'); // vertical seam
+                px(-2, -2, 1, 4, '#090b10');
+            } else {
+                px(-1, -3, 1, 6, '#090b10');
+                px(1, -2, 1, 4, '#090b10');
+            }
+
+            ctx.imageSmoothingEnabled = prevSmooth;
+            ctx.restore();
+        }
+
         class Stickman {
             constructor(x, color, id, type) {
                 this.id = id; this.type = type;
@@ -12633,10 +12952,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 else if (type === 'slasher') mCd = 200;
                 else if (type === 'miner') mCd = 540;  // 9s cooldown for the dig-up special (B)
                 else if (type === 'deidara') mCd = 900; // 15s cooldown for the clay dragon ult (B)
+                else if (type === 'hooper') mCd = 840;  // 14s cooldown for Zone Awakening + 9s Virtual Court
                 this.maxCooldown = mCd;
                 
                 this.isDead = false; this.isDashing = false;
-                this.jumpCount = 0; this.maxJumps = (type === 'martial' || type === 'shinobi' || type === 'sixeye' || type === 'saiyan' || type === 'dio' || type === 'raijin' || type === 'phantom' || type === 'slasher' || type === 'deidara') ? 2 : 1;
+                this.jumpCount = 0; this.maxJumps = (type === 'martial' || type === 'shinobi' || type === 'sixeye' || type === 'saiyan' || type === 'dio' || type === 'raijin' || type === 'phantom' || type === 'slasher' || type === 'deidara' || type === 'hooper') ? 2 : 1;
                 this.projectiles = []; this.hitOnce = false;
                 this.internalCooldown = 0; this.walkCycle = 0;
                 this.chargingTimer = 0; this.isCharging = false;
@@ -12722,6 +13042,20 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     this.isStunned = false;
                     this.stunTimer = 0;
                 }
+
+                if (type === 'hooper') {
+                    this.hooperVCooldown = 0;
+                    this.hooperVMax = 135;              // 2.25s cooldown for V skill/dunk
+                    this.hooperSkillTimer = 0;          // 0.3s (18 frames) freestyle dribble dance
+                    this.hooperZoneTimer = 0;           // 9.0s (540 frames) Awakened Zone state
+                    this.hooperZoneMax = 540;
+                    this.hooperHasBall = true;          // False while ball is thrown out
+                    this.hooperDunkState = null;        // Active during Zone V Alley-Oop Dunk
+                    this.hooperAnkleDashTimer = 0;      // Brief pose timer after Ankle Break dash
+                    this.isStunned = false;
+                    this.stunTimer = 0;
+                }
+                this.hooperAnkleFallTimer = 0;          // Visual knockdown timer when ankle-broken by Hooper
             }
 
             // Universal getter & setter to enforce Tai Chi Divine Special Immunity perfectly
@@ -12737,6 +13071,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
                 if (this.type === 'deidara' && this.isRidingDragon && val < this._health) {
                     return; // Sky-high on the clay dragon — out of reach of grounded attacks
+                }
+                if (this.type === 'hooper' && this.hooperDunkState && val < this._health) {
+                    return; // Unstoppable mid-air Zone Alley-Oop Dunk!
                 }
                 this._health = val;
             }
@@ -12840,6 +13177,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 if (this.type === 'slasher') {
                     const frozenInDraw = gameState.timestopActive && this !== gameState.timestopCaster;
                     drawPixelSlasher(this, frozenInDraw);
+                    return;
+                }
+                if (this.type === 'hooper') {
+                    const frozenInDraw = gameState.timestopActive && this !== gameState.timestopCaster;
+                    drawPixelHooper(this, frozenInDraw);
                     return;
                 }
 
@@ -13844,7 +14186,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             }
 
             update(opponent) {
-                if (gameState.domainClashActive) return; // frozen during the domain clash cutscene
+                if (gameState.domainClashActive || gameState.hooperCutsceneActive) return; // frozen during cutscenes
+                if (this.hooperAnkleFallTimer > 0) {
+                    this.hooperAnkleFallTimer -= 1 * config.timeScale;
+                    if (this.hooperAnkleFallTimer < 0) this.hooperAnkleFallTimer = 0;
+                }
                 if (this.isDead) {
                     if (this.inGiantBubble) {
                         this.y += this.velY * config.timeScale;
@@ -13903,6 +14249,171 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     if (this.isRidingDragon) {
                         this.attacking = false;
                         this.velX = 0; this.velY = 0;
+                        return;
+                    }
+                }
+
+                // ============== HOOPER per-frame tick ==============
+                if (this.type === 'hooper') {
+                    if (this.hooperVCooldown > 0) {
+                        this.hooperVCooldown -= 1 * config.timeScale;
+                        if (this.hooperVCooldown < 0) this.hooperVCooldown = 0;
+                    }
+                    if (this.hooperAnkleDashTimer > 0) {
+                        this.hooperAnkleDashTimer -= 1 * config.timeScale;
+                    }
+
+                    // 9-Second Awakened Zone Timer (540 frames @ 60fps)
+                    if (this.hooperZoneTimer > 0) {
+                        this.hooperZoneTimer -= 1 * config.timeScale;
+                        // Electric Zone aura sparks around Hooper
+                        if (Math.floor(this.hooperZoneTimer) % 4 === 0) {
+                            gameState.pixelEffects.push(new PixelVFX(
+                                'ki_spark',
+                                this.x + (Math.random() - 0.5) * 44,
+                                this.y - 12 - Math.random() * 58,
+                                this.facing,
+                                this.color
+                            ));
+                        }
+                        if (this.hooperZoneTimer <= 0) {
+                            this.hooperZoneTimer = 0;
+                            gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 36, this.facing, this.color));
+                        }
+                    }
+
+                    // Base V: 0.3s (18 frames) Freestyle Crossover Skill Dance -> then 0.4s (24 frames) Stun!
+                    if (this.hooperSkillTimer > 0) {
+                        this.hooperSkillTimer -= 1 * config.timeScale;
+                        this.velX = this.facing * 1.2;
+                        this.facing = (opponent.x >= this.x) ? 1 : -1;
+
+                        // Rapid dribble crossover visual sparks during the 0.3s dance
+                        if (Math.floor(this.hooperSkillTimer) % 3 === 0) {
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x + (Math.random() - 0.5) * 26, config.groundY, this.facing, this.color));
+                        }
+
+                        // When the 0.3s (18f) dance completes, stun opponent for 0.4s (24f) if in front/range!
+                        if (this.hooperSkillTimer <= 0) {
+                            this.hooperSkillTimer = 0;
+                            this.attacking = false;
+                            const dx = (opponent.x - this.x) * this.facing;
+                            const dy = Math.abs(opponent.y - this.y);
+                            if (dx > -25 && dx < 145 && dy < 95 && !opponent.isDead) {
+                                if (opponent.isParrying) {
+                                    opponent.reflectedThisFrame = true;
+                                    this.isStunned = true;
+                                    this.stunTimer = 24;
+                                } else if (!(opponent.type === 'sixeye' && opponent.isInfinityShieldActive) && !opponent.isSaiyanDodging) {
+                                    // 0.4 seconds stun = 24 frames at 60fps (not counting the 0.3s dance!)
+                                    opponent.isStunned = true;
+                                    opponent.stunTimer = Math.max(opponent.stunTimer || 0, 24);
+                                    opponent.hooperAnkleFallTimer = 24;
+                                    opponent.velX = 0;
+                                    const skillDmg = opponent.isBlocking ? 2 : 6;
+                                    opponent.health -= skillDmg;
+                                    gameState.shake = Math.max(gameState.shake || 0, 10);
+                                    announceText('CROSSOVER STUN!', this.color);
+                                    gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 45, this.facing, this.color));
+                                    if (opponent.health <= 0) {
+                                        opponent.health = 0;
+                                        triggerWin(this);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Upgraded Zone V: Alley-Oop Self-Lob -> Sky Leap -> Posterizer Slam Dunk!
+                    if (this.hooperDunkState) {
+                        const ds = this.hooperDunkState;
+                        ds.timer += 1 * config.timeScale;
+                        this.velX = 0;
+                        this.velY = 0;
+                        this.facing = (opponent.x >= this.x) ? 1 : -1;
+
+                        if (ds.phase === 'lob') {
+                            // Frames 0..12: Hooper tosses the ball high into the air toward opponent
+                            this.hooperHasBall = false;
+                            const t = Math.min(1, ds.timer / 12);
+                            ds.targetX = Math.max(55, Math.min(canvas.width - 55, opponent.x));
+                            ds.ballX = ds.startX + (ds.targetX - ds.startX) * (t * 0.55);
+                            ds.ballY = (config.groundY - 45) - Math.sin(t * Math.PI * 0.65) * 165;
+                            if (ds.timer >= 12) {
+                                ds.phase = 'leap';
+                                ds.timer = 0;
+                                gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x - 16, config.groundY, -1, this.color));
+                                gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x + 16, config.groundY, 1, this.color));
+                                gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 10, this.facing, this.color));
+                            }
+                        } else if (ds.phase === 'leap') {
+                            // Frames 0..14: Hooper leaps sky-high to grab the lobbed ball mid-air!
+                            const t = Math.min(1, ds.timer / 14);
+                            ds.targetX = Math.max(55, Math.min(canvas.width - 55, opponent.x));
+                            const apexX = ds.startX + (ds.targetX - ds.startX) * 0.72;
+                            const apexY = config.groundY - 155;
+                            this.x = ds.startX + (apexX - ds.startX) * t;
+                            this.y = config.groundY - Math.sin(t * Math.PI * 0.5) * 155;
+                            ds.ballX = apexX + this.facing * 10;
+                            ds.ballY = apexY - 22;
+                            if (Math.floor(ds.timer) % 2 === 0) {
+                                gameState.pixelEffects.push(new PixelVFX('saiyan_vanish_trail', this.x, this.y, this.facing, this.color));
+                            }
+                            if (ds.timer >= 14) {
+                                ds.phase = 'slam';
+                                ds.timer = 0;
+                                ds.slamStartX = this.x;
+                                ds.slamStartY = this.y;
+                                this.hooperHasBall = true; // Caught the ball overhead with both hands!
+                                gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 30, this.facing, '#ffffff'));
+                            }
+                        } else if (ds.phase === 'slam') {
+                            // Frames 0..12: Meteoric Dunk dive straight down onto opponent!
+                            const t = Math.min(1, ds.timer / 12);
+                            const slamTargetX = Math.max(50, Math.min(canvas.width - 50, opponent.x - this.facing * 12));
+                            this.x = ds.slamStartX + (slamTargetX - ds.slamStartX) * t;
+                            this.y = ds.slamStartY + (config.groundY - ds.slamStartY) * (t * t);
+                            ds.hoopX = slamTargetX + this.facing * 18;
+                            ds.hoopY = config.groundY - 82;
+
+                            if (ds.timer >= 12) {
+                                this.y = config.groundY;
+                                this.hooperDunkState = null;
+                                this.attacking = false;
+                                this.hooperHasBall = true;
+
+                                // Massive Posterizer Dunk Shatter Explosion!
+                                gameState.shake = 42;
+                                gameState.flashAlpha = 0.65;
+                                gameState.flashColor = this.color;
+                                announceText('POSTERIZED DUNK!', this.color);
+                                createDeidaraPixelExplosion(this.x + this.facing * 18, config.groundY - 35, 1.35, true);
+                                gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + this.facing * 18, config.groundY - 75, this.facing, '#ffffff'));
+
+                                const distToOpp = Math.abs(opponent.x - (this.x + this.facing * 14));
+                                if (distToOpp < 115 && !opponent.isDead) {
+                                    if (opponent.isParrying) {
+                                        opponent.reflectedThisFrame = true;
+                                        this.health -= 18;
+                                        this.velX = -this.facing * 16;
+                                        this.velY = -5;
+                                        if (this.health <= 0) { this.health = 0; triggerWin(opponent); }
+                                    } else if (!(opponent.type === 'sixeye' && opponent.isInfinityShieldActive) && !opponent.isSaiyanDodging) {
+                                        const dunkDmg = opponent.isBlocking ? 9 : 25;
+                                        opponent.health -= dunkDmg;
+                                        opponent.isStunned = true;
+                                        opponent.stunTimer = Math.max(opponent.stunTimer || 0, 26);
+                                        opponent.hooperAnkleFallTimer = 26;
+                                        opponent.velX = this.facing * 14;
+                                        opponent.velY = -7;
+                                        if (opponent.health <= 0) {
+                                            opponent.health = 0;
+                                            triggerWin(this);
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         return;
                     }
                 }
@@ -15269,6 +15780,87 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         for (let a = 0; a < Math.PI * 2; a += Math.PI / 8) {
                             gameState.slashes.push(new SlashEffect(this.x, config.groundY - 6, this.x + Math.cos(a) * 80, config.groundY - 6 + Math.sin(a) * 50, '#f39c12', 5, true, true));
                         }
+                        return;
+                    }
+                }
+
+                // ============== HOOPER attacks (C / V / B) ==============
+                if (this.type === 'hooper' && (type === 'hooper_c' || type === 'hooper_v' || type === 'hooper_ult')) {
+                    if (this.isDead || this.isBlocking || this.isBeingPulled || this.isParrying || this.isStunned || this.hooperDunkState || this.hooperSkillTimer > 0) return;
+                    if (gameState.timestopActive && this !== gameState.timestopCaster) return;
+                    if (gameState.hooperCutsceneActive) return;
+                    const opponent = p1.id === this.id ? p2 : p1;
+                    const inZone = this.hooperZoneTimer > 0;
+
+                    // ── C: Normal = Throw ball bouncing off opponent's face & rebounding back to hand!
+                    //       Zone (9s) = Throw ball toward opponent -> dash in to ANKLE BREAK & knock down!
+                    if (type === 'hooper_c') {
+                        if (this.attacking || this.internalCooldown > 0 || !this.hooperHasBall) return;
+                        this.facing = (opponent.x >= this.x) ? 1 : -1;
+                        this.attacking = true;
+                        this.attackType = inZone ? 'hooper_zone_pass' : 'hooper_pass';
+                        this.attackMax = 12;
+                        this.attackTimer = 12;
+                        this.internalCooldown = inZone ? 20 : 18;
+                        this.hitOnce = true; // damage handled by HooperBall entity
+                        gameState.hooperBalls.push(new HooperBall(this, opponent, inZone));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + this.facing * 22, this.y - 44, this.facing, this.color));
+                        return;
+                    }
+
+                    // ── V: Normal = 0.3s (18 frames) Freestyle Crossover Dance -> 0.4s (24 frames) Stun!
+                    //       Zone (9s) = Self Alley-Oop Lob -> Jump High -> Slam Dunk on opponent!
+                    if (type === 'hooper_v') {
+                        if (this.hooperVCooldown > 0 || this.attacking) return;
+                        this.facing = (opponent.x >= this.x) ? 1 : -1;
+
+                        if (inZone) {
+                            this.hooperVCooldown = 110; // ~1.8s cooldown during Zone
+                            this.attacking = true;
+                            this.attackType = 'hooper_dunk';
+                            this.attackMax = 40;
+                            this.attackTimer = 40;
+                            this.internalCooldown = 42;
+                            this.hooperDunkState = {
+                                phase: 'lob',
+                                timer: 0,
+                                startX: this.x,
+                                targetX: opponent.x,
+                                ballX: this.x + this.facing * 20,
+                                ballY: this.y - 48,
+                                hoopX: opponent.x,
+                                hoopY: config.groundY - 82
+                            };
+                            gameState.shake = Math.max(gameState.shake || 0, 8);
+                            return;
+                        } else {
+                            // Base V: 0.3s (18 frames) skill dance before stunning for 0.4s (24 frames)
+                            this.hooperVCooldown = this.hooperVMax;
+                            this.hooperHasBall = true;
+                            this.attacking = true;
+                            this.attackType = 'hooper_skill';
+                            this.attackMax = 18;
+                            this.attackTimer = 18;
+                            this.hooperSkillTimer = 18; // 0.3s at 60fps
+                            this.internalCooldown = 22;
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, -this.facing, this.color));
+                            return;
+                        }
+                    }
+
+                    // ── B: Ultimate — Trigger Full-Screen Dribble-to-Camera Cutscene -> 9s Zone + Virtual Court!
+                    if (type === 'hooper_ult') {
+                        if (this.cooldown > 0 || this.attacking || this.hooperZoneTimer > 0) return;
+                        this.cooldown = this.maxCooldown;
+                        this.hooperHasBall = true;
+                        this.velX = 0;
+                        this.velY = 0;
+                        gameState.hooperBalls = [];
+                        gameState.hooperCutsceneActive = true;
+                        gameState.hooperCutsceneDuration = 115; // ~1.9s cinematic
+                        gameState.hooperCutsceneTimer = 115;
+                        gameState.hooperCutsceneCaster = this;
+                        gameState.shake = 18;
                         return;
                     }
                 }
@@ -16897,6 +17489,633 @@ function drawPixelSwapper(fighter, frozenInDraw) {
         ];
 
         
+
+// ============ 16-BIT PIXEL ART FIGHTER: HOOPER ("STREETBALL ANKLE-BREAKER") ============
+function drawPixelHooper(fighter, frozenInDraw) {
+    const P = 3;
+    let drawX = fighter.x;
+    let drawY = fighter.y;
+    const baseX = Math.round(drawX / P) * P;
+    const baseY = Math.round(drawY / P) * P;
+    const f = fighter.facing || 1;
+    const timeMs = frozenInDraw ? 0 : Date.now();
+    const isP1 = (fighter.id === 1 || fighter.color === '#ff6b00');
+    const inZone = (fighter.hooperZoneTimer || 0) > 0;
+
+    // --- PALETTES ---
+    const out         = '#090b10';
+    const skin        = '#c68642';
+    const skinDark    = '#8d5524';
+    const skinLight   = '#e0ac69';
+    const hairCol     = '#141821';
+    const jerseyMain  = isP1 ? '#ff5e00' : '#00a8ff';
+    const jerseyShade = isP1 ? '#b83700' : '#006299';
+    const jerseyTrim  = isP1 ? '#ffd32a' : '#ffffff';
+    const bandCol     = isP1 ? '#ff3838' : '#00d2ff';
+    const auraCol     = isP1 ? '#ff9f1a' : '#00d2ff';
+    const auraBright  = '#ffffff';
+
+    ctx.save();
+    const prevSmooth = ctx.imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = false;
+
+    const px = (gx, gy, gw, gh, col) => {
+        if (!col || gw <= 0 || gh <= 0) return;
+        ctx.fillStyle = col;
+        if (f === 1) {
+            ctx.fillRect(baseX + Math.round(gx) * P, baseY + Math.round(gy) * P, Math.round(gw) * P, Math.round(gh) * P);
+        } else {
+            ctx.fillRect(baseX - Math.round(gx + gw) * P, baseY + Math.round(gy) * P, Math.round(gw) * P, Math.round(gh) * P);
+        }
+    };
+
+    const drawLimb = (x0, y0, x1, y1, r, fillCol, outCol) => {
+        const dx = x1 - x0, dy = y1 - y0;
+        const steps = Math.max(1, Math.ceil(Math.hypot(dx, dy)));
+        for (let s = 0; s <= steps; s++) {
+            const t = s / steps;
+            px(Math.round(x0 + dx * t) - r, Math.round(y0 + dy * t) - r, r * 2 + 1, r * 2 + 1, outCol);
+        }
+        const inR = Math.max(0, r - 1);
+        for (let s = 0; s <= steps; s++) {
+            const t = s / steps;
+            px(Math.round(x0 + dx * t) - inR, Math.round(y0 + dy * t) - inR, inR * 2 + 1, inR * 2 + 1, fillCol);
+        }
+    };
+
+    // Death / KO flat on the court
+    if (fighter.isDead) {
+        px(-12, -4, 24, 5, out);
+        px(-11, -3, 12, 3, jerseyMain);
+        px(1, -3, 9, 3, skin);
+        drawPixelBasketball(baseX + f * 38, baseY - 12, 0, false, auraCol, 3);
+        ctx.imageSmoothingEnabled = prevSmooth;
+        ctx.restore();
+        return;
+    }
+
+    // ── ZONE AWAKENING ELECTRIC AURA UNDERLAY ──
+    if (inZone) {
+        const flick = Math.floor(timeMs / 45) % 2;
+        px(-9, -2, 18, 2, auraCol);
+        px(-7 + flick, -25, 14, 2, auraCol);
+        // Rising Zone lightning bolts around body
+        const lOff = (Math.floor(timeMs / 55) % 3) * 2;
+        px(-8, -10 - lOff, 2, 4, auraCol);
+        px(-7, -12 - lOff, 1, 2, auraBright);
+        px(8, -14 + lOff, 2, 5, auraCol);
+        px(9, -13 + lOff, 1, 3, auraBright);
+    }
+
+    const isAirborne = fighter.y < config.groundY - 2;
+    const isRunning  = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !fighter.attacking;
+    const isSkillDance = (fighter.hooperSkillTimer || 0) > 0;
+    const dunkState  = fighter.hooperDunkState;
+
+    // Continuous basketball dribble bounce rhythm (faster when running or dancing!)
+    const dribbleFreq = isSkillDance ? 0.038 : (isRunning ? 0.022 : 0.015);
+    const dribbleSin  = Math.abs(Math.sin(timeMs * dribbleFreq)); // 0 (hand) -> 1 (floor)
+    const crouchBob   = Math.round(dribbleSin * 2);
+
+    // Default HUNCHED OVER DRIBBLING STANCE ("cơ bản sẽ khom người nhồi bóng")
+    let bodyX = 2, bodyY = 3 + crouchBob;
+    let torsoLean = 3; // pronounced forward streetball hunch!
+    let legB = [-3, -9 + bodyY, -6, -5, -7, -1];
+    let legF = [ 3, -9 + bodyY,  6, -5,  6, -1];
+    let armB = [-2, -16 + bodyY, -6, -13 + bodyY, -5, -9 + bodyY];
+    // Front hand pumps up & down with the dribble!
+    const handFollow = Math.round(dribbleSin * 3);
+    let armF = [ 4, -16 + bodyY,  8, -13 + bodyY + handFollow, 11, -10 + bodyY + handFollow];
+
+    // Basketball position relative to baseX, baseY (in logical P=3 grid units)
+    let drawBallLocal = fighter.hooperHasBall && !dunkState;
+    let ballGX = 12;
+    let ballGY = -8 + bodyY + Math.round(dribbleSin * 5); // bounces between hand (gy=-8) and ground (gy=-3)
+
+    if (dunkState) {
+        if (dunkState.phase === 'lob') {
+            bodyX = 2; bodyY = 1; torsoLean = 2;
+            armF = [ 4, -18, 9, -22, 12, -26];
+        } else if (dunkState.phase === 'leap') {
+            bodyX = 1; bodyY = -2; torsoLean = 2;
+            legB = [-3, -11, -6, -6, -5, -2];
+            legF = [ 3, -11,  7, -7,  5, -3];
+            armB = [-1, -19,  3, -24,  6, -28];
+            armF = [ 4, -19,  8, -24, 10, -28];
+        } else if (dunkState.phase === 'slam') {
+            bodyX = 3; bodyY = 0; torsoLean = 4;
+            legB = [-4, -11, -7, -7, -8, -3];
+            legF = [ 2, -11,  6, -6,  4, -2];
+            // Two-handed Tomahawk / Posterizer Slam!
+            armB = [ 2, -18,  7, -21, 12, -16];
+            armF = [ 5, -18, 10, -20, 14, -15];
+            drawBallLocal = true;
+            ballGX = 15;
+            ballGY = -14;
+        }
+    } else if (isSkillDance) {
+        // 0.3s Rapid Between-The-Legs & Behind-The-Back Crossover Dance!
+        const dancePhase = Math.floor(fighter.hooperSkillTimer / 3) % 4;
+        const sway = (dancePhase % 2 === 0) ? 3 : -2;
+        bodyX = sway;
+        bodyY = 4; // extra low crouch!
+        torsoLean = 4;
+        legB = [-5, -8 + bodyY, -8, -4, -9, -1];
+        legF = [ 4, -8 + bodyY,  8, -4,  9, -1];
+        if (dancePhase === 0 || dancePhase === 2) {
+            armB = [-2, -15 + bodyY,  2, -11 + bodyY,  6, -7 + bodyY];
+            armF = [ 4, -15 + bodyY,  8, -12 + bodyY, 11, -9 + bodyY];
+            ballGX = (dancePhase === 0) ? 10 : -2;
+            ballGY = -5;
+        } else {
+            armB = [-3, -15 + bodyY, -7, -11 + bodyY, -5, -7 + bodyY];
+            armF = [ 4, -15 + bodyY,  2, -11 + bodyY, -1, -7 + bodyY];
+            ballGX = 3;
+            ballGY = -4;
+        }
+        // Crossover figure-8 motion blur smear
+        px(-4, -6, 16, 2, auraCol);
+        px(-2, -5, 12, 1, '#ffffff');
+    } else if (fighter.attacking && (fighter.attackType === 'hooper_pass' || fighter.attackType === 'hooper_zone_pass')) {
+        // Two-handed laser chest/bounce pass follow-through
+        bodyX = 3; bodyY = 2; torsoLean = 4;
+        armB = [ 2, -16,  7, -16, 12, -15];
+        armF = [ 4, -16,  9, -16, 14, -15];
+    } else if (fighter.attacking && fighter.attackType === 'hooper_ankle_break') {
+        // Low wide ankle-breaker crossover freeze pose after dashing past opponent
+        bodyX = 3; bodyY = 4; torsoLean = 4;
+        legB = [-6, -8 + bodyY, -9, -4, -10, -1];
+        legF = [ 4, -8 + bodyY,  8, -4,   9, -1];
+        armB = [-3, -15 + bodyY, -7, -12 + bodyY, -9, -9 + bodyY];
+        armF = [ 4, -15 + bodyY,  9, -11 + bodyY, 12, -7 + bodyY];
+        ballGX = 13;
+        ballGY = -6;
+    } else if (fighter.isBlocking) {
+        // Triple-threat protective ball-guard crouch
+        bodyX = 0; bodyY = 3; torsoLean = 2;
+        armB = [-2, -15 + bodyY,  2, -14 + bodyY,  5, -15 + bodyY];
+        armF = [ 3, -15 + bodyY,  6, -15 + bodyY,  7, -17 + bodyY];
+        ballGX = -3;
+        ballGY = -12 + bodyY;
+    } else if (isRunning) {
+        // Hunched speed-dribble stride!
+        const s = Math.sin(fighter.walkCycle);
+        const st = Math.round(s * 6);
+        const liftB = s < 0 ? Math.round(-s * 3) : 0;
+        const liftF = s > 0 ? Math.round(s * 3) : 0;
+        bodyX = 3; bodyY = 3 + crouchBob; torsoLean = 4;
+        legB = [-3 - Math.floor(st * 0.4), -9 + bodyY, -5 - Math.floor(st * 0.7), -5 - liftB, -6 - st, -1 - liftB];
+        legF = [ 3 + Math.floor(st * 0.4), -9 + bodyY,  5 + Math.floor(st * 0.7), -5 - liftF,  6 + st, -1 - liftF];
+        armB = [-2, -15 + bodyY, -6, -12 + bodyY, -5, -9 + bodyY];
+        armF = [ 4, -15 + bodyY,  9, -12 + bodyY + handFollow, 13, -9 + bodyY + handFollow];
+        ballGX = 14;
+        ballGY = -7 + bodyY + Math.round(dribbleSin * 4);
+    }
+
+    // 1) Back Arm & Back Leg
+    drawLimb(armB[0], armB[1], armB[2], armB[3], 1, skinDark, out);
+    drawLimb(armB[2], armB[3], armB[4], armB[5], 1, skinDark, out);
+    drawLimb(legB[0], legB[1], legB[2], legB[3], 2, jerseyShade, out); // baggy shorts
+    drawLimb(legB[2], legB[3], legB[4], legB[5], 1, skinDark, out);
+    // Back high-top basketball sneaker
+    px(legB[4] - 2, legB[5] - 2, 5, 3, out);
+    px(legB[4] - 1, legB[5] - 1, 4, 2, '#ffffff');
+    px(legB[4], legB[5] - 1, 2, 1, bandCol);
+
+    // 2) Hunched-Over Streetball Jersey Torso (#23)
+    const tx = bodyX + Math.floor(torsoLean / 2);
+    const ty = -19 + bodyY;
+    px(tx - 5, ty, 10, 11, out);
+    px(tx - 4, ty + 1, 8, 9, jerseyMain);
+    px(tx - 4, ty + 1, 3, 9, jerseyShade);
+    px(tx - 4, ty + 1, 8, 1, jerseyTrim); // collar trim
+    // Pixel #23 on jersey
+    px(tx - 1, ty + 3, 2, 4, '#ffffff');
+    px(tx + 2, ty + 3, 2, 4, jerseyTrim);
+    // Baggy shorts waist & trim
+    px(tx - 5, ty + 9, 10, 4, out);
+    px(tx - 4, ty + 9, 8, 3, jerseyMain);
+    px(tx - 4, ty + 11, 8, 1, jerseyTrim);
+
+    // 3) Front Leg & High-Top Sneaker
+    drawLimb(legF[0], legF[1], legF[2], legF[3], 2, jerseyMain, out);
+    drawLimb(legF[2], legF[3], legF[4], legF[5], 1, skin, out);
+    px(legF[4] - 2, legF[5] - 2, 6, 3, out);
+    px(legF[4] - 1, legF[5] - 1, 4, 2, '#ffffff');
+    px(legF[4], legF[5] - 1, 3, 1, bandCol);
+
+    // 4) Head, Sweatband & Spiky Dread-Locs (Anchored forward onto hunched shoulders!)
+    const hx = tx + Math.floor(torsoLean * 0.7);
+    const hy = ty + 1;
+    // Neck
+    px(hx - 2, ty - 2, 4, 3, out);
+    px(hx - 1, ty - 2, 2, 2, skin);
+    // Head box
+    px(hx - 4, hy - 6, 8, 7, out);
+    px(hx - 3, hy - 5, 6, 5, skin);
+    px(hx - 3, hy - 5, 2, 5, skinDark);
+    // Headband + trailing ties
+    px(hx - 4, hy - 6, 8, 2, bandCol);
+    px(hx - 2, hy - 6, 3, 1, '#ffffff');
+    px(hx - 6, hy - 5, 2, 2, bandCol);
+    // Spiky Dread-Locs top hair
+    px(hx - 4, hy - 9, 8, 3, out);
+    px(hx - 3, hy - 8, 6, 2, hairCol);
+    px(hx - 4, hy - 10, 2, 2, out);
+    px(hx - 1, hy - 10, 2, 2, out);
+    px(hx + 2, hy - 10, 2, 2, out);
+    // Eyes (Blazing Zone Lightning eyes when inZone!)
+    px(hx + 1, hy - 4, 2, 2, out);
+    px(hx + 2, hy - 4, 1, 1, inZone ? auraCol : '#ffffff');
+    if (inZone) {
+        const trailLen = 4 + (Math.floor(timeMs / 40) % 3);
+        px(hx + 2, hy - 4, trailLen, 1, auraCol);
+        px(hx + 1, hy - 5, 2, 1, '#ffffff');
+    }
+
+    // 5) Basketball (bouncing under front hand!)
+    if (drawBallLocal) {
+        // Vertical dribble motion smear between hand and ball
+        if (!fighter.isBlocking && dribbleSin > 0.35) {
+            px(ballGX - 1, armF[5] + 1, 2, Math.max(1, ballGY - armF[5] - 3), auraCol);
+        }
+        drawPixelBasketball(baseX + f * ballGX * P, baseY + ballGY * P, timeMs * 0.012, inZone, auraCol, P);
+    }
+
+    // 6) Front Dribbling Arm + Sweat Wristband
+    drawLimb(armF[0], armF[1], armF[2], armF[3], 1, skin, out);
+    drawLimb(armF[2], armF[3], armF[4], armF[5], 1, skin, out);
+    px(armF[4] - 1, armF[5] - 2, 2, 1, bandCol); // wristband
+    px(armF[4] - 1, armF[5] - 1, 3, 2, skinLight); // dribbling hand
+
+    // 7) If in Zone Alley-Oop Dunk state: draw the lobbed basketball & holographic 16-bit basketball hoop!
+    if (dunkState) {
+        if (dunkState.phase === 'lob' || dunkState.phase === 'leap') {
+            drawPixelBasketball(dunkState.ballX, dunkState.ballY, timeMs * 0.02, true, auraCol, 3);
+        }
+        if (dunkState.phase === 'slam') {
+            // Materialized Holographic 16-Bit Rim & Backboard above opponent for the Posterizer Dunk!
+            const hxP = Math.round(dunkState.hoopX / P) * P;
+            const hyP = Math.round(dunkState.hoopY / P) * P;
+            ctx.fillStyle = '#090b10';
+            ctx.fillRect(hxP + f * 6 * P, hyP - 12 * P, 3 * P, 16 * P); // backboard
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(hxP + f * 7 * P, hyP - 11 * P, 1 * P, 14 * P);
+            ctx.fillStyle = '#ff3838';
+            ctx.fillRect(hxP - 6 * P, hyP, 12 * P, 2 * P); // orange-red rim
+            // Pixel net cords
+            ctx.fillStyle = '#ffffff';
+            for (let nx = -4; nx <= 4; nx += 2) {
+                ctx.fillRect(hxP + nx * P, hyP + 2 * P, P, 5 * P);
+            }
+        }
+    }
+
+    if (fighter.inGiantBubble) {
+        drawPixelGiantBubble(ctx, baseX, baseY - 42, fighter.bubbleColor);
+    }
+
+    ctx.imageSmoothingEnabled = prevSmooth;
+    ctx.restore();
+    fighter.projectiles.forEach(p => p.draw());
+}
+
+// ============ 16-BIT VIRTUAL BASKETBALL COURT MAP (ACTIVE DURING HOOPER'S 9s ZONE) ============
+function drawPixelBasketballCourtStage(zoneCaster) {
+    const P = 4;
+    const W = canvas.width;   // 850
+    const H = canvas.height;  // 400
+    const groundY = config.groundY; // 350
+    const now = Date.now();
+    const isP1 = !zoneCaster || zoneCaster.id === 1;
+    const neonCol = isP1 ? '#ff6b00' : '#00d2ff';
+    const neonAlt = isP1 ? '#ffd32a' : '#7ef9ff';
+
+    ctx.save();
+    const prevSmooth = ctx.imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = false;
+    ctx.shadowBlur = 0;
+
+    // 1) Cyber Virtual Arena Sky & Perspective Grid Ceiling
+    const skyBands = ['#04060e', '#080d1e', '#0d1530', '#121e42', '#172654'];
+    const bandH = Math.ceil(groundY / skyBands.length);
+    for (let i = 0; i < skyBands.length; i++) {
+        ctx.fillStyle = skyBands[i];
+        ctx.fillRect(0, i * bandH, W, bandH + 2);
+    }
+
+    // Virtual Holographic Horizon Grid Lines in Background
+    ctx.fillStyle = isP1 ? 'rgba(255, 107, 0, 0.14)' : 'rgba(0, 210, 255, 0.14)';
+    for (let gy = 40; gy < groundY; gy += 28) {
+        ctx.fillRect(0, gy, W, 2);
+    }
+    for (let gx = 25; gx < W; gx += 50) {
+        ctx.fillRect(gx, 36, 2, groundY - 36);
+    }
+
+    // 2) Stadium Spotlights & Crowd Tier Silhouette
+    ctx.fillStyle = '#070a14';
+    ctx.fillRect(0, groundY - 76, W, 76);
+    // Cheering pixel crowd silhouettes & neon light sticks
+    const crowdTick = Math.floor(now / 180);
+    for (let cx = 16; cx < W - 16; cx += 12) {
+        const bob = ((cx + crowdTick * 4) % 24 === 0) ? -4 : 0;
+        ctx.fillStyle = '#10172a';
+        ctx.fillRect(cx, groundY - 64 + bob, 8, 22);
+        if ((cx + crowdTick * 12) % 36 === 0) {
+            ctx.fillStyle = (cx % 24 === 0) ? neonCol : neonAlt;
+            ctx.fillRect(cx + 2, groundY - 68 + bob, 4, 4);
+        }
+    }
+
+    // 3) Center Arena 16-Bit Jumbotron LED Scoreboard showing Zone Countdown!
+    const jbX = Math.round((W / 2 - 96) / P) * P;
+    const jbY = 64;
+    const jbW = 192;
+    const jbH = 68;
+    ctx.fillStyle = '#090b10';
+    ctx.fillRect(jbX - 4, jbY - 4, jbW + 8, jbH + 8);
+    ctx.fillStyle = neonCol;
+    ctx.fillRect(jbX - 2, jbY - 2, jbW + 4, 4);
+    ctx.fillRect(jbX - 2, jbY + jbH - 2, jbW + 4, 4);
+    ctx.fillStyle = '#0d1322';
+    ctx.fillRect(jbX, jbY, jbW, jbH);
+    // Support cables to roof
+    ctx.fillStyle = '#1e2738';
+    ctx.fillRect(jbX + 24, 0, 4, jbY);
+    ctx.fillRect(jbX + jbW - 28, 0, 4, jbY);
+
+    // Jumbotron LED Text: "VIRTUAL COURT - ZONE" + live remaining seconds
+    const secsLeft = zoneCaster ? Math.max(0, (zoneCaster.hooperZoneTimer / 60)).toFixed(1) : '0.0';
+    ctx.fillStyle = neonAlt;
+    ctx.font = 'bold 11px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('VIRTUAL COURT', W / 2, jbY + 24);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 14px "Press Start 2P", monospace';
+    ctx.fillText(`ZONE: ${secsLeft}S`, W / 2, jbY + 50);
+
+    // 4) Left & Right 16-Bit Pixel Basketball Stanchions, Glass Backboards, Rims & Nets
+    const drawHoopStanchion = (side) => {
+        // side: -1 = left hoop, +1 = right hoop
+        const baseX = (side === -1) ? 44 : W - 44;
+        const dir = -side; // points inward toward court center
+        // Stanchion steel post
+        ctx.fillStyle = '#090b10';
+        ctx.fillRect(baseX - 6, groundY - 148, 12, 148);
+        ctx.fillStyle = '#2f3640';
+        ctx.fillRect(baseX - 4, groundY - 144, 8, 144);
+        // Diagonal extension arm
+        ctx.fillStyle = '#2f3640';
+        ctx.fillRect(baseX + dir * 4, groundY - 140, dir * 22, 8);
+        // Tempered glass backboard with neon border
+        const bbX = baseX + dir * 24;
+        const bbY = groundY - 168;
+        ctx.fillStyle = neonCol;
+        ctx.fillRect(bbX - 4, bbY - 4, 8, 52);
+        ctx.fillStyle = '#dff9fb';
+        ctx.fillRect(bbX - 2, bbY, 4, 44);
+        // Orange breakaway rim
+        const rimX = (side === -1) ? bbX + 4 : bbX - 28;
+        const rimY = groundY - 134;
+        ctx.fillStyle = '#ff3838';
+        ctx.fillRect(rimX, rimY, 24, 4);
+        // White pixel net mesh
+        ctx.fillStyle = '#ffffff';
+        for (let nx = 2; nx <= 20; nx += 5) {
+            ctx.fillRect(rimX + nx, rimY + 4, 2, 14);
+        }
+        ctx.fillRect(rimX + 4, rimY + 10, 16, 2);
+        ctx.fillRect(rimX + 6, rimY + 16, 12, 2);
+    };
+    drawHoopStanchion(-1);
+    drawHoopStanchion(1);
+
+    // 5) Gleaming Hardwood & Neon Virtual Basketball Court Floor (y = 350..400)
+    ctx.fillStyle = '#1e140c';
+    ctx.fillRect(0, groundY, W, H - groundY);
+    // Alternating hardwood parquet planks
+    for (let py = groundY + 4; py < H; py += 8) {
+        ctx.fillStyle = ((py - groundY) % 16 === 0) ? '#b86f32' : '#9c5a25';
+        ctx.fillRect(0, py, W, 6);
+        for (let px = ((py * 7) % 64); px < W; px += 64) {
+            ctx.fillStyle = '#784218';
+            ctx.fillRect(px, py, 4, 6);
+        }
+    }
+    // Paint Key Zones on Left & Right
+    ctx.fillStyle = isP1 ? 'rgba(255, 107, 0, 0.42)' : 'rgba(0, 210, 255, 0.42)';
+    ctx.fillRect(0, groundY + 4, 155, H - groundY - 4);
+    ctx.fillRect(W - 155, groundY + 4, 155, H - groundY - 4);
+
+    // Crisp Neon Court Boundary Lines, Center Line & Center Jump Circle
+    ctx.fillStyle = neonCol;
+    ctx.fillRect(0, groundY, W, 4); // top baseline
+    ctx.fillRect(0, H - 4, W, 4);   // bottom baseline
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(W / 2 - 2, groundY, 4, H - groundY); // half-court line
+    // Center court pixel logo ring
+    ctx.fillStyle = neonCol;
+    ctx.fillRect(W / 2 - 36, groundY + 14, 72, 22);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(W / 2 - 32, groundY + 17, 64, 16);
+    ctx.fillStyle = '#1e140c';
+    ctx.fillRect(W / 2 - 26, groundY + 20, 52, 10);
+    // Left & Right 3-point arc markers on floor
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(155, groundY, 4, H - groundY);
+    ctx.fillRect(W - 159, groundY, 4, H - groundY);
+    ctx.fillRect(245, groundY, 4, H - groundY);
+    ctx.fillRect(W - 249, groundY, 4, H - groundY);
+
+    ctx.imageSmoothingEnabled = prevSmooth;
+    ctx.restore();
+}
+
+// ============ HOOPER ULTIMATE CUTSCENE: DRIBBLE FROM FAR AWAY -> CAMERA CLOSE-UP AURA ERUPTION ============
+function drawHooperCutscene(progress, caster) {
+    const W = canvas.width;   // 850
+    const H = canvas.height;  // 400
+    const P = 4;
+    const isP1 = !caster || caster.id === 1;
+    const jerseyMain  = isP1 ? '#ff5e00' : '#00a8ff';
+    const jerseyShade = isP1 ? '#b83700' : '#006299';
+    const jerseyTrim  = isP1 ? '#ffd32a' : '#ffffff';
+    const auraCol     = isP1 ? '#ff6b00' : '#00d2ff';
+    const auraLight   = isP1 ? '#ffd32a' : '#7ef9ff';
+
+    ctx.save();
+    const prevSmooth = ctx.imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = false;
+    ctx.shadowBlur = 0;
+
+    // Dark tunnel / perspective court background
+    ctx.fillStyle = '#05070e';
+    ctx.fillRect(0, 0, W, H);
+
+    const cx = W / 2;
+    const vanishY = 145;
+
+    // 1) Perspective Court Lines radiating from Vanishing Point toward Camera
+    const scroll = (progress * 18) % 1;
+    for (let i = -6; i <= 6; i++) {
+        const bx = cx + i * 145;
+        ctx.fillStyle = (Math.abs(i) === 2 || i === 0) ? '#ffffff' : auraCol;
+        const steps = 28;
+        for (let s = 0; s <= steps; s++) {
+            const t = s / steps;
+            const pxX = Math.round((cx + (bx - cx) * t) / P) * P;
+            const pxY = Math.round((vanishY + (H - vanishY) * t) / P) * P;
+            ctx.fillRect(pxX, pxY, P, P * 2);
+        }
+    }
+    // Horizontal scrolling floor ties approaching camera
+    for (let r = 1; r <= 7; r++) {
+        const depth = ((r + scroll) / 8);
+        const yRow = Math.round((vanishY + (H - vanishY) * (depth * depth)) / P) * P;
+        const spanW = Math.round((80 + depth * 760) / P) * P;
+        ctx.fillStyle = (r % 2 === 0) ? auraCol : '#1b2438';
+        ctx.fillRect(cx - spanW / 2, yRow, spanW, P);
+    }
+
+    // Dynamic anime speed lines converging from edges
+    const tick = Math.floor(progress * 60);
+    for (let i = 0; i < 18; i++) {
+        const ang = (i / 18) * Math.PI * 2 + (tick % 2) * 0.08;
+        const rIn = (progress < 0.62) ? 140 : 95;
+        const rOut = 480;
+        ctx.fillStyle = (i % 2 === 0) ? auraCol : '#ffffff';
+        for (let d = rIn; d < rOut; d += 18) {
+            const sx = Math.round((cx + Math.cos(ang) * d) / P) * P;
+            const sy = Math.round((vanishY + 25 + Math.sin(ang) * d * 0.65) / P) * P;
+            ctx.fillRect(sx, sy, P * 2, P);
+        }
+    }
+
+    if (progress < 0.62) {
+        // ── PHASE 1 (0.0 -> 0.62): HOOPER DRIBBLES RUNNING IN FROM FAR AWAY TOWARD THE CAMERA! ──
+        const runT = progress / 0.62; // 0 -> 1
+        // Scale grows exponentially as Hooper charges right up to the camera lens!
+        const scale = Math.max(2, Math.round(2 + (runT * runT) * 7)); // pixel block size 2 -> 9
+        const crossoverWeave = Math.sin(runT * Math.PI * 5) * (18 + runT * 42);
+        const charX = Math.round(cx + crossoverWeave);
+        const charY = Math.round(vanishY + 20 + (runT * runT) * 195);
+
+        const cpx = (gx, gy, gw, gh, col) => {
+            ctx.fillStyle = col;
+            ctx.fillRect(charX + gx * scale, charY + gy * scale, gw * scale, gh * scale);
+        };
+
+        const stride = Math.sin(runT * Math.PI * 10);
+        const legL = stride > 0 ? -2 : 1;
+        const legR = stride < 0 ? -2 : 1;
+
+        // Hunched forward runner silhouette approaching camera
+        // Legs & sneakers
+        cpx(-5, -6 + legL, 3, 5, '#090b10');
+        cpx(-4, -5 + legL, 2, 3, jerseyShade);
+        cpx(-5, -2 + legL, 3, 2, '#ffffff');
+        cpx(2, -6 + legR, 3, 5, '#090b10');
+        cpx(2, -5 + legR, 2, 3, jerseyMain);
+        cpx(2, -2 + legR, 3, 2, '#ffffff');
+
+        // Hunched Jersey #23 Torso
+        cpx(-6, -15, 12, 10, '#090b10');
+        cpx(-5, -14, 10, 8, jerseyMain);
+        cpx(-5, -14, 10, 1, jerseyTrim);
+        cpx(-2, -11, 2, 4, '#ffffff');
+        cpx(1, -11, 2, 4, jerseyTrim);
+
+        // Head, Headband & Glaring Eyes facing straight into camera
+        cpx(-4, -22, 8, 8, '#090b10');
+        cpx(-3, -20, 6, 5, '#c68642');
+        cpx(-4, -21, 8, 2, '#ff3838'); // headband
+        cpx(-2, -18, 2, 1, auraLight);  // left eye
+        cpx(1, -18, 2, 1, '#ffffff');   // right eye
+        // Spiky dread-locs
+        cpx(-4, -24, 8, 2, '#090b10');
+
+        // Dribbling Arms & Bouncing Basketball in front!
+        const ballBounce = Math.abs(Math.sin(runT * Math.PI * 8));
+        const ballSide = Math.sin(runT * Math.PI * 5) >= 0 ? 5 : -8;
+        cpx(-8, -14, 3, 5, '#c68642');
+        cpx(5, -14, 3, 5, '#c68642');
+
+        // Basketball bouncing between hands & floor
+        const bY = -9 + Math.round(ballBounce * 6);
+        cpx(ballSide, bY, 5, 5, '#090b10');
+        cpx(ballSide + 1, bY + 1, 3, 3, '#ff6d00');
+        cpx(ballSide + 1, bY + 2, 3, 1, '#090b10');
+    } else {
+        // ── PHASE 2 (0.62 -> 1.0): EXTREME CAMERA CLOSE-UP + MASSIVE ZONE AURA ERUPTION! ──
+        const eruptT = (progress - 0.62) / 0.38; // 0 -> 1
+        const S = 8; // Giant close-up pixel scale
+        const shakeX = Math.round((Math.random() - 0.5) * 14);
+        const shakeY = Math.round((Math.random() - 0.5) * 14);
+        const bx = cx + shakeX;
+        const by = H - 30 + shakeY;
+
+        const cpx = (gx, gy, gw, gh, col) => {
+            ctx.fillStyle = col;
+            ctx.fillRect(bx + gx * S, by + gy * S, gw * S, gh * S);
+        };
+
+        // Colossal Erupting 16-Bit Pixel Aura Pillar & Expanding Shockwave Rings!
+        const auraR = Math.round(12 + eruptT * 32);
+        for (let r = auraR; r >= 6; r -= 4) {
+            ctx.fillStyle = (r % 8 === 0) ? '#ffffff' : ((r % 3 === 0) ? auraLight : auraCol);
+            ctx.fillRect(bx - r * S, by - 36 * S, r * 2 * S, 36 * S);
+        }
+        // Dark interior contrast silhouette
+        cpx(-14, -34, 28, 34, '#080b14');
+
+        // Close-up Hooper Upper Body & Face Roaring with Zone Lightning!
+        cpx(-10, -18, 20, 18, '#090b10');
+        cpx(-9, -17, 18, 17, jerseyMain);
+        cpx(-9, -17, 18, 2, jerseyTrim);
+        cpx(-4, -12, 3, 7, '#ffffff');
+        cpx(1, -12, 3, 7, jerseyTrim);
+
+        // Close-up Head & Sweatband
+        cpx(-7, -31, 14, 13, '#090b10');
+        cpx(-6, -28, 12, 10, '#c68642');
+        cpx(-7, -29, 14, 3, '#ff3838');
+        cpx(-3, -29, 5, 1, '#ffffff');
+
+        // Blazing Zone Eyes with Jagged Electric Lightning Bolts shooting across screen!
+        cpx(-4, -24, 3, 2, '#ffffff');
+        cpx(1, -24, 3, 2, '#ffffff');
+        // Left & Right eye lightning trails
+        cpx(-12, -25, 8, 2, auraCol);
+        cpx(-16, -27, 5, 2, auraLight);
+        cpx(4, -25, 8, 2, auraCol);
+        cpx(11, -27, 6, 2, '#ffffff');
+
+        // Basketball gripped in front of camera pulsing with Zone energy
+        cpx(6, -15, 8, 8, '#090b10');
+        cpx(7, -14, 6, 6, '#ff6d00');
+        cpx(8, -13, 3, 3, '#ffab40');
+        cpx(7, -11, 6, 1, '#090b10');
+        cpx(10, -14, 1, 6, '#090b10');
+    }
+
+    // Cinematic Letterbox Bars (Top & Bottom) + 16-Bit Banner
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, W, 38);
+    ctx.fillRect(0, H - 38, W, 38);
+    ctx.fillStyle = auraCol;
+    ctx.fillRect(0, 36, W, 3);
+    ctx.fillRect(0, H - 39, W, 3);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 14px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(progress < 0.62 ? 'STREETBALL DRIVE...' : '★ ZONE AWAKENING: VIRTUAL COURT! ★', W / 2, H - 14);
+
+    ctx.imageSmoothingEnabled = prevSmooth;
+    ctx.restore();
+}
+
 function drawPixelDeidara(fighter, frozenInDraw) {
     const P = 3; // 1 logical pixel = 3x3 screen pixels (authentic 16-bit arcade scale)
     let drawX = fighter.x;
@@ -21228,6 +22447,17 @@ function drawPixelMage(fighter, frozenInDraw) {
                     } else {
                         me.attack('deidara_punch');
                     }
+                } else if (me.type === 'hooper') {
+                    const vReady = (me.hooperVCooldown || 0) <= 0;
+                    const inZone = (me.hooperZoneTimer || 0) > 0;
+                    const dist = Math.abs(opponent.x - me.x);
+                    if (canSpecial && !inZone && rand < 0.42) {
+                        me.attack('hooper_ult');
+                    } else if (vReady && (inZone || dist < 135) && rand < 0.48) {
+                        me.attack('hooper_v');
+                    } else {
+                        me.attack('hooper_c');
+                    }
                 } else {
                     // martial / fallback
                     if (canSpecial && rand < 0.38) {
@@ -21269,7 +22499,7 @@ function drawPixelMage(fighter, frozenInDraw) {
 
         function handleInput() {
             if (!gameState.isStarted) return;
-            if (gameState.domainClashActive) return; // input locked during the clash cutscene
+            if (gameState.domainClashActive || gameState.hooperCutsceneActive) return; // input locked during cutscenes
 
             // ── CPU-vs-CPU SYNC: Six Eyes vs Slasher → once-per-match domain clash.
             // Runs BEFORE the timescale guard so the counter keeps ticking even during slow-mo hits.
@@ -21322,6 +22552,10 @@ function drawPixelMage(fighter, frozenInDraw) {
                         if (keys['KeyC']) p1.attack('deidara_punch');
                         if (keys['KeyV']) p1.attack('deidara_bug');
                         if (keys['KeyB']) p1.attack('deidara_dragon');
+                    } else if (p1.type === 'hooper') {
+                        if (keys['KeyC']) p1.attack('hooper_c');
+                        if (keys['KeyV']) p1.attack('hooper_v');
+                        if (keys['KeyB']) p1.attack('hooper_ult');
                     } else {
                     if (keys['KeyC']) p1.attack(p1.type === 'gunslinger' ? 'slash' : ((p1.type === 'martial' || p1.type === 'taichi' || p1.type === 'werewolf' || p1.type === 'sixeye' || p1.type === 'saiyan' || p1.type === 'dio' || p1.type === 'raijin' || p1.type === 'phantom' || p1.type === 'zookeeper') ? 'punch' : 'slash'));
                     if (keys['KeyV']) p1.attack(p1.type === 'phantom' ? 'phantom_speed_boost' : (p1.type === 'miner' ? 'miner_flash' : 'kick'));
@@ -21367,6 +22601,10 @@ function drawPixelMage(fighter, frozenInDraw) {
                         if (keys['KeyJ']) p2.attack('deidara_punch');
                         if (keys['KeyK']) p2.attack('deidara_bug');
                         if (keys['KeyL']) p2.attack('deidara_dragon');
+                    } else if (p2.type === 'hooper') {
+                        if (keys['KeyJ']) p2.attack('hooper_c');
+                        if (keys['KeyK']) p2.attack('hooper_v');
+                        if (keys['KeyL']) p2.attack('hooper_ult');
                     } else {
                     if (keys['KeyJ']) p2.attack(p2.type === 'gunslinger' ? 'slash' : ((p2.type === 'martial' || p2.type === 'taichi' || p2.type === 'werewolf' || p2.type === 'sixeye' || p2.type === 'saiyan' || p2.type === 'raijin' || p2.type === 'dio' || p2.type === 'phantom' || p2.type === 'zookeeper') ? 'punch' : 'slash'));
                     if (keys['KeyK']) p2.attack(p2.type === 'phantom' ? 'phantom_speed_boost' : (p2.type === 'miner' ? 'miner_flash' : 'kick'));
@@ -21407,8 +22645,11 @@ function drawPixelMage(fighter, frozenInDraw) {
                 const anyWolfActive = p1Wolf || p2Wolf;
                 const wolfColor = p2Wolf && !p1Wolf ? '#e74c3c' : '#2ecc71';
 
-                // Render 16-Bit Pixel Art Scenic Map ("Moonlit Sanctuary" vs "Sakura Shrine")
-                if (currentMap === 'sakura') {
+                // Render 16-Bit Pixel Art Scenic Map (or Hooper's 9s Virtual Basketball Court!)
+                const hooperZoneCaster = (p1 && p1.type === 'hooper' && p1.hooperZoneTimer > 0) ? p1 : ((p2 && p2.type === 'hooper' && p2.hooperZoneTimer > 0) ? p2 : null);
+                if (hooperZoneCaster) {
+                    drawPixelBasketballCourtStage(hooperZoneCaster);
+                } else if (currentMap === 'sakura') {
                     updateSakuraPetals();
                     drawPixelSakuraStage(anyWolfActive, wolfColor);
                     drawSakuraPetals(0, anyWolfActive, wolfColor); // Layer 0: background petals behind fighters
@@ -21666,6 +22907,11 @@ function drawPixelMage(fighter, frozenInDraw) {
                         b.update(); b.draw();
                         if (!b.active) gameState.deidaraBombs.splice(i, 1);
                     }
+                    for (let i = gameState.hooperBalls.length - 1; i >= 0; i--) {
+                        const hb = gameState.hooperBalls[i];
+                        hb.update(); hb.draw();
+                        if (!hb.active) gameState.hooperBalls.splice(i, 1);
+                    }
                     for (let i = gameState.particles.length - 1; i >= 0; i--) {
                         const p = gameState.particles[i];
                         if (p.color !== '#ffd700' && p.color !== '#bdc3c7') {
@@ -21779,6 +23025,11 @@ function drawPixelMage(fighter, frozenInDraw) {
                         b.update(); b.draw();
                         if (!b.active) gameState.deidaraBombs.splice(i, 1);
                     }
+                    for (let i = gameState.hooperBalls.length - 1; i >= 0; i--) {
+                        const hb = gameState.hooperBalls[i];
+                        hb.update(); hb.draw();
+                        if (!hb.active) gameState.hooperBalls.splice(i, 1);
+                    }
                     for (let i = gameState.particles.length - 1; i >= 0; i--) {
                         const p = gameState.particles[i];
                         p.update(); p.draw();
@@ -21803,7 +23054,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                 });
 
                 // Foreground Sakura Petals (drawn in front of fighters and effects)
-                if (currentMap === 'sakura') {
+                if (currentMap === 'sakura' && !hooperZoneCaster) {
                     drawSakuraPetals(1, anyWolfActive, wolfColor);
                 }
 
@@ -21834,6 +23085,26 @@ function drawPixelMage(fighter, frozenInDraw) {
                     }
                 }
 
+                // ── Hooper Ultimate Cutscene (Dribble from afar -> Camera Aura Eruption -> 9s Zone) ──
+                if (gameState.hooperCutsceneActive) {
+                    gameState.hooperCutsceneTimer -= 1;
+                    const progress = 1 - (gameState.hooperCutsceneTimer / gameState.hooperCutsceneDuration);
+                    drawHooperCutscene(Math.max(0, Math.min(1, progress)), gameState.hooperCutsceneCaster);
+                    if (gameState.hooperCutsceneTimer <= 0) {
+                        gameState.hooperCutsceneActive = false;
+                        const hc = gameState.hooperCutsceneCaster;
+                        if (hc && !hc.isDead) {
+                            hc.hooperZoneTimer = 540; // 9 seconds @ 60fps!
+                            hc.hooperHasBall = true;
+                            hc.hooperVCooldown = 0;   // Refresh V for immediate Alley-Oop Dunk!
+                            gameState.shake = 32;
+                            gameState.flashAlpha = 0.65;
+                            gameState.flashColor = hc.color;
+                            announceText('ZONE AWAKENED (9S)!', hc.color);
+                        }
+                    }
+                }
+
                 document.getElementById('p1-health').style.width = `${Math.max(0, p1.health)}%`;
                 document.getElementById('p2-health').style.width = `${Math.max(0, p2.health)}%`;
 
@@ -21861,6 +23132,14 @@ function drawPixelMage(fighter, frozenInDraw) {
                 if (p2.type === 'deidara') {
                     const pct = (p2.deidaraBugCooldown / p2.deidaraBugMax) * 100;
                     document.getElementById('p2-v-cooldown-fill').style.width = `${100 - pct}%`;
+                }
+                if (p1.type === 'hooper') {
+                    const pct = (p1.hooperVCooldown / p1.hooperVMax) * 100;
+                    document.getElementById('p1-v-cooldown-fill').style.width = `${Math.max(0, Math.min(100, 100 - pct))}%`;
+                }
+                if (p2.type === 'hooper') {
+                    const pct = (p2.hooperVCooldown / p2.hooperVMax) * 100;
+                    document.getElementById('p2-v-cooldown-fill').style.width = `${Math.max(0, Math.min(100, 100 - pct))}%`;
                 }
 
             }
