@@ -12406,12 +12406,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.timer += (1 * config.timeScale);
 
                 if (this.phase === 'rise') {
-                    // Ascend into the sky
+                    // Ascend into the sky on the Giant White Clay Bird
                     const t = Math.min(1, this.timer / 30);
                     this.y = config.groundY - t * 200;
                     this.facing = (this.target.x >= this.x) ? 1 : -1;
-                    this.caster.x = this.x;
-                    this.caster.y = this.y - 30;
+                    this.caster.x = this.x + this.facing * 6;
+                    this.caster.y = this.y - 9;
                     this.caster.velX = 0; this.caster.velY = 0;
                     this.caster.facing = this.facing;
                     
@@ -12431,8 +12431,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     this.x += moveStep * config.timeScale;
                     this.y = (config.groundY - 200) + Math.sin(this.timer / 14) * 10;
                     this.facing = (this.target.x >= this.x) ? 1 : -1;
-                    this.caster.x = this.x;
-                    this.caster.y = this.y - 30;
+                    this.caster.x = this.x + this.facing * 6;
+                    this.caster.y = this.y - 9;
                     this.caster.velX = 0; this.caster.velY = 0;
                     this.caster.facing = this.facing;
 
@@ -12448,8 +12448,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 } else if (this.phase === 'descend') {
                     const t = Math.min(1, this.timer / 30);
-                    this.caster.x = this.x;
-                    this.caster.y = (this.y - 30) + t * (config.groundY - (this.y - 30));
+                    this.caster.x = this.x + this.facing * 6;
+                    this.caster.y = (this.y - 9) + t * (config.groundY - (this.y - 9));
                     this.caster.velX = 0; this.caster.velY = 0;
                     
                     if (Math.floor(this.timer) % 3 === 0) {
@@ -12469,8 +12469,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
             }
             dropBomb() {
-                const dropX = this.x + this.facing * 20;
-                const dropY = this.y + 10;
+                const dropX = this.x + this.facing * 24;
+                const dropY = this.y + 12;
                 gameState.deidaraBombs.push(new DeidaraBomb(dropX, dropY, this.caster, this.target));
                 gameState.pixelEffects.push(new PixelVFX('dust_puff', dropX, dropY, this.facing, '#ffffff'));
             }
@@ -12487,8 +12487,10 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 ctx.globalAlpha = fadeAlpha;
                 const prevSmooth = ctx.imageSmoothingEnabled;
                 ctx.imageSmoothingEnabled = false;
+                ctx.shadowBlur = 0;
 
                 const px = (gx, gy, gw, gh, col) => {
+                    if (!col || gw <= 0 || gh <= 0) return;
                     ctx.fillStyle = col;
                     if (f === 1) {
                         ctx.fillRect(bx + Math.round(gx) * P, by + Math.round(gy) * P, Math.round(gw) * P, Math.round(gh) * P);
@@ -12497,107 +12499,174 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 };
 
-                const out       = '#0d0f17';
-                const clayWhite = '#ffffff';
-                const clayMid   = '#ecf0f1';
-                const clayShade = '#bdc3c7';
-                const clayDark  = '#7f8c8d';
-                const spineOrg  = '#f39c12';
-                const eyeRed    = '#e74c3c';
-                const mouthGlow = '#f1c40f';
+                const seg = (x0, y0, x1, y1, thick, col, outlineCol) => {
+                    const steps = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0)));
+                    const half = Math.floor(thick / 2);
+                    if (outlineCol) {
+                        for (let i = 0; i <= steps; i++) {
+                            const t = i / steps;
+                            px(Math.round(x0 + (x1 - x0) * t) - half - 1, Math.round(y0 + (y1 - y0) * t) - half - 1, thick + 2, thick + 2, outlineCol);
+                        }
+                    }
+                    for (let i = 0; i <= steps; i++) {
+                        const t = i / steps;
+                        px(Math.round(x0 + (x1 - x0) * t) - half, Math.round(y0 + (y1 - y0) * t) - half, thick, thick, col);
+                    }
+                };
 
-                // Wing flap oscillation
-                const flap = Math.sin(time * 0.18);
-                const flapAngle = Math.round(flap * 4);
+                // Sculpted White Clay Bird Palette (matches reference image)
+                const out       = '#0d111a';
+                const clayPure  = '#ffffff';
+                const clayLight = '#f1f5f9';
+                const clayMid   = '#cbd5e1';
+                const clayShade = '#94a3b8';
+                const clayDeep  = '#64748b';
 
-                // ── LAYER 1: BACK WING (Flapping behind body) ──
-                const bwY = -12 + flapAngle;
-                px(-6, bwY - 14, 18, 4, out);
-                px(-5, bwY - 13, 16, 2, clayShade);
-                px(-14, bwY - 10, 24, 8, out);
-                px(-13, bwY - 9, 22, 6, clayDark);
-                px(-8, bwY - 5, 14, 4, clayShade);
-                px(8, bwY - 15, 3, 3, spineOrg);
+                // Smooth majestic wing-flap & flight bob
+                const flap = Math.sin(time * 0.16);
+                const flapY = Math.round(flap * 4);
 
-                // ── LAYER 2: TAIL (Western dragon tail with spade tip) ──
-                const tailSway = Math.round(Math.sin(time * 0.15) * 3);
-                px(-22, -2, 10, 8, out);
-                px(-21, -1, 8, 6, clayMid);
-                px(-21, 2, 8, 3, clayShade);
-                px(-32, -1 + tailSway, 12, 6, out);
-                px(-31, 0 + tailSway, 10, 4, clayMid);
-                px(-42, 0 + tailSway * 2, 12, 5, out);
-                px(-41, 1 + tailSway * 2, 10, 3, clayShade);
-                px(-46, -1 + tailSway * 2, 6, 6, out);
-                px(-45, 0 + tailSway * 2, 4, 4, spineOrg);
+                // ── LAYER 1: FAR / BACK WING (Sweeping up behind Deidara) ──
+                const bwTipY = -26 + flapY;
+                seg(2, -6, -8, bwTipY, 5, clayMid, out);
+                seg(-8, bwTipY, -18, bwTipY - 6, 4, clayShade, out);
+                // Spread primary feather fingers on back wing
+                const backFeathers = [
+                    [-18, bwTipY - 6, -26, bwTipY - 10],
+                    [-16, bwTipY - 3, -25, bwTipY - 5],
+                    [-13, bwTipY,     -22, bwTipY],
+                    [-10, bwTipY + 3, -18, bwTipY + 4]
+                ];
+                for (let i = 0; i < backFeathers.length; i++) {
+                    const bf = backFeathers[i];
+                    seg(bf[0], bf[1], bf[2], bf[3], 2, clayShade, out);
+                }
 
-                // ── LAYER 3: MAIN DRAGON TORSO & BELLY ──
-                px(-14, -8, 26, 18, out);
-                px(-13, -7, 24, 16, clayWhite);
-                px(-13, -7, 6, 16, clayShade);
-                px(-13, 3, 24, 6, clayShade);
-                // Orange Akatsuki clay dorsal ridges
-                px(-10, -10, 4, 3, spineOrg);
-                px(-4, -10, 4, 3, spineOrg);
-                px(2, -10, 4, 3, spineOrg);
-                px(8, -10, 4, 3, spineOrg);
+                // ── LAYER 2: SLEEK TAPERING UPTURNED AVIAN TAIL ──
+                const tailBob = Math.round(Math.sin(time * 0.12) * 1.5);
+                // Tail base tapering backward and curving slightly up at the tip
+                seg(-10, -2, -24, 1 + tailBob, 6, clayLight, out);
+                seg(-24, 1 + tailBob, -36, 2 + tailBob, 4, clayMid, out);
+                seg(-36, 2 + tailBob, -45, -1 + tailBob, 2, clayPure, out);
+                // Underside tail shadow
+                seg(-12, 1, -34, 3 + tailBob, 2, clayShade, null);
 
-                // Front tucked claws under chest
-                px(2, 8, 8, 6, out);
-                px(3, 9, 6, 4, clayShade);
-                px(7, 12, 3, 3, out);
-                px(7, 12, 2, 2, spineOrg);
+                // ── LAYER 3: POWERFUL EXTENDED BIRD LEGS & 3-TOED RAPTORIAL TALONS ──
+                // Back leg & talons (slightly higher/further in perspective)
+                seg(2, 5, 6, 13, 4, clayShade, out);
+                seg(6, 13, 12, 17, 3, clayMid, out);
+                // Back foot 3 curved talons
+                seg(12, 17, 18, 16, 2, clayMid, out);
+                seg(12, 17, 17, 19, 2, clayShade, out);
+                seg(11, 17, 14, 21, 2, clayDeep, out);
 
-                // ── LAYER 4: NECK & HORNED REPTILIAN HEAD ──
-                px(10, -16, 10, 12, out);
-                px(11, -15, 8, 10, clayWhite);
-                px(11, -11, 8, 6, clayMid);
-                px(15, -18, 3, 3, spineOrg);
+                // Front leg & talons (thick sculpted clay thigh, ankle crease rings, 3 big talons)
+                seg(-2, 5, 3, 15, 5, clayLight, out);
+                seg(3, 15, 9, 20, 3, clayLight, out);
+                px(2, 14, 4, 1, clayDeep); // Sculpted clay joint crease ring
+                px(5, 17, 3, 1, clayDeep);
+                // Front foot 3 spread raptorial talons + rear hallux claw
+                seg(9, 20, 17, 19, 2, clayPure, out);  // Top talon
+                seg(9, 20, 16, 22, 2, clayLight, out); // Middle talon
+                seg(8, 20, 12, 25, 2, clayMid, out);   // Lower talon
+                seg(7, 20, 4, 22, 2, clayShade, out);  // Rear thumb claw
 
-                const headBob = Math.round(Math.sin(time * 0.12 + 1) * 2);
-                const hy = -24 + headBob;
-                px(16, hy, 18, 10, out);
-                px(17, hy + 1, 16, 8, clayWhite);
-                px(17, hy + 5, 16, 4, clayShade);
+                // ── LAYER 4: SCULPTED AVIAN TORSO, ROUNDED BREAST & TAPERED BELLY ──
+                // Smooth stepped oval avian body (deep rounded chest in front, tapering sleekly toward tail)
+                seg(-14, -2, 4, 1, 10, clayLight, out);
+                seg(4, 1, 16, -2, 12, clayLight, out);
+                seg(-8, -5, 14, -5, 8, clayPure, out);
+                // Smooth interior fill & 3-tone sculpted clay shading
+                px(-12, -6, 26, 8, clayLight);
+                px(-8, -8, 22, 4, clayPure);   // Bright top back saddle where Deidara stands
+                px(4, -5, 13, 8, clayPure);    // Rounded white avian breast highlight
+                px(-12, 0, 26, 4, clayMid);    // Mid belly contour
+                px(-8, 3, 20, 3, clayShade);   // Lower belly & under-wing shadow
 
-                // Backwards-sweeping Western Horns
-                px(13, hy - 6, 8, 5, out);
-                px(14, hy - 5, 6, 3, clayShade);
-                px(9, hy - 8, 6, 4, out);
-                px(10, hy - 7, 4, 2, clayDark);
+                // ── LAYER 5: OWL-HAWK HEAD, HOOKED BEAK & FAN CREST PLUMES ──
+                const headBob = Math.round(Math.sin(time * 0.12 + 0.8) * 1);
+                const hx = 22;
+                const hy = -4 + headBob;
 
-                // Glowing Crimson Dragon Eye
-                px(23, hy + 2, 4, 3, out);
-                px(24, hy + 3, 2, 1, eyeRed);
-                px(25, hy + 3, 1, 1, '#ffffff');
+                // Neck bridge
+                seg(15, -3, hx, hy, 7, clayLight, out);
 
-                // Open Snout with Chakra Fire inside throat
-                px(27, hy + 5, 8, 3, out);
-                px(28, hy + 5, 6, 2, mouthGlow);
-                px(29, hy + 4, 2, 1, clayWhite);
-                px(30, hy + 7, 2, 1, clayWhite);
+                // Signature Sculpted Clay Crest Plumes (Fan of finger-like clay loops around head & cheek!)
+                const crestPlumes = [
+                    [hx - 2, hy - 4, hx - 5, hy - 13], // Back crown plume
+                    [hx + 1, hy - 5, hx + 1, hy - 14], // Center-tall crown plume
+                    [hx + 4, hy - 4, hx + 6, hy - 12], // Front crown plume
+                    [hx - 3, hy,     hx - 10, hy - 2], // Upper cheek plume sweeping back
+                    [hx - 2, hy + 3, hx - 9,  hy + 4], // Mid cheek plume
+                    [hx,     hy + 5, hx - 6,  hy + 9]  // Lower jaw/chin plume
+                ];
+                for (let i = 0; i < crestPlumes.length; i++) {
+                    const cp = crestPlumes[i];
+                    seg(cp[0], cp[1], cp[2], cp[3], 3, i < 3 ? clayPure : clayMid, out);
+                    px(cp[2], cp[3], 2, 2, i < 3 ? clayPure : clayLight);
+                }
 
-                // ── LAYER 5: FRONT WING (Huge bat/dragon wing in foreground) ──
-                const fwY = -16 - flapAngle * 1.5;
-                px(-2, -6, 8, 8, out);
-                px(-1, -5, 6, 6, clayWhite);
-                px(0, fwY - 8, 22, 6, out);
-                px(1, fwY - 7, 20, 4, clayWhite);
-                px(3, fwY - 7, 16, 2, '#ffffff');
-                px(19, fwY - 11, 4, 4, out);
-                px(20, fwY - 10, 2, 2, spineOrg);
+                // Rounded Owl-Hawk Cranium
+                px(hx - 2, hy - 5, 12, 10, out);
+                px(hx - 1, hy - 4, 10, 8, clayLight);
+                px(hx, hy - 4, 8, 3, clayPure);
+                px(hx - 1, hy + 2, 10, 2, clayMid);
 
-                // Wing membrane
-                px(-12, fwY - 2, 32, 14, out);
-                px(-11, fwY - 1, 30, 12, clayWhite);
-                px(-11, fwY + 3, 30, 8, clayMid);
-                px(-4, fwY, 3, 11, clayShade);
-                px(4, fwY, 3, 11, clayShade);
-                px(12, fwY, 3, 11, clayShade);
-                px(-11, fwY + 11, 3, 3, out);
-                px(-3, fwY + 11, 3, 3, out);
-                px(5, fwY + 11, 3, 3, out);
-                px(13, fwY + 11, 3, 3, out);
+                // Deep Pitch-Black Hollow Clay Bird Eye
+                px(hx + 4, hy - 2, 3, 3, out);
+                px(hx + 3, hy - 1, 1, 2, clayDeep); // Eye socket crease
+
+                // Sharp Downward-Hooked Raptorial Beak
+                px(hx + 9, hy - 2, 5, 5, out);
+                px(hx + 8, hy - 1, 5, 3, clayLight);
+                px(hx + 9, hy - 1, 3, 1, clayPure);
+                px(hx + 11, hy + 1, 3, 4, out);
+                px(hx + 11, hy + 1, 2, 3, clayMid); // Hooked beak tip pointing down
+
+                // ── LAYER 6: MASSIVE FOREGROUND SWEEPING FEATHERED WING ──
+                // Sweeps grandly up and backward from the front shoulder with spread feather fingers!
+                const fwElbowX = -6;
+                const fwElbowY = -18 - flapY;
+                const fwWristX = -20;
+                const fwWristY = -30 - Math.round(flapY * 1.5);
+
+                // Thick sculpted wing shoulder & leading edge bone
+                seg(4, -3, fwElbowX, fwElbowY, 7, clayLight, out);
+                seg(fwElbowX, fwElbowY, fwWristX, fwWristY, 6, clayPure, out);
+                // Bright top leading-edge highlight
+                seg(4, -5, fwElbowX, fwElbowY - 2, 2, clayPure, null);
+                seg(fwElbowX, fwElbowY - 2, fwWristX, fwWristY - 2, 2, clayPure, null);
+
+                // Inner wing covert mass
+                seg(0, -3, fwElbowX - 6, fwElbowY + 5, 6, clayMid, out);
+
+                // 7 Spread Sculpted Primary & Secondary Feather Fingers fanning out!
+                const wingFeathers = [
+                    [fwWristX,     fwWristY,     fwWristX - 14, fwWristY - 6, 3, clayPure],
+                    [fwWristX + 1, fwWristY + 2, fwWristX - 15, fwWristY - 1, 3, clayLight],
+                    [fwWristX + 3, fwWristY + 4, fwWristX - 14, fwWristY + 5, 3, clayLight],
+                    [fwElbowX - 8, fwElbowY - 4, fwWristX - 10, fwWristY + 10, 3, clayMid],
+                    [fwElbowX - 4, fwElbowY - 1, fwElbowX - 18, fwElbowY + 6, 3, clayMid],
+                    [fwElbowX,     fwElbowY + 2, fwElbowX - 13, fwElbowY + 9, 3, clayShade],
+                    [fwElbowX + 4, fwElbowY + 4, fwElbowX - 7,  fwElbowY + 11, 3, clayShade]
+                ];
+                for (let i = wingFeathers.length - 1; i >= 0; i--) {
+                    const wf = wingFeathers[i];
+                    seg(wf[0], wf[1], wf[2], wf[3], wf[4], wf[5], out);
+                }
+
+                // ── LAYER 7: TWO HOVERING MINI WHITE CLAY BIRDS AROUND DEIDARA ──
+                const drawMiniClayBird = (mx, my, wingPhase) => {
+                    const wy = Math.round(Math.sin(time * 0.3 + wingPhase) * 2);
+                    px(mx - 2, my - 1, 5, 3, out);
+                    px(mx - 1, my, 3, 1, clayPure);
+                    px(mx + 2, my, 1, 1, '#f39c12'); // Tiny beak
+                    // Mini wings
+                    px(mx - 1, my - 1 + wy, 2, 2, out);
+                    px(mx - 1, my + wy, 2, 1, clayLight);
+                };
+                drawMiniClayBird(18, -31, 0);    // Hovering in front of Deidara's raised palm
+                drawMiniClayBird(-6, -33, 2.2);  // Hovering behind Deidara's shoulder/ponytail
 
                 ctx.imageSmoothingEnabled = prevSmooth;
                 ctx.restore();
@@ -17032,14 +17101,16 @@ function drawPixelDeidara(fighter, frozenInDraw) {
 
     // ── STATE MACHINE ──
     if (fighter.isRidingDragon) {
-        // DRAGON RIDER: Standing majestically atop the flying C2 Clay Dragon with Tiger KATSU Seal!
-        torsoLean = 1; headX = 1; headY = -24;
-        expr = 'katsu';
-        legB = [-4, -10, -6, -5, -7, -1];
-        legF = [ 3, -10,  5, -5,  6, -1];
-        armB = [-3, -18, -2, -16, 0, -18];
-        armF = [ 3, -18,  4, -16, 1, -18]; // Two-handed Tiger hand seal
-        clayHandPose = 'seal';
+        // CLAY BIRD RIDER (matches reference photo): Wide athletic lunge stance on bird's back,
+        // front hand raised forward showing palm-mouth & tongue, back hand by hip clay pouch!
+        bodyX = 1; bodyY = 0;
+        torsoLean = 2; headX = 1; headY = -24;
+        expr = 'smirk';
+        legB = [-4, -10, -8, -5, -10, -1]; // Back leg extended & planted on bird's spine
+        legF = [ 3, -10,  8, -6,   7, -1]; // Front knee bent forward on bird's shoulder
+        armB = [-3, -18, -5, -14, -3, -11]; // Back hand resting at waist clay pouch
+        armF = [ 3, -18,  7, -17, 11, -20]; // Front arm raised showing open palm-mouth & tongue!
+        clayHandPose = 'hold';
         holdingClayBird = false;
     }
     else if (isHitReact || isHit) {
@@ -17205,46 +17276,65 @@ function drawPixelDeidara(fighter, frozenInDraw) {
     drawLeg(legB, true);
     drawArm(armB, true);
 
-    // Layer 2: Animated Fluttering High Ponytail (arching from high topknot)
+    // Layer 2: Animated Fluttering High Ponytail (arching backward from high topknot!)
     const hx = headX + torsoLean;
     const hy = headY;
     const wavePhase = timeMs / 100;
-    // Ponytail sprout bun
-    px(hx + 1, hy - 8, 4, 3, out);
-    px(hx + 2, hy - 7, 3, 2, hairMain);
-    px(hx + 1, hy - 6, 2, 2, '#141824'); // Ponytail hair tie
-    // 4-segment animated ponytail trailing back
+    // High topknot bun at crown of head
+    px(hx - 3, hy - 8, 5, 4, out);
+    px(hx - 2, hy - 7, 3, 2, hairMain);
+    px(hx - 1, hy - 7, 2, 1, hairLight);
+    px(hx - 2, hy - 5, 2, 2, '#141824'); // Hair tie
+    // 4-segment animated golden ponytail streaming BACKWARD in the wind
     for (let seg = 1; seg <= 4; seg++) {
-        const pxOff = hx + 2 + seg * 2 * (isRunning ? -1 : 1);
-        const pyOff = hy - 8 + Math.round(Math.sin(wavePhase + seg * 0.9) * 1.6) + seg * 2;
+        const pxOff = hx - 2 - seg * 2;
+        const pyOff = hy - 8 + Math.round(Math.sin(wavePhase + seg * 0.9) * 1.4) + seg;
         px(pxOff - 1, pyOff - 1, 3, 3, out);
         px(pxOff, pyOff, 2, 2, seg % 2 === 0 ? hairMain : hairLight);
     }
 
-    // Layer 3: Torso (Akatsuki Obsidian Cloak + Crimson Inner Collar + Red Cloud Emblem)
+    // Layer 3: Billowing Akatsuki Cape & Open Cropped Jacket (matches reference photo!)
     const tx = bodyX + torsoLean;
     const ty = bodyY - 19;
+    const capeWave = Math.round(Math.sin(timeMs / 110) * 1);
+
+    // Long Flowing Akatsuki Cape billowing behind with Crimson Inner Lining
+    const capeLen = fighter.isRidingDragon ? 13 : (isRunning ? 11 : 8);
+    for (let s = 0; s < capeLen; s++) {
+        const cx = tx - 3 - s;
+        const cy = ty + 2 + Math.floor(s * 1.1) + (s > 4 ? capeWave : 0);
+        const ch = Math.max(4, 9 - Math.floor(s * 0.35));
+        px(cx - 1, cy - 1, 3, ch + 2, out);
+        px(cx, cy, 2, ch, cloakMain);
+        px(cx, cy + ch - 2, 2, 2, collarIn); // Vivid crimson inner cape lining visible underneath!
+    }
+    // Red cloud on flowing cape
+    px(tx - 9, ty + 7, 4, 3, cloudWhite);
+    px(tx - 8, ty + 8, 2, 2, cloudRed);
+
+    // Torso: Open Akatsuki Bolero Jacket + Mesh Shinobi Undershirt + White Clay Waist Pouch
     px(tx - 5, ty - 1, 10, 11, out);
     px(tx - 4, ty, 8, 9, cloakMain);
-    px(tx - 4, ty, 3, 9, cloakShade); // Fold shadow
-    // High Akatsuki Collar framing chin
-    px(tx - 3, ty - 2, 6, 3, out);
+    px(tx - 4, ty, 3, 9, cloakShade);
+    // Open front revealing grey mesh shinobi undershirt
+    px(tx + 1, ty + 1, 3, 7, '#cbd5e1');
+    px(tx + 1, ty + 2, 2, 1, '#475569');
+    px(tx + 2, ty + 4, 2, 1, '#475569');
+    px(tx + 1, ty + 6, 2, 1, '#475569');
+    // High Akatsuki Collar framing chin with Crimson Lining
+    px(tx - 3, ty - 2, 7, 3, out);
     px(tx - 2, ty - 1, 5, 2, cloakMain);
-    px(tx - 1, ty - 1, 3, 1, collarIn); // Crimson interior
-    // Akatsuki Red Cloud with White Border on chest
-    px(tx - 1, ty + 2, 4, 3, cloudWhite);
-    px(tx, ty + 3, 2, 2, cloudRed);
-    px(tx + 2, ty + 3, 2, 2, cloudWhite);
-    px(tx + 2, ty + 4, 1, 1, cloudRed);
+    px(tx, ty - 1, 3, 1, collarIn);
+    // Akatsuki Red Cloud on shoulder/chest
+    px(tx - 3, ty + 2, 4, 3, cloudWhite);
+    px(tx - 2, ty + 3, 2, 2, cloudRed);
 
-    // Layer 4: Flowing Cloak Skirt (flares during run/jump)
-    const flare = isRunning ? -2 : (isAirborne ? -1 : 0);
-    px(tx - 5 + flare, ty + 9, 10 - flare, 6, out);
-    px(tx - 4 + flare, ty + 9, 8 - flare, 5, cloakMain);
-    px(tx - 4 + flare, ty + 9, 3, 5, cloakShade);
-    // Red cloud fragment on hem
-    px(tx + 1, ty + 11, 3, 2, cloudWhite);
-    px(tx + 1, ty + 11, 2, 1, cloudRed);
+    // Layer 4: Waist Sash & Sculpted White Clay Hip Pouch (clearly visible above bent legs!)
+    px(tx - 4, ty + 8, 8, 2, '#94a3b8'); // Light sash belt
+    // White Clay Hip Pouch on side of waist
+    px(tx - 5, ty + 7, 5, 4, out);
+    px(tx - 4, ty + 8, 3, 2, '#dce4ec');
+    px(tx - 4, ty + 8, 3, 1, '#ffffff');
 
     // Layer 5: Front Leg
     drawLeg(legF, false);
@@ -19028,20 +19118,20 @@ function drawPixelMage(fighter, frozenInDraw) {
             const f = fighter.facing || 1;
             const timeMs = frozenInDraw ? 0 : Date.now();
 
-            const isP1       = (fighter.id === 1 || fighter.color === '#2ecc71');
+            const isP1       = (fighter.id === 1 || fighter.color === '#2ecc71' || fighter.color === '#ffd700');
             const out        = '#090602';
             const goldDark   = '#b7791f';
             const goldMain   = '#ecc94b';
             const goldLight  = '#fefcbf';
-            const innerShirt = '#1a202c';
+            const innerShirt = '#141824';
             const heartCol   = isP1 ? '#2ecc71' : '#e74c3c';
             const skin       = '#f6e0b5';
-            const standGold  = 'rgba(241, 196, 15, 0.82)';
-            const standCyan  = 'rgba(72, 202, 228, 0.85)';
+            const skinShade  = '#d6b07d';
 
             ctx.save();
             const prevSmooth = ctx.imageSmoothingEnabled;
             ctx.imageSmoothingEnabled = false;
+            ctx.shadowBlur = 0;
 
             const px = (gx, gy, gw, gh, col) => {
                 if (!col || gw <= 0 || gh <= 0) return;
@@ -19098,24 +19188,188 @@ function drawPixelMage(fighter, frozenInDraw) {
             const isHitReact     = fighter.isStunned || (!drawAttacking && Math.abs(fighter.velX) > config.moveSpeed * 1.25);
             const isTimeCaster   = gameState.timestopActive && gameState.timestopCaster === fighter;
 
-            // 16-Bit Pixel Stand Apparition ("THE WORLD") during punch flurry or Time Stop!
-            if ((drawAttacking && drawAttackType === 'punch') || isTimeCaster) {
-                const sx = (drawAttacking && drawAttackType === 'punch') ? 10 : -8;
-                const sy = -4 + Math.round(Math.sin(timeMs * 0.02));
-                px(sx - 4, sy - 24, 8, 12, standGold);
-                px(sx - 3, sy - 30, 6, 6, standGold);
-                px(sx - 2, sy - 28, 4, 2, standCyan);
-                if (drawAttacking && drawAttackType === 'punch') {
-                    // Rapid 16-bit Pixel "MUDA MUDA" Multi-Fist Barrage!
-                    for (let i = 0; i < 3; i++) {
-                        const ox = sx + 6 + ((Math.floor(timeMs / 25) + i * 3) % 8);
-                        const oy = sy - 22 + i * 4;
-                        px(ox, oy, 4, 3, '#ffffff');
-                        px(ox - 2, oy + 1, 3, 2, goldMain);
-                    }
+            // ════════════════════════════════════════════════════════════════════════
+            // FULL-FORM 16-BIT PIXEL STAND: "THE WORLD (ZA WARUDO)"
+            // Towering muscular Pharaonic Stand with twin oxygen tanks, V-taper armor,
+            // cross-harnesses, heart emblems, glowing cyan eyes & MUDA fist storm!
+            // ════════════════════════════════════════════════════════════════════════
+            const drawTheWorldStand = (mode) => {
+                // mode: 'rush' (lunging in front of DIO punching), 'throw' (knife assist), 'guard' (blocking), 'guardian' (towering behind/above DIO)
+                const hoverBob = Math.round(Math.sin(timeMs * 0.008) * 1.5);
+                // Tower high & wide behind DIO in guardian mode so The World's full muscular upper body & Pharaoh head are 100% clear!
+                const sx = (mode === 'rush') ? 15 : (mode === 'guard' ? 10 : (mode === 'throw' ? 8 : -13));
+                const sy = (mode === 'rush') ? (-6 + hoverBob) : (-11 + hoverBob);
+
+                // Stand Palette (Royal Gold Armor + Slate-Silver Muscular Body + Glowing Cyan Visor Eyes)
+                const stOut       = '#090602';
+                const stGoldLight = '#fff3b0';
+                const stGold      = '#f1c40f';
+                const stGoldDark  = '#b7791f';
+                const stBodyLight = '#e2e8f0';
+                const stBody      = '#94a3b8';
+                const stBodyDark  = '#475569';
+                const stCyan      = '#00f5d4';
+                const stGlove     = '#ffffff';
+
+                ctx.save();
+                ctx.globalAlpha = (isTimeCaster || drawAttacking || fighter.isBlocking) ? 0.98 : 0.85;
+
+                // 0) Towering Golden Stand Spirit Aura Flame
+                const auraFlicker = Math.floor(timeMs / 70) % 2;
+                px(sx - 10, sy - 38 - auraFlicker, 20, 34, 'rgba(241, 196, 15, 0.22)');
+                px(sx - 8, sy - 41 + auraFlicker, 16, 4, 'rgba(255, 243, 176, 0.30)');
+
+                // 1) Twin Diving Oxygen Cylinders on Back + Curved Tubes to Mask
+                const tankX = sx - 8;
+                const tankY = sy - 27;
+                px(tankX - 1, tankY - 1, 5, 13, stOut);
+                px(tankX, tankY, 3, 11, stBody);
+                px(tankX, tankY + 1, 1, 9, stBodyLight);
+                px(tankX, tankY + 3, 3, 2, stGold);     // Upper gold tank band
+                px(tankX, tankY + 7, 3, 2, stGoldDark); // Lower gold tank band
+                // Twin hoses curving from tanks up into back of helmet
+                px(tankX + 1, tankY - 3, 4, 2, stBodyDark);
+                px(tankX + 2, tankY - 4, 4, 2, stGold);
+
+                // 2) Muscular Floating Stand Legs & Golden Heart Knee-Guards
+                // Back leg
+                seg(sx - 4, sy - 9, sx - 6, sy - 2, 4, stBodyDark, stOut);
+                px(sx - 8, sy - 3, 4, 3, stGoldDark);
+                seg(sx - 6, sy - 2, sx - 8, sy + 4, 3, stGoldDark, stOut);
+                // Front leg
+                seg(sx + 3, sy - 9, sx + 5, sy - 2, 4, stBody, stOut);
+                px(sx + 3, sy - 3, 4, 4, stOut);
+                px(sx + 4, sy - 2, 2, 2, heartCol); // Iconic Heart Knee-Guard!
+                seg(sx + 5, sy - 2, sx + 4, sy + 5, 3, stGold, stOut);
+
+                // 3) Back Arm
+                if (mode === 'rush') {
+                    seg(sx - 5, sy - 25, sx - 11, sy - 22, 4, stBodyDark, stOut);
+                    px(sx - 12, sy - 24, 4, 4, stGoldDark);
+                } else {
+                    // Muscular back arm with gold elbow pad
+                    seg(sx - 6, sy - 25, sx - 10, sy - 19, 4, stBodyDark, stOut);
+                    px(sx - 12, sy - 20, 3, 4, stGoldDark);
+                    seg(sx - 10, sy - 19, sx - 5, sy - 16, 3, stBody, stOut);
                 }
+
+                // 4) Colossal V-Taper Muscular Torso (15px wide chest -> 9px sculpted waist!)
+                px(sx - 7, sy - 27, 15, 10, stOut);
+                px(sx - 5, sy - 17, 11, 7, stOut);
+                px(sx - 6, sy - 26, 13, 9, stBody);
+                px(sx - 4, sy - 17, 9, 6, stBodyDark);
+                // Sculpted Pecs & 6-Pack Abs Definition
+                px(sx - 4, sy - 25, 4, 5, stBodyLight);
+                px(sx + 2, sy - 25, 4, 5, stBodyLight);
+                px(sx, sy - 25, 1, 8, stOut);       // Deep sternal & ab centerline
+                px(sx - 2, sy - 19, 2, 2, stBody);  // Upper abs
+                px(sx + 1, sy - 19, 2, 2, stBody);
+                px(sx - 2, sy - 16, 2, 2, stBody);  // Lower abs
+                px(sx + 1, sy - 16, 2, 2, stBody);
+
+                // Iconic Twin Gold Diagonal Harness Straps (X-Cross Armor across Chest)
+                seg(sx - 5, sy - 26, sx + 5, sy - 15, 2, stGold, null);
+                seg(sx + 5, sy - 26, sx - 4, sy - 15, 2, stGoldDark, null);
+
+                // Huge Rounded Golden Shoulder Pauldrons (21px total span!)
+                px(sx - 10, sy - 28, 6, 6, stOut);
+                px(sx - 9, sy - 27, 4, 4, stGoldDark);
+                px(sx - 9, sy - 27, 4, 2, stGold);
+                px(sx + 5, sy - 28, 6, 6, stOut);
+                px(sx + 6, sy - 27, 4, 4, stGold);
+                px(sx + 6, sy - 27, 4, 2, stGoldLight);
+
+                // Golden Waist Belt, Hip Tassets & Center Heart Buckle
+                px(sx - 6, sy - 12, 13, 4, stOut);
+                px(sx - 5, sy - 11, 11, 2, stGold);
+                px(sx - 1, sy - 12, 3, 4, stOut);
+                px(sx, sy - 11, 2, 2, heartCol); // Center Heart Belt Emblem
+
+                // 5) Iconic Trapezoidal Flat-Topped Pharaoh Crown Helmet & Face
+                const shx = sx + (mode === 'rush' ? 1 : 0);
+                const shy = sy - 28;
+                // Helmet base & angular face mask
+                px(shx - 5, shy - 8, 11, 9, stOut);
+                px(shx - 4, shy - 7, 9, 7, stGoldDark);
+                // Flaring Flat-Top Pharaoh Crown (wider at the top: 15px!)
+                px(shx - 7, shy - 13, 15, 6, stOut);
+                px(shx - 6, shy - 12, 13, 5, stGold);
+                px(shx - 5, shy - 12, 11, 1, stGoldLight); // Crisp flat crown top highlight
+                px(shx - 3, shy - 11, 2, 4, stGoldDark);   // Pharaoh crown vertical ridges
+                px(shx + 2, shy - 11, 2, 4, stGoldDark);
+                // Forehead Heart Crest
+                px(shx - 1, shy - 8, 3, 2, heartCol);
+                // Angular Grey Faceplate & Golden Cheek-Guards
+                px(shx - 2, shy - 5, 6, 5, stBodyDark);
+                px(shx - 4, shy - 4, 3, 4, stGold);
+                px(shx + 3, shy - 2, 2, 2, stGold); // Split chin guard
+                // Piercing Glowing Cyan Slanted Triangular Stand Eyes
+                px(shx, shy - 5, 5, 2, stOut);
+                px(shx + 1, shy - 5, 4, 1, stCyan);
+                px(shx + 2, shy - 5, 2, 1, '#ffffff');
+
+                // 6) Front Arm & Action Pose / "MUDA MUDA!" Multi-Fist Storm!
+                if (mode === 'rush') {
+                    // Lead muscular arm thrusting forward
+                    seg(sx + 5, sy - 25, sx + 13, sy - 22, 4, stBody, stOut);
+                    px(sx + 8, sy - 25, 3, 3, stGold); // Gold elbow pad
+                    px(sx + 13, sy - 24, 5, 4, stOut);
+                    px(sx + 14, sy - 23, 3, 2, stGlove);
+
+                    // 6-Fist High-Speed 16-Bit "MUDA MUDA MUDA!" Afterimage Barrage!
+                    const fistOffsets = [
+                        [15, -29], [21, -23], [16, -16],
+                        [24, -28], [28, -20], [20, -12]
+                    ];
+                    const tick = Math.floor(timeMs / 22);
+                    for (let i = 0; i < fistOffsets.length; i++) {
+                        const fo = fistOffsets[i];
+                        const cycle = (tick + i * 2) % 6;
+                        const fx = sx + fo[0] + (cycle % 3) * 2;
+                        const fy = sy + fo[1] + ((i % 2 === 0) ? -1 : 1);
+                        // Golden & cyan speed-streak line behind fist
+                        px(fx - 8, fy + 1, 7, 1, (i % 2 === 0) ? stGold : stCyan);
+                        px(fx - 4, fy, 4, 2, stGoldLight);
+                        // Studded White Stand Gauntlet Fist
+                        px(fx - 1, fy - 1, 5, 4, stOut);
+                        px(fx, fy, 4, 2, stGlove);
+                        px(fx - 1, fy, 2, 2, stGold);      // Gold wrist cuff
+                        px(fx + 3, fy, 1, 2, stGoldLight); // Gold knuckle studs
+                    }
+                } else if (mode === 'guard') {
+                    // Crossed-Arm Impenetrable Stand Guard in front of DIO
+                    seg(sx + 4, sy - 25, sx + 8, sy - 19, 4, stBody, stOut);
+                    seg(sx + 8, sy - 19, sx + 6, sy - 25, 4, stGold, stOut);
+                    px(sx + 5, sy - 27, 4, 4, stOut);
+                    px(sx + 6, sy - 26, 3, 2, stGlove);
+                } else if (mode === 'throw') {
+                    // Stand arm sweeping forward alongside DIO's knife throw
+                    seg(sx + 5, sy - 25, sx + 12, sy - 21, 4, stBody, stOut);
+                    seg(sx + 12, sy - 21, sx + 18, sy - 20, 3, stGold, stOut);
+                    px(sx + 17, sy - 21, 4, 3, stGlove);
+                } else {
+                    // Iconic Crossed-Arm / Power-Looming Guardian Pose behind DIO
+                    seg(sx + 5, sy - 25, sx + 9, sy - 19, 4, stBody, stOut);
+                    px(sx + 8, sy - 20, 3, 4, stGold); // Gold elbow guard
+                    seg(sx + 9, sy - 19, sx + 2, sy - 17, 3, stBodyLight, stOut);
+                    px(sx, sy - 18, 4, 4, stOut);
+                    px(sx + 1, sy - 17, 3, 2, stGlove); // White knuckle glove
+                    px(sx + 3, sy - 17, 1, 2, stGold);  // Gold wrist stud
+                }
+
+                ctx.restore();
+            };
+
+            // Determine Stand mode & layer order (Behind DIO when guardian/throw, In front during Rush/Guard)
+            const standMode = (drawAttacking && drawAttackType === 'punch') ? 'rush' :
+                              ((drawAttacking && (drawAttackType === 'kick' || drawAttackType === 'knife_throw')) ? 'throw' :
+                              (fighter.isBlocking ? 'guard' : 'guardian'));
+
+            if (standMode === 'guardian' || standMode === 'throw') {
+                drawTheWorldStand(standMode);
             }
 
+            // ── DIO BRANDO CHARACTER KINEMATICS & LAYERS ──
             const idleBob = (!isAirborne && !isRunning && !drawAttacking && !isHitReact) ? Math.round(Math.sin(timeMs * 0.005)) : 0;
             let bodyX = 0, bodyY = idleBob;
             let torsoLean = 0;
@@ -19126,7 +19380,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             let armF = [ 3, -18,  6, -14,  5, -10];
 
             if (isTimeCaster && !drawAttacking) {
-                // Iconic "WRYYYY!" back-arch pose
+                // Iconic "WRYYYY!" / "ZA WARUDO!" back-arch pose with arms flung wide
                 bodyX = -2; torsoLean = -2; headX = -2; headY = -24;
                 armB = [-4, -19, -8, -23, -10, -26];
                 armF = [ 3, -19,  7, -23,  9, -26];
@@ -19135,6 +19389,11 @@ function drawPixelMage(fighter, frozenInDraw) {
             } else if (fighter.isBlocking) {
                 armB = [ 0, -18,  4, -18,  6, -21];
                 armF = [ 3, -18,  7, -18,  8, -21];
+            } else if (drawAttacking && drawAttackType === 'punch') {
+                // DIO pointing forward commanding THE WORLD!
+                bodyX = 1; torsoLean = 1; headX = 1; headY = -24;
+                armB = [-4, -18, -7, -15, -5, -11];
+                armF = [ 3, -19,  8, -20, 12, -20];
             } else if (drawAttacking && (drawAttackType === 'kick' || drawAttackType === 'knife_throw')) {
                 bodyX = 2; torsoLean = 2; headX = 2; headY = -23;
                 armF = [ 4, -19,  9, -18, 13, -17];
@@ -19157,7 +19416,7 @@ function drawPixelMage(fighter, frozenInDraw) {
 
             // Back Arm & Back Leg
             seg(armB[0], armB[1], armB[2], armB[3], 3, goldDark, out);
-            seg(armB[2], armB[3], armB[4], armB[5], 2, skin, out);
+            seg(armB[2], armB[3], armB[4], armB[5], 2, skinShade, out);
             seg(legB[0], legB[1], legB[2], legB[3], 3, goldDark, out);
             seg(legB[2], legB[3], legB[4], legB[5], 2, goldMain, out);
             px(legB[4] - 1, legB[5] - 1, 4, 2, out);
@@ -19172,11 +19431,12 @@ function drawPixelMage(fighter, frozenInDraw) {
             px(tx - 4, ty + 9, 8, 2, goldDark);
             px(tx - 1, ty + 9, 2, 2, heartCol); // emerald/crimson heart belt buckle
 
-            // Front Leg with Heart Knee-Guard
+            // Front Leg with Heart Knee-Guard & Curled Elf-Shoes
             seg(legF[0], legF[1], legF[2], legF[3], 3, goldMain, out);
             px(legF[2] - 1, legF[3] - 1, 2, 2, heartCol);
             seg(legF[2], legF[3], legF[4], legF[5], 2, goldDark, out);
-            px(legF[4] - 1, legF[5] - 1, 4, 2, out);
+            px(legF[4] - 1, legF[5] - 1, 5, 2, out);
+            px(legF[4], legF[5] - 1, 4, 1, goldLight);
 
             // Head, Heart Headband & Wild Spiky Blonde Hair
             const hx = headX;
@@ -19197,6 +19457,11 @@ function drawPixelMage(fighter, frozenInDraw) {
             seg(armF[0], armF[1], armF[2], armF[3], 3, goldMain, out);
             seg(armF[2], armF[3], armF[4], armF[5], 2, skin, out);
             px(armF[4] - 1, armF[5] - 1, 2, 2, goldLight); // golden wrist cuff
+
+            // If Stand is lunging in front of DIO (MUDA Rush / Stand Guard), draw it on top!
+            if (standMode === 'rush' || standMode === 'guard') {
+                drawTheWorldStand(standMode);
+            }
 
             if (fighter.inGiantBubble) {
                 drawPixelGiantBubble(ctx, baseX, baseY - 42, fighter.bubbleColor);
