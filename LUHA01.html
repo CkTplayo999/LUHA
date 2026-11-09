@@ -3631,7 +3631,12 @@
             hooperCutsceneTimer: 0,
             hooperCutsceneDuration: 115,
             hooperCutsceneCaster: null,
-            hooperBalls: []
+            hooperBalls: [],
+            brawlerCutsceneActive: false,
+            brawlerCutsceneTimer: 0,
+            brawlerCutsceneDuration: 145,
+            brawlerCutsceneCaster: null,
+            brawlerCutsceneTarget: null
         };
 
         function announceText(text, color) {
@@ -3751,6 +3756,10 @@
             gameState.hooperCutsceneTimer = 0;
             gameState.hooperCutsceneCaster = null;
             gameState.hooperBalls = [];
+            gameState.brawlerCutsceneActive = false;
+            gameState.brawlerCutsceneTimer = 0;
+            gameState.brawlerCutsceneCaster = null;
+            gameState.brawlerCutsceneTarget = null;
             canvas.classList.remove('shake');
         }
 
@@ -3777,6 +3786,10 @@
             gameState.hooperCutsceneTimer = 0;
             gameState.hooperCutsceneCaster = null;
             gameState.hooperBalls = [];
+            gameState.brawlerCutsceneActive = false;
+            gameState.brawlerCutsceneTimer = 0;
+            gameState.brawlerCutsceneCaster = null;
+            gameState.brawlerCutsceneTarget = null;
             // Slasher energy bars
             document.getElementById('p1-energy-bar').style.display = (p1Class === 'slasher') ? 'block' : 'none';
             document.getElementById('p2-energy-bar').style.display = (p2Class === 'slasher') ? 'block' : 'none';
@@ -5373,6 +5386,29 @@
                     }
                 }
             }
+            else if (drawAttacking && drawAttackType === 'brawler_180_kick') {
+                // 180-DEGREE HIGH CRESCENT SOMERSAULT KICK
+                expr = 'shout';
+                if (progress < 0.25) {
+                    bodyX = -2; bodyY = 2; torsoLean = -2;
+                    headX = -2; headY = -21;
+                    legB = [-3, -8, -5, -4, -6, -1];
+                    legF = [ 2, -8,  4, -12,  3, -8];
+                    armB = [-4, -16, -7, -13, -6, -14, 1];
+                    armF = [ 2, -16,  4, -13,  6, -15, 1];
+                } else if (progress < 0.75) {
+                    bodyX = -1; bodyY = -3; torsoLean = -3;
+                    headX = -2; headY = -26;
+                    legB = [-2, -12, -3, -6, -3, -1];
+                    legF = [ 3, -14, 10, -22, 16, -32]; // High 180° skyward kick extension!
+                    armB = [-4, -20, -7, -17, -8, -14, 1];
+                    armF = [ 2, -20,  5, -17,  8, -18, 1];
+                } else {
+                    bodyX = 0; bodyY = -1; torsoLean = -1;
+                    headX = 0; headY = -24;
+                    legF = [ 2, -11,  7, -15, 11, -12];
+                }
+            }
             else if (drawAttacking && drawAttackType === 'kick') {
                 // HURRICANE ROUNDHOUSE KICK
                 expr = 'shout';
@@ -5607,6 +5643,14 @@
                 px(fx - 2 + bfFlicker, fy - 4, 2, 2, '#08080c');
                 px(fx + 2, fy - 3 + bfFlicker, 1, 2, '#ff0033');
                 px(fx - 1, fy + 2, 2, 1, '#ff0033');
+            }
+
+            // Visual cue: Enhanced 180° Kick Ki Aura on foot & headband when ready!
+            if (fighter.brawlerEnhancedKickReady && !fighter.isDead) {
+                const kflick = Math.floor(timeMs / 45) % 2;
+                px(legF[4] - 2, legF[5] - 3, 5, 2, accLight);
+                px(legF[4] - 1, legF[5] - 4 - kflick, 3, 2, '#ffffff');
+                px(hx + 2, hy - 1, 2, 2, accLight);
             }
 
             // B) Pixel Hex/Diamond Ki Shield when Blocking
@@ -10986,6 +11030,37 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     return; 
                 }
 
+                if (this.isBrawlerAirBall) {
+                    this.x += (this.velX || this.speed * this.facing) * config.timeScale;
+                    this.y += (this.velY || 0) * config.timeScale;
+                    if (Math.random() > 0.15) {
+                        gameState.pixelEffects.push(new PixelVFX('ki_spark', this.x, this.y, this.facing, this.color));
+                    }
+                    // Check hit on suspended target
+                    const opp = (this.owner.id === 1) ? p2 : p1;
+                    if (opp && !opp.isDead) {
+                        const distToOpp = Math.hypot(this.x - opp.x, this.y - (opp.y - 45));
+                        if (distToOpp < 55) {
+                            this.active = false;
+                            const burstDmg = Math.max(3, opp.health * 0.15);
+                            opp.health -= burstDmg;
+                            opp.brawlerAirSuspended = Math.max(opp.brawlerAirSuspended, 75); // extend air suspension!
+                            this.owner.brawlerSaitamaWindow = 65; // window to press normal attack (C)!
+                            gameState.shake = 26;
+                            gameState.flashAlpha = 0.55;
+                            gameState.flashColor = this.color;
+                            announceText('PRESS ATTACK (C) FOR SERIOUS COMBO!', '#ff4757');
+                            gameState.pixelEffects.push(new PixelVFX('impact_burst', opp.x, opp.y - 40, this.facing, this.color, { maxFrames: 24, P: 4 }));
+                            gameState.pixelEffects.push(new PixelVFX('air_ring', opp.x, opp.y - 40, this.facing, '#ffffff'));
+                            return;
+                        }
+                    }
+                    if (this.x < -100 || this.x > canvas.width + 100 || this.y < -100 || this.y > canvas.height + 100) {
+                        this.active = false;
+                    }
+                    return;
+                }
+
                 if (this.isRedSphere) {
                     // Home straight toward the caster's blue ball (vortex), wherever it is
                     const bv = gameState.vortexes.find(v => v.caster === this.owner);
@@ -12504,6 +12579,13 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             }
             update() {
                 if (!this.active) return;
+                if (this.caster.isDead) {
+                    this.active = false;
+                    this.caster.isRidingDragon = false;
+                    this.caster.dragonPhase = '';
+                    this.caster.dragonRef = null;
+                    return;
+                }
                 if (gameState.timestopActive && this.caster !== gameState.timestopCaster) return;
                 this.timer += (1 * config.timeScale);
 
@@ -12863,6 +12945,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     opp.hooperAnkleFallTimer = 32;
                     opp.velX = -dashSide * 4;
                     opp.velY = -3.5;
+                    // 0.4s attack cooldown after hitting opponent in Zone form (24 frames @ 60fps)
+                    caster.internalCooldown = Math.max(caster.internalCooldown || 0, 24);
                     gameState.shake = 22;
                     gameState.flashAlpha = 0.38;
                     gameState.flashColor = caster.color;
@@ -13056,6 +13140,14 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     this.stunTimer = 0;
                 }
                 this.hooperAnkleFallTimer = 0;          // Visual knockdown timer when ankle-broken by Hooper
+
+                // Brawler Air Combo State Properties
+                this.brawlerHitCount = 0;               // Normal punches landed (3 stacks required)
+                this.brawlerEnhancedKickReady = false;  // 180° Kick ready when 3 stacks reached
+                this.brawlerAirComboTarget = null;      // Target suspended in air
+                this.brawlerComboStartHp = 0;           // Opponent HP at start of combo for 80% calculation
+                this.brawlerSaitamaWindow = 0;          // Time window to press normal attack for cutscene
+                this.brawlerAirSuspended = 0;           // Opponent air suspension timer (114f = 1.9s)
             }
 
             // Universal getter & setter to enforce Tai Chi Divine Special Immunity perfectly
@@ -13069,12 +13161,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 if (this.type === 'sixeye' && this.isInfinityShieldActive && val < this._health) {
                     return; // Infinity Shield: Absolute invincibility while blocking
                 }
-                if (this.type === 'deidara' && this.isRidingDragon && val < this._health) {
-                    return; // Sky-high on the clay dragon — out of reach of grounded attacks
-                }
-                if (this.type === 'hooper' && this.hooperDunkState && val < this._health) {
-                    return; // Unstoppable mid-air Zone Alley-Oop Dunk!
-                }
+                // Hooper and Deidara flying invulnerability removed as requested!
                 this._health = val;
             }
 
@@ -14186,10 +14273,28 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             }
 
             update(opponent) {
-                if (gameState.domainClashActive || gameState.hooperCutsceneActive) return; // frozen during cutscenes
+                if (gameState.domainClashActive || gameState.hooperCutsceneActive || gameState.brawlerCutsceneActive) return; // frozen during cutscenes
                 if (this.hooperAnkleFallTimer > 0) {
                     this.hooperAnkleFallTimer -= 1 * config.timeScale;
                     if (this.hooperAnkleFallTimer < 0) this.hooperAnkleFallTimer = 0;
+                }
+                if (this.brawlerSaitamaWindow > 0) {
+                    this.brawlerSaitamaWindow -= 1 * config.timeScale;
+                    if (this.brawlerSaitamaWindow < 0) this.brawlerSaitamaWindow = 0;
+                }
+                if (this.brawlerAirSuspended > 0) {
+                    this.brawlerAirSuspended -= 1 * config.timeScale;
+                    this.velY = 0;
+                    this.velX = 0;
+                    this.y = config.groundY - 145; // Firmly suspended in mid-air!
+                    this.isStunned = true;
+                    this.stunTimer = Math.max(this.stunTimer || 0, this.brawlerAirSuspended);
+                    if (Math.floor(this.brawlerAirSuspended) % 4 === 0) {
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 20, 1, '#ffffff'));
+                    }
+                    if (this.brawlerAirSuspended <= 0) {
+                        this.brawlerAirSuspended = 0;
+                    }
                 }
                 if (this.isDead) {
                     if (this.inGiantBubble) {
@@ -14326,6 +14431,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                     // Upgraded Zone V: Alley-Oop Self-Lob -> Sky Leap -> Posterizer Slam Dunk!
                     if (this.hooperDunkState) {
+                        if (this.isDead) {
+                            this.hooperDunkState = null;
+                            this.y = config.groundY;
+                            return;
+                        }
                         const ds = this.hooperDunkState;
                         ds.timer += 1 * config.timeScale;
                         this.velX = 0;
@@ -14406,6 +14516,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                                         opponent.hooperAnkleFallTimer = 26;
                                         opponent.velX = this.facing * 14;
                                         opponent.velY = -7;
+                                        // 0.4s attack cooldown after hitting opponent in Zone form (24 frames @ 60fps)
+                                        this.internalCooldown = Math.max(this.internalCooldown || 0, 24);
                                         if (opponent.health <= 0) {
                                             opponent.health = 0;
                                             triggerWin(this);
@@ -15799,9 +15911,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         this.facing = (opponent.x >= this.x) ? 1 : -1;
                         this.attacking = true;
                         this.attackType = inZone ? 'hooper_zone_pass' : 'hooper_pass';
-                        this.attackMax = 12;
-                        this.attackTimer = 12;
-                        this.internalCooldown = inZone ? 20 : 18;
+                        this.attackMax = inZone ? 18 : 12; // reduced attack speed in Zone form
+                        this.attackTimer = inZone ? 18 : 12;
+                        this.internalCooldown = inZone ? 24 : 18; // base 0.4s cd in Zone form
                         this.hitOnce = true; // damage handled by HooperBall entity
                         gameState.hooperBalls.push(new HooperBall(this, opponent, inZone));
                         gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + this.facing * 22, this.y - 44, this.facing, this.color));
@@ -15878,6 +15990,23 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     else if (keys['ArrowRight']) moveDir = 1;
                 }
                 let teleportFacing = moveDir !== 0 ? moveDir : this.facing;
+
+                // Brawler Enhanced 180° Kick (consumed when 3 punch stacks are reached)
+                if (type === 'kick' && this.type === 'martial' && this.brawlerEnhancedKickReady) {
+                    this.brawlerEnhancedKickReady = false;
+                    this.brawlerHitCount = 0;
+                    this.attacking = true;
+                    this.attackType = 'brawler_180_kick';
+                    this.attackMax = 22;
+                    this.attackTimer = 22;
+                    this.internalCooldown = 28;
+                    this.hitOnce = false;
+                    this.facing = (opponent.x >= this.x) ? 1 : -1;
+                    gameState.pixelEffects.push(new PixelVFX('gale_kick', this.x + 28 * this.facing, this.y - 50, this.facing, this.color));
+                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 25 * this.facing, this.y - 50, this.facing, '#ffffff'));
+                    gameState.shake = Math.max(gameState.shake || 0, 10);
+                    return;
+                }
 
                 if (type === 'kick' && this.type === 'raijin') {
                     const opponent = p1.id === this.id ? p2 : p1;
@@ -16096,12 +16225,13 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         } else {
                             gameState.timestopActive = true;
                             gameState.timestopCaster = this;
-                            gameState.timestopDuration = 216; 
+                            gameState.timestopDuration = 216; // 3.6s @ 60fps
                             gameState.timestopWaveRadius = 1; 
                             gameState.roadrollerTriggered = false;
                             this.cooldown = this.maxCooldown;
                             
                             opponent.isBlocking = false; 
+                            announceText('TIME STOP (3.6S)!', this.color);
                             
                             gameState.flashAlpha = 0.95;
                             gameState.flashColor = '#000000'; 
@@ -16305,6 +16435,35 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.shake = 14;
                         return;
                     }
+                    // Brawler Air Combo: jump up and press ultimate (B) to instantly fire Hadou ball at air-suspended opponent!
+                    if (this.type === 'martial' && opponent.brawlerAirSuspended > 0) {
+                        this.cooldown = this.maxCooldown;
+                        this.attacking = true;
+                        this.attackType = 'punch';
+                        this.attackTimer = 14;
+                        this.attackMax = 14;
+                        this.facing = (opponent.x >= this.x) ? 1 : -1;
+
+                        const spawnX = this.x + 35 * this.facing;
+                        const spawnY = this.y - 45;
+                        const proj = new Projectile(spawnX, spawnY, this.facing, this.color, this);
+                        proj.isBrawlerAirBall = true;
+                        proj.speed = 32;
+                        const dx = opponent.x - spawnX;
+                        const dy = (opponent.y - 40) - spawnY;
+                        const dist = Math.hypot(dx, dy) || 1;
+                        proj.velX = (dx / dist) * proj.speed;
+                        proj.velY = (dy / dist) * proj.speed;
+                        this.projectiles.push(proj);
+                        this.brawlerSaitamaWindow = 90;
+
+                        announceText('HADOU BLAST! QUICK PRESS ATTACK (C)!', this.color);
+                        gameState.shake = 18;
+                        gameState.pixelEffects.push(new PixelVFX('impact_burst', spawnX, spawnY, this.facing, this.color, { maxFrames: 18 }));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', spawnX, spawnY, this.facing, '#ffffff'));
+                        return;
+                    }
+
                     this.isCharging = true;
                     this.chargingTimer = this.type === 'scythe' ? 65 : ((this.type === 'mage') ? 50 : 38);
                     this.cooldown = this.maxCooldown;
@@ -16360,6 +16519,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 } 
                 else if (type === 'punch') { 
+                    // Brawler Saitama-style Omnidirectional Bouncing Cutscene Trigger!
+                    if (this.type === 'martial' && this.brawlerSaitamaWindow > 0 && opponent.brawlerAirSuspended > 0) {
+                        this.brawlerSaitamaWindow = 0;
+                        startBrawlerSaitamaCutscene(this, opponent);
+                        return;
+                    }
                     if (this.type === 'zookeeper') {
                         this.attackMax = 20; this.attackTimer = 20; this.internalCooldown = 50;
                         gameState.pixelEffects.push(new PixelVFX('zookeeper_whip_crack', this.x + 85 * this.facing, this.y - 42, this.facing, this.color));
@@ -16664,6 +16829,15 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         } else {
                             let baseDmg = opponent.isBlocking ? 2 : 8;
                             if (this.type === 'martial') {
+                                if (this.attackType === 'punch') {
+                                    this.brawlerHitCount = (this.brawlerHitCount || 0) + 1;
+                                    if (this.brawlerHitCount >= 3) {
+                                        this.brawlerEnhancedKickReady = true;
+                                        announceText('180° KICK READY!', this.color);
+                                        gameState.pixelEffects.push(new PixelVFX('ki_spark', this.x, this.y - 25, this.facing, this.color));
+                                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 25, this.facing, this.color));
+                                    }
+                                }
                                 let currentChance = this.blackFlashChance;
                                 if (Math.random() < currentChance) {
                                     dmg = baseDmg * 3.6;
@@ -16683,6 +16857,45 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         dmg = opponent.isBlocking ? 4 : 14;
                         // 100% 16-BIT PIXEL ART EXPLOSION ON HIT
                         createDeidaraPixelExplosion(opponent.x, opponent.y - 45, 1.15, false);
+                    }
+                    else if (Math.floor(this.attackTimer) === 10 && this.attackType === 'brawler_180_kick') {
+                        this.hitOnce = true;
+                        if (opponent.isParrying) {
+                            opponent.reflectedThisFrame = true;
+                            this.health -= 15;
+                            this.velX = -this.facing * 16;
+                            this.velY = -4;
+                            if (this.health <= 0) { this.health = 0; triggerWin(opponent); }
+                            return;
+                        }
+                        if (!(opponent.type === 'sixeye' && opponent.isInfinityShieldActive) && !opponent.isSaiyanDodging) {
+                            // Record starting HP for the 80% combo calculation!
+                            this.brawlerAirComboTarget = opponent;
+                            this.brawlerComboStartHp = opponent.health;
+                            this.brawlerSaitamaWindow = 0;
+
+                            // Launch opponent high into the air and suspend them for 1.9s (114 frames @ 60fps)
+                            opponent.y = config.groundY - 145;
+                            opponent.velY = 0;
+                            opponent.velX = 0;
+                            opponent.isStunned = true;
+                            opponent.stunTimer = 114;
+                            opponent.brawlerAirSuspended = 114; // 1.9 seconds in air
+
+                            // Initial launch damage (approx 10% of opponent's current HP)
+                            dmg = Math.max(2, Math.min(opponent.health * 0.1, 8));
+                            opponent.health -= dmg;
+
+                            gameState.shake = 24;
+                            gameState.flashAlpha = 0.45;
+                            gameState.flashColor = this.color;
+                            announceText('180° LAUNCH! JUMP & ULT (B)!', this.color);
+
+                            gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 30, this.facing, this.color, { maxFrames: 24, P: 4 }));
+                            gameState.pixelEffects.push(new PixelVFX('air_ring', opponent.x, config.groundY - 8, this.facing, this.color));
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x - 20, config.groundY, -1, this.color));
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x + 20, config.groundY, 1, this.color));
+                        }
                     }
 
                     if (dmg > 0) {
@@ -18111,6 +18324,175 @@ function drawHooperCutscene(progress, caster) {
     ctx.font = 'bold 14px "Press Start 2P", monospace';
     ctx.textAlign = 'center';
     ctx.fillText(progress < 0.62 ? 'STREETBALL DRIVE...' : '★ ZONE AWAKENING: VIRTUAL COURT! ★', W / 2, H - 14);
+
+    ctx.imageSmoothingEnabled = prevSmooth;
+    ctx.restore();
+}
+
+
+// ============ BRAWLER AIR COMBO: SAITAMA-STYLE OMNIDIRECTIONAL BOUNCE CUTSCENE ============
+function startBrawlerSaitamaCutscene(caster, target) {
+    gameState.brawlerCutsceneActive = true;
+    gameState.brawlerCutsceneDuration = 145; // ~2.4 seconds of hype
+    gameState.brawlerCutsceneTimer = 145;
+    gameState.brawlerCutsceneCaster = caster;
+    gameState.brawlerCutsceneTarget = target;
+    caster.brawlerSaitamaWindow = 0;
+    gameState.shake = 35;
+    gameState.flashAlpha = 0.75;
+    gameState.flashColor = '#ffffff';
+}
+
+function drawBrawlerSaitamaCutscene(progress, caster, target) {
+    const W = canvas.width;   // 850
+    const H = canvas.height;  // 400
+    const P = 4;
+    const isP1 = caster.id === 1;
+    const mainCol  = caster.color || '#2ecc71';
+    const lightCol = isP1 ? '#7bed9f' : '#ff7979';
+
+    ctx.save();
+    const prevSmooth = ctx.imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = false;
+    ctx.shadowBlur = 0;
+
+    // Dark cinematic combat dimension backdrop
+    ctx.fillStyle = '#06070d';
+    ctx.fillRect(0, 0, W, H);
+
+    const oppX = Math.round(target.x);
+    const oppY = config.groundY - 145; // Suspended in air
+
+    if (progress < 0.74) {
+        // ── PHASE 1 (0.0 -> 0.74): SAITAMA OMNIDIRECTIONAL BOUNCING FRENZY! ──
+        const tCycle = (progress / 0.74);
+        const hitStep = Math.floor(tCycle * 24); // 24 distinct ricochet attack positions
+        const stepProg = (tCycle * 24) % 1;
+
+        // Dynamic 360-degree anime speed lines radiating outward from the suspended target
+        for (let i = 0; i < 24; i++) {
+            const ang = (i / 24) * Math.PI * 2 + (hitStep * 0.25);
+            ctx.fillStyle = (i % 2 === 0) ? mainCol : '#ffffff';
+            for (let d = 55; d < 460; d += 22) {
+                const sx = Math.round((oppX + Math.cos(ang) * d) / P) * P;
+                const sy = Math.round((oppY + Math.sin(ang) * d) / P) * P;
+                ctx.fillRect(sx, sy, P * 2, P);
+            }
+        }
+
+        // 8 Multi-angled ricochet paths criss-crossing the screen (Saitama bouncing frantically!)
+        const bounceAngles = [
+            [-280, -90], [290, -80], [-240, 110], [260, 100],
+            [0, -180], [0, 170], [-290, 0], [290, 0]
+        ];
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        for (let b = 0; b < bounceAngles.length; b++) {
+            const bx = oppX + bounceAngles[b][0];
+            const by = oppY + bounceAngles[b][1];
+            ctx.fillRect(bx, by, P * 2, P * 2);
+            // Trail lines toward opponent
+            ctx.fillRect(Math.round((bx + oppX)/2), Math.round((by + oppY)/2), P, P);
+        }
+
+        // Suspended Target (Trembling / hitstun silhouette in the center of the air)
+        const tremX = oppX + Math.round((Math.random() - 0.5) * 6);
+        const tremY = oppY + Math.round((Math.random() - 0.5) * 6);
+        ctx.fillStyle = '#0d0f17';
+        ctx.fillRect(tremX - 16, tremY - 45, 32, 50);
+        ctx.fillStyle = target.color || '#ff4757';
+        ctx.fillRect(tremX - 12, tremY - 42, 24, 44);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(tremX - 6, tremY - 32, 12, 16);
+
+        // Blazing Brawler Afterimages bouncing from current ricochet trajectory!
+        const curAngleIdx = hitStep % bounceAngles.length;
+        const [fromOffX, fromOffY] = bounceAngles[curAngleIdx];
+        const curBrawlerX = oppX + fromOffX * (1 - stepProg);
+        const curBrawlerY = oppY + fromOffY * (1 - stepProg);
+        const bDir = (curBrawlerX < oppX) ? 1 : -1;
+
+        // Draw Brawler flying jab afterimage
+        ctx.fillStyle = mainCol;
+        ctx.fillRect(curBrawlerX - 18, curBrawlerY - 24, 36, 48);
+        ctx.fillStyle = lightCol;
+        ctx.fillRect(curBrawlerX - 12, curBrawlerY - 18, 24, 36);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(curBrawlerX + bDir * 16, curBrawlerY - 8, 16, 16); // Extended serious fist!
+
+        // Shockwaves & pixel impact bursts exploding on the suspended target
+        if (stepProg < 0.35) {
+            gameState.pixelEffects.push(new PixelVFX('impact_burst', oppX, oppY - 20, bDir, mainCol, { maxFrames: 14 }));
+            gameState.pixelEffects.push(new PixelVFX('air_ring', oppX, oppY - 20, bDir, '#ffffff'));
+            gameState.shake = Math.max(gameState.shake || 0, 16);
+        }
+
+        // Rapid Hits Counter HUD
+        const currentComboHits = Math.floor(tCycle * 64) + 1;
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`★ ${currentComboHits} HITS! ★`, W / 2, 80);
+        ctx.fillStyle = lightCol;
+        ctx.font = 'bold 11px "Press Start 2P", monospace';
+        ctx.fillText('OMNIDIRECTIONAL SERIOUS STRIKES', W / 2, 105);
+
+    } else {
+        // ── PHASE 2 (0.74 -> 1.0): CLIMAX SERIOUS FINISHER & METEORIC SLAM! ──
+        const slamT = (progress - 0.74) / 0.26; // 0 -> 1
+
+        if (slamT < 0.45) {
+            // Freeze frame! Negative flash & extreme close-up of Brawler's Serious Punch face!
+            const fPhase = Math.floor(slamT * 40) % 2;
+            ctx.fillStyle = fPhase === 0 ? '#000000' : mainCol;
+            ctx.fillRect(0, 0, W, H);
+
+            // Colossal Serious Fist Charging directly overhead
+            const fistSize = 56;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(W / 2 - fistSize, H / 2 - fistSize, fistSize * 2, fistSize * 2);
+            ctx.fillStyle = mainCol;
+            ctx.fillRect(W / 2 - fistSize + 8, H / 2 - fistSize + 8, fistSize * 2 - 16, fistSize * 2 - 16);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(W / 2 - 16, H / 2 - 16, 32, 32);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 16px "Press Start 2P", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('★ SERIOUS SERIES: METEOR SLAM! ★', W / 2, 70);
+        } else {
+            // Final Meteoric Dive: drives the opponent straight down into the floor!
+            const diveProg = (slamT - 0.45) / 0.55;
+            const curY = oppY + (config.groundY - oppY) * (diveProg * diveProg);
+
+            // Dive trail
+            ctx.fillStyle = mainCol;
+            ctx.fillRect(oppX - 24, 0, 48, curY);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(oppX - 12, 0, 24, curY);
+
+            // Brawler & Opponent locked together in the downward meteor slam
+            ctx.fillStyle = '#090b10';
+            ctx.fillRect(oppX - 22, curY - 50, 44, 52);
+            ctx.fillStyle = mainCol;
+            ctx.fillRect(oppX - 16, curY - 45, 32, 42);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(oppX - 12, curY - 35, 24, 24);
+
+            if (diveProg >= 0.95) {
+                gameState.shake = 55;
+                gameState.flashAlpha = 0.85;
+                gameState.flashColor = '#ffffff';
+            }
+        }
+    }
+
+    // Top and Bottom Letterbox Bars
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, W, 36);
+    ctx.fillRect(0, H - 36, W, 36);
+    ctx.fillStyle = mainCol;
+    ctx.fillRect(0, 34, W, 3);
+    ctx.fillRect(0, H - 37, W, 3);
 
     ctx.imageSmoothingEnabled = prevSmooth;
     ctx.restore();
@@ -22458,8 +22840,24 @@ function drawPixelMage(fighter, frozenInDraw) {
                     } else {
                         me.attack('hooper_c');
                     }
+                } else if (me.type === 'martial') {
+                    // Brawler AI: Auto-execute full Air Combo sequence!
+                    if (me.brawlerSaitamaWindow > 0) {
+                        me.attack('punch'); // Trigger Saitama cutscene!
+                    } else if (opponent.brawlerAirSuspended > 0) {
+                        if (me.y >= config.groundY - 1) me.jump();
+                        me.attack('special'); // Instantly fire Hadou ball at suspended opponent!
+                    } else if (me.brawlerEnhancedKickReady && dist < 140) {
+                        me.attack('kick'); // Unleash 180° kick to launch opponent!
+                    } else if (canSpecial && rand < 0.35) {
+                        me.attack('special');
+                    } else if (rand < 0.72) {
+                        me.attack('punch'); // Accumulate 3 punch stacks!
+                    } else {
+                        me.attack('kick');
+                    }
                 } else {
-                    // martial / fallback
+                    // fallback
                     if (canSpecial && rand < 0.38) {
                         me.attack('special');
                     } else if (rand < 0.68) {
@@ -22499,7 +22897,7 @@ function drawPixelMage(fighter, frozenInDraw) {
 
         function handleInput() {
             if (!gameState.isStarted) return;
-            if (gameState.domainClashActive || gameState.hooperCutsceneActive) return; // input locked during cutscenes
+            if (gameState.domainClashActive || gameState.hooperCutsceneActive || gameState.brawlerCutsceneActive) return; // input locked during cutscenes
 
             // ── CPU-vs-CPU SYNC: Six Eyes vs Slasher → once-per-match domain clash.
             // Runs BEFORE the timescale guard so the counter keeps ticking even during slow-mo hits.
@@ -23101,6 +23499,43 @@ function drawPixelMage(fighter, frozenInDraw) {
                             gameState.flashAlpha = 0.65;
                             gameState.flashColor = hc.color;
                             announceText('ZONE AWAKENED (9S)!', hc.color);
+                        }
+                    }
+                }
+
+                // ── Brawler Saitama-Style Omnidirectional Air Combo Cutscene ──
+                if (gameState.brawlerCutsceneActive) {
+                    gameState.brawlerCutsceneTimer -= 1;
+                    const progress = 1 - (gameState.brawlerCutsceneTimer / gameState.brawlerCutsceneDuration);
+                    drawBrawlerSaitamaCutscene(Math.max(0, Math.min(1, progress)), gameState.brawlerCutsceneCaster, gameState.brawlerCutsceneTarget);
+                    if (gameState.brawlerCutsceneTimer <= 0) {
+                        gameState.brawlerCutsceneActive = false;
+                        const caster = gameState.brawlerCutsceneCaster;
+                        const target = gameState.brawlerCutsceneTarget;
+                        if (caster && target && !target.isDead) {
+                            // Target slams into ground
+                            target.y = config.groundY;
+                            target.velY = 0;
+                            target.velX = caster.facing * 8;
+                            target.isStunned = true;
+                            target.stunTimer = 35;
+                            target.brawlerAirSuspended = 0;
+
+                            // Total combo takes exactly 80% of opponent's health before the combo!
+                            const startHp = caster.brawlerComboStartHp || target.health;
+                            const targetHp = Math.max(0, startHp * 0.20);
+                            target.health = targetHp;
+
+                            gameState.shake = 55;
+                            gameState.flashAlpha = 0.95;
+                            gameState.flashColor = '#ffffff';
+                            createDeidaraPixelExplosion(target.x, config.groundY - 30, 1.6, true);
+                            announceText('80% SERIOUS COMBO COMPLETE!', caster.color);
+
+                            if (target.health <= 0) {
+                                target.health = 0;
+                                triggerWin(caster);
+                            }
                         }
                     }
                 }
