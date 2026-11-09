@@ -906,12 +906,12 @@
         <div id="controls-guide">
             <div class="guide-col" id="p1-guide-container">
                 <h4>P1 CONTROLS</h4>
-                <div>Move: <b>A</b> <b>D</b> &nbsp;|&nbsp; Jump: <b>W</b> &nbsp;|&nbsp; Block: <b>S</b></div>
+                <div>Move: <b>A</b> <b>D</b> &nbsp;|&nbsp; Jump: <b>W</b> &nbsp;|&nbsp; Block: <b>S</b> &nbsp;|&nbsp; <b>Block + V</b>: Launch</div>
                 <div>Attack: <b>C</b> &nbsp;|&nbsp; Skill / Dash: <b>V</b> &nbsp;|&nbsp; Ultimate: <b>B</b></div>
             </div>
             <div class="guide-col p2-guide" id="p2-guide-container">
                 <h4>P2 CONTROLS</h4>
-                <div>Move: <b>←</b> <b>→</b> &nbsp;|&nbsp; Jump: <b>↑</b> &nbsp;|&nbsp; Block: <b>↓</b></div>
+                <div>Move: <b>←</b> <b>→</b> &nbsp;|&nbsp; Jump: <b>↑</b> &nbsp;|&nbsp; Block: <b>↓</b> &nbsp;|&nbsp; <b>Block + K</b>: Launch</div>
                 <div>Attack: <b>J</b> &nbsp;|&nbsp; Skill / Dash: <b>K</b> &nbsp;|&nbsp; Ultimate: <b>L</b></div>
             </div>
         </div>
@@ -5373,7 +5373,7 @@
                     }
                 }
             }
-            else if (drawAttacking && drawAttackType === 'brawler_180_kick') {
+            else if (drawAttacking && (drawAttackType === 'launcher_kick' || drawAttackType === 'brawler_180_kick')) {
                 // 180-DEGREE HIGH CRESCENT SOMERSAULT KICK
                 expr = 'shout';
                 if (progress < 0.25) {
@@ -5632,94 +5632,7 @@
                 px(fx - 1, fy + 2, 2, 1, '#ff0033');
             }
 
-            // ── BỘ ĐẾM TRỰC QUAN TRÊN ĐẦU BRAWLER (0/3 -> 3/3 BẤM V HẤT LÊN!) ──
-            if (!fighter.isDead) {
-                const hits = Math.min(3, Math.max(0, fighter.brawlerHitCount || 0));
-                const ready = fighter.brawlerEnhancedKickReady || hits >= 3;
-                const opp = (typeof p1 !== 'undefined' && fighter.id === p1.id) ? (typeof p2 !== 'undefined' ? p2 : null) : (typeof p1 !== 'undefined' ? p1 : null);
-                const oppAir = opp && (opp.brawlerAirSuspended > 0);
-                const saitamaWin = (fighter.brawlerSaitamaWindow > 0);
-
-                ctx.save();
-                ctx.imageSmoothingEnabled = true;
-
-                if (fighter.brawlerBlitzTimer > 0) {
-                    // Đang Teleport liên tục quanh đối thủ!
-                    const flash = Math.floor(timeMs / 60) % 2;
-                    ctx.fillStyle = flash ? '#ffd700' : '#e74c3c';
-                    ctx.strokeStyle = '#000000';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.roundRect ? ctx.roundRect(baseX - 65, baseY - 88, 130, 20, 5) : ctx.rect(baseX - 65, baseY - 88, 130, 20);
-                    ctx.fill(); ctx.stroke();
-
-                    ctx.font = '900 11px monospace';
-                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillStyle = '#0d0f17';
-                    ctx.fillText('SERIOUS BLITZ!', baseX, baseY - 77);
-                } else if (saitamaWin) {
-                    // Cửa sổ kích hoạt đòn Teleport Blitz!
-                    const flash = Math.floor(timeMs / 100) % 2;
-                    ctx.fillStyle = flash ? '#e74c3c' : '#ffffff';
-                    ctx.strokeStyle = '#000000';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.roundRect ? ctx.roundRect(baseX - 60, baseY - 88, 120, 20, 5) : ctx.rect(baseX - 60, baseY - 88, 120, 20);
-                    ctx.fill(); ctx.stroke();
-
-                    ctx.font = '900 11px monospace';
-                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillStyle = flash ? '#ffffff' : '#000000';
-                    ctx.fillText('BẤM C: BLITZ!', baseX, baseY - 77);
-                } else if (oppAir) {
-                    // Đối thủ đang bị hất treo trên trời!
-                    ctx.fillStyle = '#9b59b6';
-                    ctx.strokeStyle = '#ffffff';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.roundRect ? ctx.roundRect(baseX - 65, baseY - 88, 130, 20, 5) : ctx.rect(baseX - 65, baseY - 88, 130, 20);
-                    ctx.fill(); ctx.stroke();
-
-                    ctx.font = '900 10px monospace';
-                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillText('NHẢY + B: BẮN CẦU!', baseX, baseY - 77);
-                } else if (ready) {
-                    // ĐÃ TÍCH ĐỦ 3/3 -> BẤM V HẤT LÊN!
-                    const flash = Math.floor(timeMs / 120) % 2;
-                    ctx.fillStyle = flash ? '#f1c40f' : '#2ecc71';
-                    ctx.strokeStyle = '#000000';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.roundRect ? ctx.roundRect(baseX - 58, baseY - 88, 116, 20, 5) : ctx.rect(baseX - 58, baseY - 88, 116, 20);
-                    ctx.fill(); ctx.stroke();
-
-                    ctx.font = '900 11px monospace';
-                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillStyle = '#0d0f17';
-                    ctx.fillText('3/3 [V] HẤT LÊN!', baseX, baseY - 77);
-
-                    // Ki aura bốc lên từ chân và thân
-                    const aFlick = Math.floor(timeMs / 40) % 3;
-                    px(legF[4] - 3, legF[5] - 5 - aFlick, 7, 3, '#f1c40f');
-                    px(legB[4] - 3, legB[5] - 5 - ((aFlick + 1) % 3), 7, 3, '#f1c40f');
-                    px(hx - 3, hy - 7 - aFlick, 7, 2, '#ffffff');
-                } else {
-                    // BỘ ĐẾM 0/3, 1/3, 2/3 TRÊN ĐẦU
-                    ctx.fillStyle = 'rgba(13, 15, 23, 0.88)';
-                    ctx.strokeStyle = fighter.color;
-                    ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.roundRect ? ctx.roundRect(baseX - 25, baseY - 86, 50, 18, 4) : ctx.rect(baseX - 25, baseY - 86, 50, 18);
-                    ctx.fill(); ctx.stroke();
-
-                    ctx.font = 'bold 12px monospace';
-                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillStyle = hits === 2 ? '#f1c40f' : (hits === 1 ? '#2ecc71' : '#bdc3c7');
-                    ctx.fillText(`${hits}/3`, baseX, baseY - 76);
-                }
-                ctx.restore();
-            }
+            
 
             // B) Pixel Hex/Diamond Ki Shield when Blocking
             if (fighter.isBlocking) {
@@ -5847,7 +5760,7 @@
             }
 
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isDashing;
@@ -6331,7 +6244,7 @@
             }
 
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isDashing;
@@ -6827,7 +6740,7 @@
             }
 
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isGliding = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -7198,7 +7111,7 @@
             }
 
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -7619,7 +7532,7 @@
 
             // 2) Animation State Machine
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const inAir = fighter.y < config.groundY - 2;
             const speed = Math.abs(fighter.velX);
             const walkPhase = (fighter.walkCycle || 0) * (isBeast ? 1.35 : 1.05);
@@ -8057,7 +7970,7 @@
             }
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -8500,7 +8413,7 @@
             }
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging && !fighter.isSaiyanDodging;
@@ -8972,7 +8885,7 @@
 
             // Determine Animation State & Progress
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -9499,7 +9412,7 @@ function drawPixelZookeeper(fighter, frozenInDraw) {
 
             // Animation Progress & State
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -9892,7 +9805,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
             // 3) Animation State & Kinematics
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -10340,7 +10253,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
             // Kinematics & States
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging && !fighter.isParrying;
@@ -11096,37 +11009,6 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         }
                     }
                     return; 
-                }
-
-                if (this.isBrawlerAirBall) {
-                    this.x += (this.velX || this.speed * this.facing) * config.timeScale;
-                    this.y += (this.velY || 0) * config.timeScale;
-                    if (Math.random() > 0.15) {
-                        gameState.pixelEffects.push(new PixelVFX('ki_spark', this.x, this.y, this.facing, this.color));
-                    }
-                    // Check hit on suspended target
-                    const opp = (this.owner.id === 1) ? p2 : p1;
-                    if (opp && !opp.isDead) {
-                        const distToOpp = Math.hypot(this.x - opp.x, this.y - (opp.y - 45));
-                        if (distToOpp < 55) {
-                            this.active = false;
-                            const burstDmg = Math.max(3, opp.health * 0.15);
-                            opp.health -= burstDmg;
-                            opp.brawlerAirSuspended = Math.max(opp.brawlerAirSuspended, 75); // extend air suspension!
-                            this.owner.brawlerSaitamaWindow = 65; // window to press normal attack (C)!
-                            gameState.shake = 26;
-                            gameState.flashAlpha = 0.55;
-                            gameState.flashColor = this.color;
-                            announceText('PRESS ATTACK (C) FOR SERIOUS COMBO!', '#ff4757');
-                            gameState.pixelEffects.push(new PixelVFX('impact_burst', opp.x, opp.y - 40, this.facing, this.color, { maxFrames: 24, P: 4 }));
-                            gameState.pixelEffects.push(new PixelVFX('air_ring', opp.x, opp.y - 40, this.facing, '#ffffff'));
-                            return;
-                        }
-                    }
-                    if (this.x < -100 || this.x > canvas.width + 100 || this.y < -100 || this.y > canvas.height + 100) {
-                        this.active = false;
-                    }
-                    return;
                 }
 
                 if (this.isRedSphere) {
@@ -13209,16 +13091,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
                 this.hooperAnkleFallTimer = 0;          // Visual knockdown timer when ankle-broken by Hooper
 
-                // Brawler Air Combo State Properties
-                this.brawlerHitCount = 0;               // Normal punches landed (3 stacks required)
-                this.brawlerEnhancedKickReady = false;  // 180° Kick ready when 3 stacks reached
-                this.brawlerBlitzTimer = 0;             // Teleport blitz timer
-                this.brawlerBlitzTarget = null;
-                this.brawlerAirComboTarget = null;      // Target suspended in air
-                this.brawlerComboStartHp = 0;           // Opponent HP at start of combo for 80% calculation
-                this.brawlerSaitamaWindow = 0;          // Time window to press normal attack for cutscene
-                this.brawlerAirSuspended = 0;           // Opponent air suspension timer (114f = 1.9s)
-            }
+                            }
 
             // Universal getter & setter to enforce Tai Chi Divine Special Immunity perfectly
             get health() {
@@ -13829,7 +13702,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 let progress = 1 - this.attackTimer/this.attackMax;
                 // Frozen fighters show idle pose — override attacking state for draw only
                 const drawAttacking = frozenInDraw ? false : this.attacking;
-                const drawAttackType = frozenInDraw ? '' : this.attackType;
+                const drawAttackType = frozenInDraw ? '' : (this.attackType === 'launcher_kick' ? 'kick' : this.attackType);
                 if (this.type === 'sword') {
                     let swordAngle = (drawAttacking && drawAttackType === 'slash') ? (-Math.PI/2 + progress * Math.PI) : (this.isBlocking ? -Math.PI/4 : Math.PI/4);
                     if (this.isDashing && !frozenInDraw) swordAngle = 0;
@@ -14145,7 +14018,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         ctx.stroke();
                         ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5;
                         ctx.beginPath(); ctx.moveTo(whipLen - 14, wp > 0.5 ? 4 : -4); ctx.lineTo(whipLen, wp > 0.5 ? 7 : -7); ctx.stroke();
-                    } else if (this.attacking && this.attackType === 'kick') {
+                    } else if (this.attacking && (this.attackType === 'kick' || this.attackType === 'launcher_kick')) {
                         ctx.strokeStyle = this.color; ctx.lineWidth = stickLineWidth;
                         ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(48, -7); ctx.stroke();
                     } else {
@@ -14280,7 +14153,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 ctx.translate(centerX, legsY);
                 ctx.scale(this.facing, 1);
                 const isAirborneLegacy = this.y < config.groundY - 2;
-                if (this.attacking && (this.attackType === 'kick' || this.isDashing || this.attackType === 'knife_throw')) {
+                if (this.attacking && (this.attackType === 'kick' || this.attackType === 'launcher_kick' || this.isDashing || this.attackType === 'knife_throw')) {
                     ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-5, isWerewolfMode ? 38 : 32); ctx.stroke(); 
                     ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(isWerewolfMode ? 62 : 52, -15); ctx.stroke();
                 } else if (isAirborneLegacy) {
@@ -14345,92 +14218,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             update(opponent) {
                 if (gameState.domainClashActive || gameState.hooperCutsceneActive) return; // frozen during cutscenes
 
-                // ── Brawler Saitama-Style Omnidirectional Teleport Blitz (Continuous Teleports) ──
-                if (this.brawlerBlitzTimer > 0) {
-                    this.brawlerBlitzTimer -= 1 * config.timeScale;
-                    const target = this.brawlerBlitzTarget || opponent;
-                    if (target && !target.isDead) {
-                        target.y = config.groundY - 145;
-                        target.velY = 0;
-                        target.velX = 0;
-                        target.isStunned = true;
-                        target.stunTimer = 10;
-
-                        // Teleport rapidly every 3 frames to random angle around target
-                        if (Math.floor(this.brawlerBlitzTimer) % 3 === 0) {
-                            gameState.pixelEffects.push(new PixelVFX('ki_spark', this.x, this.y - 25, this.facing, this.color));
-                            gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 25, this.facing, '#ffffff'));
-
-                            const angles = [0, 0.785, 1.57, 2.356, 3.14, 3.927, 4.712, 5.498];
-                            const a = angles[Math.floor(Math.random() * angles.length)];
-                            const d = 42 + Math.random() * 22;
-                            this.x = Math.max(35, Math.min(canvas.width - 35, target.x + Math.cos(a) * d));
-                            this.y = Math.max(70, target.y - 30 + Math.sin(a) * (d * 0.7));
-                            this.velX = 0;
-                            this.velY = 0;
-                            this.facing = (this.x < target.x) ? 1 : -1;
-
-                            gameState.shake = 10;
-                            gameState.pixelEffects.push(new PixelVFX('impact_burst', target.x, target.y - 35, this.facing, this.color, { maxFrames: 12, P: 3 }));
-                            gameState.slashes.push(new SlashEffect(this.x, this.y - 20, target.x, target.y - 35, '#ffffff', 4, true, false));
-                        }
-
-                        // Final Slam when blitz completes
-                        if (this.brawlerBlitzTimer <= 0) {
-                            this.brawlerBlitzTimer = 0;
-                            this.attacking = false;
-                            this.attackTimer = 0;
-                            this.x = target.x;
-                            this.y = config.groundY;
-                            this.velX = 0;
-                            this.velY = 0;
-
-                            target.y = config.groundY;
-                            target.velY = 0;
-                            target.velX = this.facing * 6;
-                            target.isStunned = true;
-                            target.stunTimer = 35;
-                            target.brawlerAirSuspended = 0;
-
-                            const startHp = this.brawlerComboStartHp || target.health;
-                            target.health = Math.max(0, startHp * 0.20);
-
-                            gameState.shake = 45;
-                            gameState.flashAlpha = 0.85;
-                            gameState.flashColor = '#ffffff';
-                            createDeidaraPixelExplosion(target.x, config.groundY - 25, 1.6, true);
-                            announceText('80% SERIOUS BLITZ COMPLETE!', this.color);
-
-                            if (target.health <= 0) {
-                                target.health = 0;
-                                triggerWin(this);
-                            }
-                        }
-                    }
-                    return;
-                }
+                
                 if (this.hooperAnkleFallTimer > 0) {
                     this.hooperAnkleFallTimer -= 1 * config.timeScale;
                     if (this.hooperAnkleFallTimer < 0) this.hooperAnkleFallTimer = 0;
                 }
-                if (this.brawlerSaitamaWindow > 0) {
-                    this.brawlerSaitamaWindow -= 1 * config.timeScale;
-                    if (this.brawlerSaitamaWindow < 0) this.brawlerSaitamaWindow = 0;
-                }
-                if (this.brawlerAirSuspended > 0) {
-                    this.brawlerAirSuspended -= 1 * config.timeScale;
-                    this.velY = 0;
-                    this.velX = 0;
-                    this.y = config.groundY - 145; // Firmly suspended in mid-air!
-                    this.isStunned = true;
-                    this.stunTimer = Math.max(this.stunTimer || 0, this.brawlerAirSuspended);
-                    if (Math.floor(this.brawlerAirSuspended) % 4 === 0) {
-                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 20, 1, '#ffffff'));
-                    }
-                    if (this.brawlerAirSuspended <= 0) {
-                        this.brawlerAirSuspended = 0;
-                    }
-                }
+                
                 if (this.isDead) {
                     if (this.inGiantBubble) {
                         this.y += this.velY * config.timeScale;
@@ -15760,18 +15553,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             attack(type) {
                 const opponent = (typeof p1 !== 'undefined' && this.id === p1.id) ? p2 : (typeof p1 !== 'undefined' ? p1 : null);
 
-                // ── Brawler Saitama-style Omnidirectional Teleport Blitz Trigger ──
-                if (this.type === 'martial' && this.brawlerSaitamaWindow > 0 && opponent && opponent.brawlerAirSuspended > 0) {
-                    this.brawlerSaitamaWindow = 0;
-                    this.brawlerBlitzTimer = 54; // ~0.9s of rapid live teleports
-                    this.brawlerBlitzTarget = opponent;
-                    this.attacking = true;
-                    this.attackType = 'brawler_blitz';
-                    this.hitOnce = false;
-                    announceText('SERIOUS BLITZ (TELEPORT)!', this.color);
-                    gameState.shake = 16;
-                    return;
-                }
+                
 
                 // ── PHANTOM CHARGED BLAST (B-hold to charge, max release) ─────────────
                 if (this.type === 'phantom' && type === 'phantom_blast' && !this.isDead) {
@@ -16127,7 +15909,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 }
 
-                if (this.attacking || this.isDead || this.isBlocking || this.internalCooldown > 0 || this.isCharging || this.isParrying || this.isTransforming || this.isBeingPulled || this.isStunned || this.isSaiyanDodging || this.phantomChargingB || this.slasherUltActive) return;
+                if (this.attacking || this.isDead || (this.isBlocking && type !== 'launcher_kick') || this.internalCooldown > 0 || this.isCharging || this.isParrying || this.isTransforming || this.isBeingPulled || this.isStunned || this.isSaiyanDodging || this.phantomChargingB || this.slasherUltActive) return;
                 if ((type === 'dash' || type === 'special' || type === 'saiyan_beam') && this.cooldown > 0) return;
                 if (gameState.timestopActive && this !== gameState.timestopCaster) return;
                 
@@ -16141,29 +15923,29 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
                 let teleportFacing = moveDir !== 0 ? moveDir : this.facing;
 
-                // Brawler Enhanced 180° Kick: khi tích đủ 3 phát, bấm V (hoặc C) lập tức hất tung đối thủ lên trời!
-                if ((type === 'kick' || (type === 'punch' && (this.brawlerHitCount >= 3 || this.brawlerEnhancedKickReady))) && this.type === 'martial' && (this.brawlerHitCount >= 3 || this.brawlerEnhancedKickReady)) {
-                    this.brawlerEnhancedKickReady = false;
-                    this.brawlerHitCount = 0;
+                // Universal Launcher Kick: Block + Kick (for all characters with a leg kick)
+                if (type === 'launcher_kick') {
+                    const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                    if (noLegKick.includes(this.type)) return;
+
+                    this.isBlocking = false;
                     this.attacking = true;
-                    this.attackType = 'brawler_180_kick';
+                    this.attackType = 'launcher_kick';
                     this.attackMax = 18;
                     this.attackTimer = 18;
-                    this.internalCooldown = 12;
+                    this.internalCooldown = 28;
                     this.hitOnce = false;
                     if (opponent) {
                         this.facing = (opponent.x >= this.x) ? 1 : -1;
-                        // Auto-lunge close to opponent
                         const gap = Math.abs(opponent.x - this.x);
-                        if (gap > 30) {
-                            this.x += this.facing * Math.min(gap - 25, 75);
+                        if (gap > 35) {
+                            this.x += this.facing * Math.min(gap - 30, 25);
                         }
                     }
 
-                    gameState.pixelEffects.push(new PixelVFX('gale_kick', this.x + 35 * this.facing, this.y - 50, this.facing, this.color));
-                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 30 * this.facing, this.y - 50, this.facing, '#ffffff'));
-                    gameState.shake = Math.max(gameState.shake || 0, 16);
-                    announceText('ĐÃ HẤT LÊN TRỜI!', this.color);
+                    gameState.pixelEffects.push(new PixelVFX('gale_kick', this.x + 28 * this.facing, this.y - 45, this.facing, this.color));
+                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 20 * this.facing, this.y - 35, this.facing, '#ffffff'));
+                    gameState.shake = Math.max(gameState.shake || 0, 8);
                     return;
                 }
 
@@ -16594,34 +16376,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.shake = 14;
                         return;
                     }
-                    // Brawler Air Combo: jump up and press ultimate (B) to instantly fire Hadou ball at air-suspended opponent!
-                    if (this.type === 'martial' && opponent.brawlerAirSuspended > 0) {
-                        this.cooldown = this.maxCooldown;
-                        this.attacking = true;
-                        this.attackType = 'punch';
-                        this.attackTimer = 14;
-                        this.attackMax = 14;
-                        this.facing = (opponent.x >= this.x) ? 1 : -1;
-
-                        const spawnX = this.x + 35 * this.facing;
-                        const spawnY = this.y - 45;
-                        const proj = new Projectile(spawnX, spawnY, this.facing, this.color, this);
-                        proj.isBrawlerAirBall = true;
-                        proj.speed = 32;
-                        const dx = opponent.x - spawnX;
-                        const dy = (opponent.y - 40) - spawnY;
-                        const dist = Math.hypot(dx, dy) || 1;
-                        proj.velX = (dx / dist) * proj.speed;
-                        proj.velY = (dy / dist) * proj.speed;
-                        this.projectiles.push(proj);
-                        this.brawlerSaitamaWindow = 90;
-
-                        announceText('HADOU BLAST! QUICK PRESS ATTACK (C)!', this.color);
-                        gameState.shake = 18;
-                        gameState.pixelEffects.push(new PixelVFX('impact_burst', spawnX, spawnY, this.facing, this.color, { maxFrames: 18 }));
-                        gameState.pixelEffects.push(new PixelVFX('air_ring', spawnX, spawnY, this.facing, '#ffffff'));
-                        return;
-                    }
+                    
 
                     this.isCharging = true;
                     this.chargingTimer = this.type === 'scythe' ? 65 : ((this.type === 'mage') ? 50 : 38);
@@ -16677,12 +16432,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.pixelEffects.push(new PixelVFX('sword_dash_trail', this.x, this.y, this.facing, this.color));
                     }
                 } 
-                // Brawler Saitama-style Omnidirectional Bouncing Cutscene Trigger (triggers on any button during window)
-                if (this.type === 'martial' && this.brawlerSaitamaWindow > 0 && opponent.brawlerAirSuspended > 0 && (type === 'punch' || type === 'kick' || type === 'special')) {
-                    this.brawlerSaitamaWindow = 0;
-                    startBrawlerSaitamaCutscene(this, opponent);
-                    return;
-                }
+                
 
                 if (type === 'punch') {
                     if (this.type === 'zookeeper') {
@@ -16759,8 +16509,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 const isSpecialThrust = (this.attackType === 'multithrust' && this.attackTimer <= 6);
 
                 let range = 80;
-                if (this.attackType === 'brawler_180_kick') {
-                    range = 165;
+                if (this.attackType === 'launcher_kick' || this.attackType === 'brawler_180_kick') {
+                    range = 115;
                 } else if (this.type === 'martial') {
                     range = 115;
                 } else if (this.attackType === 'dash') {
@@ -16998,19 +16748,6 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         } else {
                             let baseDmg = opponent.isBlocking ? 2 : 8;
                             if (this.type === 'martial') {
-                                if (this.attackType === 'punch' || this.attackType === 'kick') {
-                                    this.brawlerHitCount = Math.min(3, (this.brawlerHitCount || 0) + 1);
-                                    if (this.brawlerHitCount >= 3) {
-                                        this.brawlerEnhancedKickReady = true;
-                                        announceText('3/3 TÍCH ĐỦ! BẤM V HẤT LÊN!', this.color);
-                                        gameState.shake = 15;
-                                        gameState.pixelEffects.push(new PixelVFX('impact_burst', this.x + 25 * this.facing, this.y - 30, this.facing, this.color, { maxFrames: 20, P: 4 }));
-                                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 25, this.facing, '#ffffff'));
-                                    } else {
-                                        announceText(`BRAWLER: ${this.brawlerHitCount}/3 HITS`, this.color);
-                                        gameState.pixelEffects.push(new PixelVFX('ki_spark', this.x + 20 * this.facing, this.y - 25, this.facing, this.color));
-                                    }
-                                }
                                 let currentChance = this.blackFlashChance;
                                 if (Math.random() < currentChance) {
                                     dmg = baseDmg * 3.6;
@@ -17031,7 +16768,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         // 100% 16-BIT PIXEL ART EXPLOSION ON HIT
                         createDeidaraPixelExplosion(opponent.x, opponent.y - 45, 1.15, false);
                     }
-                    else if (Math.floor(this.attackTimer) === 10 && this.attackType === 'brawler_180_kick') {
+                    else if (Math.floor(this.attackTimer) === 9 && this.attackType === 'launcher_kick') {
                         this.hitOnce = true;
                         if (opponent.isParrying) {
                             opponent.reflectedThisFrame = true;
@@ -17042,33 +16779,31 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             return;
                         }
                         if (!(opponent.type === 'sixeye' && opponent.isInfinityShieldActive) && !opponent.isSaiyanDodging) {
-                            // Record starting HP for the 80% combo calculation!
-                            this.brawlerAirComboTarget = opponent;
-                            this.brawlerComboStartHp = opponent.health;
-                            this.brawlerSaitamaWindow = 0;
-                            this.cooldown = 0; // Refresh Special cooldown immediately for Air Combo!
+                            dmg = opponent.isBlocking ? 4 : 12;
+                            opponent.health = Math.max(0, opponent.health - dmg);
 
-                            // Launch opponent high into the air and suspend them for 1.9s (114 frames @ 60fps)
-                            opponent.y = config.groundY - 145;
-                            opponent.velY = 0;
-                            opponent.velX = 0;
+                            // Universal Launcher Kick: Kicks opponent high into the air!
+                            opponent.y = Math.min(opponent.y, config.groundY - 12);
+                            opponent.velY = -15.5; // High upward launch!
+                            opponent.velX = this.facing * 1.8;
                             opponent.isStunned = true;
-                            opponent.stunTimer = 114;
-                            opponent.brawlerAirSuspended = 114; // 1.9 seconds in air
+                            opponent.stunTimer = 42; // ~0.7s stun so player can jump and juggle
 
-                            // Initial launch damage (approx 10% of opponent's current HP)
-                            dmg = Math.max(2, Math.min(opponent.health * 0.1, 8));
-                            opponent.health -= dmg;
-
-                            gameState.shake = 24;
-                            gameState.flashAlpha = 0.45;
+                            gameState.shake = 18;
+                            gameState.flashAlpha = 0.35;
                             gameState.flashColor = this.color;
-                            announceText('180° LAUNCH! JUMP & ULT (B)!', this.color);
+                            announceText('AIR LAUNCH!', this.color);
 
-                            gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 30, this.facing, this.color, { maxFrames: 24, P: 4 }));
-                            gameState.pixelEffects.push(new PixelVFX('air_ring', opponent.x, config.groundY - 8, this.facing, this.color));
-                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x - 20, config.groundY, -1, this.color));
-                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x + 20, config.groundY, 1, this.color));
+                            gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 35, this.facing, this.color, { maxFrames: 22, P: 4 }));
+                            gameState.pixelEffects.push(new PixelVFX('gale_kick', opponent.x, opponent.y - 45, this.facing, this.color));
+                            gameState.pixelEffects.push(new PixelVFX('air_ring', opponent.x, config.groundY - 6, this.facing, '#ffffff'));
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x - 18, config.groundY, -1, this.color));
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x + 18, config.groundY, 1, this.color));
+
+                            if (opponent.health <= 0) {
+                                opponent.health = 0;
+                                triggerWin(this);
+                            }
                         }
                     }
 
@@ -17086,7 +16821,28 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         }
 
                         opponent.health -= dmg;
-                        
+
+                        const isAirHit = (this.y < config.groundY - 12 || opponent.y < config.groundY - 12);
+                        const isNormalAirAttack = (this.attackType === 'punch' || this.attackType === 'slash' || this.attackType === 'multithrust' || this.attackType === 'deidara_punch');
+
+                        if (isAirHit && isNormalAirAttack && this.attackType !== 'launcher_kick') {
+                            // Aerial Normal Attack landed!
+                            // Stun 0.2s (12 frames @ 60fps)
+                            opponent.isStunned = true;
+                            opponent.stunTimer = 12;
+
+                            // Aerial juggle float suspension & spacing
+                            opponent.velY = Math.min(opponent.velY, -2.2);
+                            opponent.velX = this.facing * 1.5;
+                            if (this.velY > 0) this.velY = 0.5;
+
+                            // Thay đổi hiệu ứng đánh thường: Crisp glowing air slash cross + air ring + impact burst
+                            gameState.pixelEffects.push(new PixelVFX('air_ring', opponent.x, opponent.y - 35, this.facing, '#ffffff'));
+                            gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 35, this.facing, this.color, { maxFrames: 14, P: 3 }));
+                            gameState.slashes.push(new SlashEffect(opponent.x - 22 * this.facing, opponent.y - 50, opponent.x + 22 * this.facing, opponent.y - 18, '#ffffff', 4, true, false));
+                            gameState.slashes.push(new SlashEffect(opponent.x - 22 * this.facing, opponent.y - 18, opponent.x + 22 * this.facing, opponent.y - 50, this.color, 4, true, false));
+                            gameState.shake = Math.max(gameState.shake || 0, 8);
+                        } else if (this.attackType !== 'launcher_kick') {
                         let kb = this.facing * (opponent.isBlocking ? 5 : 14);
                         if (this.attackType === 'multithrust') {
                             if (this.attackTimer <= 6) {
@@ -17123,6 +16879,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         }
 
                         opponent.velX = kb;
+                        }
                         
                         if (isBlackFlashHit) {
                             gameState.shake = 45;
@@ -18621,7 +18378,7 @@ function drawPixelDeidara(fighter, frozenInDraw) {
 
     // Kinematics & States
     const drawAttacking = frozenInDraw ? false : fighter.attacking;
-    const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+    const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
     const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
     const isAirborne = (fighter.y < config.groundY - 2) && !fighter.isRidingDragon;
     const isRunning = !isAirborne && !fighter.isRidingDragon && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -19482,7 +19239,7 @@ function drawPixelMage(fighter, frozenInDraw) {
 
     // Animation States
     const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-    const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+    const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
     const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
     const isAirborne     = fighter.y < config.groundY - 2;
     const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -19880,7 +19637,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -20109,7 +19866,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -20337,7 +20094,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -20553,7 +20310,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             }
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -20730,7 +20487,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -21052,7 +20809,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = !fighter.slasherUltActive && (fighter.y < config.groundY - 2);
             const isRunning      = !isAirborne && !fighter.slasherUltActive && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -22848,18 +22605,17 @@ function drawPixelMage(fighter, frozenInDraw) {
                         me.attack('hooper_c');
                     }
                 } else if (me.type === 'martial') {
-                    // Brawler AI: Auto-execute full Air Combo sequence!
-                    if (me.brawlerSaitamaWindow > 0) {
-                        me.attack('punch'); // Trigger Teleport Blitz!
-                    } else if (opponent.brawlerAirSuspended > 0) {
+                    const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                    const oppInAir = opponent.y < config.groundY - 25;
+                    if (oppInAir && dist < 120) {
                         if (me.y >= config.groundY - 1) me.jump();
-                        me.attack('special'); // Instantly fire Hadou ball at suspended opponent!
-                    } else if (me.brawlerEnhancedKickReady && dist < 140) {
-                        me.attack('kick'); // Unleash 180° kick to launch opponent!
+                        me.attack('punch'); // Aerial juggle!
+                    } else if (!oppInAir && dist < 95 && rand < 0.32) {
+                        me.attack('launcher_kick'); // Launcher kick!
                     } else if (canSpecial && rand < 0.35) {
                         me.attack('special');
                     } else if (rand < 0.72) {
-                        me.attack('punch'); // Accumulate 3 punch stacks!
+                        me.attack('punch');
                     } else {
                         me.attack('kick');
                     }
@@ -22938,7 +22694,17 @@ function drawPixelMage(fighter, frozenInDraw) {
                 cpu1Vel.v = runCPU(p1, p2, cpu1Counter, cpu1Vel);
                 applyVelocity(p1, cpu1Vel.v);
             } else {
-                p1.isBlocking = keys['KeyS'];
+                const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                const p1HoldingBlock = !!keys['KeyS'];
+                const p1PressKick = !!keys['KeyV'];
+
+                // Block + Kick: Launcher Kick for all characters with leg kick
+                if ((p1HoldingBlock || p1.isBlocking) && p1PressKick && !noLegKick.includes(p1.type)) {
+                    p1.isBlocking = false;
+                    p1.attack('launcher_kick');
+                } else {
+                    p1.isBlocking = p1HoldingBlock;
+                }
                 if (p1.isParrying || p1.isTransforming || p1.isBeingPulled || p1.isStunned || p1.isCinematicActive || p1.phantomChargingB || p1.slasherUltActive || p1.isRidingDragon) {
                     p1.velX = 0;
                 } else if ((!p1.isBlocking || p1.type === 'sixeye') && !p1.isCharging && !p1.isSaiyanDodging) {
@@ -22987,7 +22753,17 @@ function drawPixelMage(fighter, frozenInDraw) {
                 cpu2Vel.v = runCPU(p2, p1, cpu2Counter, cpu2Vel);
                 applyVelocity(p2, cpu2Vel.v);
             } else {
-                p2.isBlocking = keys['ArrowDown'];
+                const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                const p2HoldingBlock = !!keys['ArrowDown'];
+                const p2PressKick = !!keys['KeyK'];
+
+                // Block + Kick: Launcher Kick for all characters with leg kick
+                if ((p2HoldingBlock || p2.isBlocking) && p2PressKick && !noLegKick.includes(p2.type)) {
+                    p2.isBlocking = false;
+                    p2.attack('launcher_kick');
+                } else {
+                    p2.isBlocking = p2HoldingBlock;
+                }
                 if (p2.isParrying || p2.isTransforming || p2.isBeingPulled || p2.isStunned || p2.isCinematicActive || p2.phantomChargingB || p2.slasherUltActive || p2.isRidingDragon) {
                     p2.velX = 0;
                 } else if ((!p2.isBlocking || p2.type === 'sixeye') && !p2.isCharging && !p2.isSaiyanDodging) {
