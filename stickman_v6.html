@@ -4034,47 +4034,81 @@
                     }
                 }
                 else if (this.kind === 'shinra_tensei_ring') {
-                    // Concentric 360-degree expanding repulsion air shockwaves
-                    const maxRad = 48; // in logical units -> 144px radius!
-                    const rad = Math.floor(t * maxRad);
-                    const alpha = 1 - Math.pow(t, 1.4);
-                    
-                    // Outer Violet Rinnegan Shockwave Ring
-                    ctx.strokeStyle = `rgba(165, 94, 234, ${alpha * 0.95})`;
-                    ctx.lineWidth = 3;
+                    // Translucent White Rapid Expansive "Chưởng Khí"
+                    const expT = 1 - Math.pow(1 - t, 2.2); // Explosive early expansion!
+                    const maxRadPx = 295; // Massive expansive radius (~590px diameter!)
+                    const radPx = expT * maxRadPx;
+                    const alpha = Math.max(0, 1 - Math.pow(t, 1.2));
+
+                    // 1. Translucent White Blast Dome (Soft Radial Shockwave Gradient)
+                    if (radPx > 10) {
+                        const grad = ctx.createRadialGradient(bx, by, Math.max(0, radPx * 0.35), bx, by, radPx);
+                        grad.addColorStop(0, `rgba(255, 255, 255, 0)`);
+                        grad.addColorStop(0.65, `rgba(255, 255, 255, ${alpha * 0.12})`);
+                        grad.addColorStop(0.88, `rgba(255, 255, 255, ${alpha * 0.32})`);
+                        grad.addColorStop(1, `rgba(255, 255, 255, 0)`);
+                        ctx.fillStyle = grad;
+                        ctx.beginPath();
+                        ctx.arc(bx, by, radPx, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    // 2. Outermost Sonic Air Pressure Wavefront (Thick translucent white ridge)
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.90})`;
+                    ctx.lineWidth = 4;
                     ctx.beginPath();
-                    ctx.arc(bx, by, rad * P, 0, Math.PI * 2);
+                    ctx.arc(bx, by, radPx, 0, Math.PI * 2);
                     ctx.stroke();
 
-                    // Bright White Pressure Compression Crest
-                    if (rad > 4) {
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.9})`;
-                        ctx.lineWidth = 2;
+                    // 3. Secondary High-Pressure Compression Crest (Bright crisp white)
+                    if (radPx > 15) {
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.95})`;
+                        ctx.lineWidth = 2.5;
                         ctx.beginPath();
-                        ctx.arc(bx, by, (rad - 3) * P, 0, Math.PI * 2);
+                        ctx.arc(bx, by, radPx * 0.92, 0, Math.PI * 2);
                         ctx.stroke();
                     }
 
-                    // Inner Ripple Ring
-                    if (rad > 10) {
-                        ctx.strokeStyle = `rgba(125, 95, 255, ${alpha * 0.65})`;
+                    // 4. Middle Compression Echo Ring
+                    if (radPx > 35) {
+                        ctx.strokeStyle = `rgba(240, 245, 255, ${alpha * 0.55})`;
                         ctx.lineWidth = 2;
                         ctx.beginPath();
-                        ctx.arc(bx, by, (rad - 8) * P, 0, Math.PI * 2);
+                        ctx.arc(bx, by, radPx * 0.78, 0, Math.PI * 2);
                         ctx.stroke();
                     }
 
-                    // High-speed air refraction pixel streaks along perimeter
-                    const streakCount = 16;
+                    // 5. Inner Core Ripple (Faint Rinnegan violet essence within translucent white)
+                    if (radPx > 55) {
+                        ctx.strokeStyle = `rgba(180, 160, 240, ${alpha * 0.4})`;
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.arc(bx, by, radPx * 0.55, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+
+                    // 6. 24 Radial Air Gust / Wind Refraction Streaks ("Chưởng Khí")
+                    const streakCount = 24;
                     for (let i = 0; i < streakCount; i++) {
-                        const ang = (i / streakCount) * Math.PI * 2 + (this.frame * 0.08);
-                        const sDist = rad * P;
-                        const sx = Math.cos(ang) * sDist;
-                        const sy = Math.sin(ang) * sDist;
-                        ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.9})`;
-                        ctx.fillRect(bx + sx - 1, by + sy - 1, 3, 3);
-                        ctx.fillStyle = `rgba(165, 94, 234, ${alpha * 0.7})`;
-                        ctx.fillRect(bx + sx * 0.94 - 1, by + sy * 0.94 - 1, 2, 2);
+                        const ang = (i / streakCount) * Math.PI * 2 + (this.frame * 0.05);
+                        const innerR = Math.max(5, radPx * 0.80);
+                        const outerR = radPx * 1.04;
+                        const x1 = bx + Math.cos(ang) * innerR;
+                        const y1 = by + Math.sin(ang) * innerR;
+                        const x2 = bx + Math.cos(ang) * outerR;
+                        const y2 = by + Math.sin(ang) * outerR;
+
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.75})`;
+                        ctx.lineWidth = (i % 2 === 0) ? 2.5 : 1.5;
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.stroke();
+
+                        if (i % 3 === 0) {
+                            ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.85})`;
+                            ctx.fillRect(Math.round(x2) - 2, Math.round(y2) - 2, 4, 4);
+                        }
                     }
                 }
                 else if (this.kind === 'shinra_ground_burst') {
@@ -13294,7 +13328,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.puller = null;
 
                 this.isInfinityShieldActive = false;
-                this.dioKnifeCooldown = 0; 
+                this.dioKnifeCooldown = 0;
+                this.painWallSplat = false;
+                this.painWallStuck = false;
+                this.painWallTimer = 0;
+                this.painWallSide = 0; 
 
                 if (type === 'saiyan') {
                     this.color = id === 1 ? '#00d2ff' : '#ff2e4c';
@@ -14918,10 +14956,58 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 }
 
+                // Wall Splat collision check (blown into wall by Shinra Tensei)
+                if (this.painWallSplat && !this.painWallStuck) {
+                    if ((this.x <= 48 && this.velX < 0) || (this.x >= canvas.width - 48 && this.velX > 0)) {
+                        this.painWallSplat = false;
+                        this.painWallStuck = true;
+                        this.painWallTimer = 50; // ~0.83s stuck flat against the wall!
+                        this.painWallSide = (this.x <= 48) ? -1 : 1;
+                        this.x = (this.painWallSide === -1) ? 30 : canvas.width - 30;
+                        this.y = Math.min(this.y, config.groundY - 32); // Pinned off the floor
+                        this.velX = 0;
+                        this.velY = 0;
+                        this.isStunned = true;
+                        this.stunTimer = 65;
+
+                        announceText('WALL SPLAT!', '#ffffff');
+                        gameState.shake = 22;
+                        gameState.flashAlpha = 0.35;
+                        gameState.flashColor = '#ffffff';
+
+                        const wallX = this.painWallSide === -1 ? 25 : canvas.width - 25;
+                        gameState.pixelEffects.push(new PixelVFX('impact_burst', wallX, this.y - 45, -this.painWallSide, '#ffffff', { maxFrames: 22 }));
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', wallX, this.y - 25, -this.painWallSide, '#dfe6e9'));
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', wallX, this.y - 55, -this.painWallSide, '#dfe6e9'));
+
+                        for (let i = 0; i < 14; i++) {
+                            const sVx = -this.painWallSide * (2 + Math.random() * 5);
+                            const sVy = (Math.random() - 0.5) * 6;
+                            gameState.particles.push(new Particle(wallX, this.y - 45 + (Math.random() - 0.5) * 45, i % 2 === 0 ? '#bdc3c7' : '#7f8c8d', sVx, sVy, 22));
+                        }
+                    }
+                }
+
+                // While stuck against the wall: pinned in place until timer runs out
+                if (this.painWallStuck) {
+                    this.painWallTimer -= 1 * config.timeScale;
+                    this.velX = 0;
+                    this.velY = 0;
+                    this.x = (this.painWallSide === -1) ? 30 : canvas.width - 30;
+                    this.isStunned = true;
+                    if (this.painWallTimer <= 0) {
+                        this.painWallStuck = false;
+                        this.velX = -this.painWallSide * 2.5; // slight bounce off wall
+                        this.velY = 3.5; // slide down to ground
+                        this.stunTimer = 18;
+                    }
+                    return;
+                }
+
                 if (this.isStunned) {
                     this.stunTimer -= (1 * config.timeScale);
                     this.x += this.velX * config.timeScale;
-                    this.velX *= 0.88;
+                    this.velX *= (this.painWallSplat ? 0.96 : 0.88);
                     this.x = Math.max(30, Math.min(canvas.width - 30, this.x));
                     if (this.stunTimer <= 0) {
                         this.isStunned = false;
@@ -16863,18 +16949,20 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             gameState.particles.push(new Particle(this.x + dir * (10 + Math.random() * 40), config.groundY - 2, i % 2 === 0 ? '#7f8c8d' : '#2d3436', dir * (2 + Math.random() * 5), -(4 + Math.random() * 6), 20));
                         }
 
-                        // Radial 360-degree Repulsion Hit Detection
+                        // Radial 360-degree Repulsion Hit Detection: 20% HP damage + Wall Splat Knockback
                         if (opponent && !opponent.isDead) {
                             const dist = Math.hypot(opponent.x - this.x, (opponent.y - 45) - (this.y - 45));
-                            if (dist < 230) {
+                            if (dist < 320) {
                                 this.hitOnce = true;
                                 const pushDir = opponent.x >= this.x ? 1 : -1;
-                                opponent.velX = pushDir * 21;
-                                opponent.velY = -8;
-                                opponent.health = Math.max(0, opponent.health - 14);
+                                opponent.velX = pushDir * 40; // Super high speed towards the wall!
+                                opponent.velY = -3.5;
+                                opponent.health = Math.max(0, opponent.health - 20); // Exact 20% HP damage!
                                 opponent.isStunned = true;
-                                opponent.stunTimer = 22;
-                                gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 45, -pushDir, '#a55eea', { maxFrames: 18 }));
+                                opponent.stunTimer = 75;
+                                opponent.painWallSplat = true; // Wall stick flag!
+                                opponent.painWallStuck = false;
+                                gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 45, -pushDir, '#ffffff', { maxFrames: 20 }));
                                 if (opponent.health <= 0) {
                                     opponent.health = 0;
                                     triggerWin(this);
@@ -17002,15 +17090,17 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 if (this.attackType === 'shinra_tensei') {
                     if (this.hitOnce) return;
                     const dist = Math.hypot(opponent.x - this.x, (opponent.y - 45) - (this.y - 45));
-                    if (dist < 230) {
+                    if (dist < 320) {
                         this.hitOnce = true;
                         const pushDir = opponent.x >= this.x ? 1 : -1;
-                        opponent.velX = pushDir * 21;
-                        opponent.velY = -8;
-                        opponent.health = Math.max(0, opponent.health - 14);
+                        opponent.velX = pushDir * 40;
+                        opponent.velY = -3.5;
+                        opponent.health = Math.max(0, opponent.health - 20); // Exact 20% HP damage!
                         opponent.isStunned = true;
-                        opponent.stunTimer = 22;
-                        gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 45, -pushDir, '#a55eea', { maxFrames: 18 }));
+                        opponent.stunTimer = 75;
+                        opponent.painWallSplat = true;
+                        opponent.painWallStuck = false;
+                        gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 45, -pushDir, '#ffffff', { maxFrames: 20 }));
                         if (opponent.health <= 0) {
                             opponent.health = 0;
                             triggerWin(this);
@@ -23819,16 +23909,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                     if (p2.type === 'phantom') {
                         if (keys['KeyL']) {
                             p2.attack('phantom_blast');
-                        }
-
-                if (p1.type === 'pain') {
-                    const pct = (p1.painShinraCooldown / p1.painShinraMax) * 100;
-                    document.getElementById('p1-v-cooldown-fill').style.width = `${Math.max(0, Math.min(100, 100 - pct))}%`;
-                }
-                if (p2.type === 'pain') {
-                    const pct = (p2.painShinraCooldown / p2.painShinraMax) * 100;
-                    document.getElementById('p2-v-cooldown-fill').style.width = `${Math.max(0, Math.min(100, 100 - pct))}%`;
-                } else if (p2.phantomChargingB) {
+                        } else if (p2.phantomChargingB) {
                             p2.phantomChargingB = false;
                             p2.phantomChargeBTimer = 0;
                             gameState.pixelEffects.push(new PixelVFX('air_ring', p2.x, p2.y - 60, p2.facing, p2.color));
@@ -24358,6 +24439,14 @@ function drawPixelMage(fighter, frozenInDraw) {
                 }
                 if (p2.type === 'hooper') {
                     const pct = (p2.hooperVCooldown / p2.hooperVMax) * 100;
+                    document.getElementById('p2-v-cooldown-fill').style.width = `${Math.max(0, Math.min(100, 100 - pct))}%`;
+                }
+                if (p1.type === 'pain') {
+                    const pct = (p1.painShinraCooldown / p1.painShinraMax) * 100;
+                    document.getElementById('p1-v-cooldown-fill').style.width = `${Math.max(0, Math.min(100, 100 - pct))}%`;
+                }
+                if (p2.type === 'pain') {
+                    const pct = (p2.painShinraCooldown / p2.painShinraMax) * 100;
                     document.getElementById('p2-v-cooldown-fill').style.width = `${Math.max(0, Math.min(100, 100 - pct))}%`;
                 }
 
