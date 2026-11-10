@@ -13565,9 +13565,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.age = 0;
                 this.coreRadius = 6;
                 this.sphereRadius = 24; // Radius of the solid planetary rock sphere
-                this.maxSphereRadius = 110; // Expands to colossal 220px diameter anime rock sphere!
+                this.maxSphereRadius = 88; // Expands to colossal 220px diameter anime rock sphere!
                 this.satelliteRadius = 24;
-                this.maxSatelliteRadius = 115;
+                this.maxSatelliteRadius = 92;
                 this.rocks = [];
                 this.initRocks();
             }
@@ -13779,18 +13779,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 if (!this.active) return;
                 ctx.save();
 
-                // Draw the solid rear foundation of the giant rock sphere & space-time ripples
+                // Draw solid rear foundation of anime rock sphere & space-time ripples
                 if (this.state === 'attracting' || this.state === 'rising') {
                     drawAnimeChibakuPlanetoid(ctx, this.x, this.y, this.sphereRadius, this.age, false, 'back');
-                }
-
-                // Rear rock blocks
-                for (let i = 0; i < this.rocks.length; i++) {
-                    const rock = this.rocks[i];
-                    if (!rock.spawned) continue;
-                    if (rock.adhered && Math.sin(rock.orbitAngle) < 0) {
-                        drawPixelRockChunk(ctx, rock.x, rock.y, rock.sizeType, rock.angle, rock.seed);
-                    }
                 }
 
                 ctx.restore();
@@ -13800,18 +13791,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 if (!this.active) return;
                 ctx.save();
 
-                // Draw the solid front tectonic crust of the GIGANTIC ROCK SPHERE encasing the opponent!
+                // Draw clean solid front tectonic crust of ANIME ROCK SPHERE + cloud belt + falling debris
                 if (this.state === 'attracting' || this.state === 'rising' || (this.state === 'detonating' && this.age < 135)) {
                     drawAnimeChibakuPlanetoid(ctx, this.x, this.y, this.sphereRadius, this.age, this.state === 'detonating', 'front');
-                }
-
-                // Front rock blocks (flying in or adhered on front face)
-                for (let i = 0; i < this.rocks.length; i++) {
-                    const rock = this.rocks[i];
-                    if (!rock.spawned) continue;
-                    if (!rock.adhered || Math.sin(rock.orbitAngle) >= 0) {
-                        drawPixelRockChunk(ctx, rock.x, rock.y, rock.sizeType, rock.angle, rock.seed);
-                    }
                 }
 
                 ctx.restore();
@@ -20162,7 +20144,7 @@ function drawPixelPain(fighter, frozenInDraw) {
             armF = [ 3, -18,  6, -16,  9, -14];
         }
     } else if (drawAttacking && drawAttackType === 'launcher_kick') {
-        // TENDŌ PAIN MEIA LUA DE COMPASSO (180° CAPOEIRA HAND-PLANT KICK FROM REFERENCE PHOTO)
+        // TENDŌ PAIN MEIA LUA DE COMPASSO (180° CAPOEIRA HAND-PLANT KICK)
         if (progress < 0.20) {
             // Phase 1: Rotational drop & reach for the ground
             expr = 'focus';
@@ -20175,59 +20157,88 @@ function drawPixelPain(fighter, frozenInDraw) {
             cloakHemOffset = 1;
         } else if (progress < 0.75) {
             // Phase 2: EXACT CAPOEIRA MEIA LUA POSE MATCHING USER'S REFERENCE IMAGE!
-            // Hand planted on ground, body inverted low, support leg rooted, kicking leg whipping 180° skyward!
-            // 1. Planted Hand on the Floor (Right arm in photo, planted at x = -7, y = 0)
-            px(-9, -1, 4, 2, out);
-            px(-8, -1, 3, 1, skin);
-            drawLimb(-5, -9, -7, -1, 2, cloakMain, cloakShade);
-            drawLimb(-7, -4, -8, -1, 2, skin, skinDark);
+            // Clean pixel-perfect 16-bit rendering: No deformed blobs, no white arc line!
+            
+            // 1. Planted Hand on the Floor (flat palm at x = -8, y = 0)
+            px(-10, -2, 4, 2, out);
+            px(-9, -2, 3, 1, skin);
+            // Forearm (bare skin) from hand (-8, -2) to elbow (-7, -5)
+            drawLimb(-8, -2, -7, -5, 2, skin, skinDark);
+            // Upper Arm (black Akatsuki sleeve) from elbow (-7, -5) to shoulder (-5, -9)
+            drawLimb(-7, -5, -5, -9, 2, cloakMain, cloakShade);
 
-            // 2. Supporting Leg (Left leg in photo, planted at x = 1, y = 0)
-            px(0, -1, 4, 2, sandalCol);
-            drawLimb(1, -6, 1, -1, 2, wrapMain, wrapShade);
-            drawLimb(-1, -12, 1, -6, 2, pantsMain, out);
+            // 2. Supporting Leg (planted on the ground at x = 0, y = 0)
+            px(-1, -2, 4, 2, sandalCol);
+            px(0, -2, 2, 1, skin);
+            // Lower leg with white ninja bandages from ankle (0, -2) to knee (0, -7)
+            drawLimb(0, -2, 0, -7, 2, wrapMain, wrapShade);
+            // Thigh with dark Akatsuki trousers from knee (0, -7) to hips (-2, -12)
+            drawLimb(0, -7, -2, -12, 2, pantsMain, out);
 
-            // 3. Torso & Inverted Akatsuki Cloak
-            px(-7, -12, 8, 6, out);
-            px(-6, -11, 6, 5, cloakMain);
-            px(-6, -10, 3, 4, cloakShade);
-            px(-7, -8, 7, 2, collarIn);
+            // 3. Torso & Inverted Akatsuki Cloak (sloping from hips (-2, -12) to shoulder (-5, -9))
+            px(-7, -13, 8, 6, out);
+            px(-6, -12, 6, 5, cloakMain);
+            px(-6, -11, 2, 4, cloakShade);
+            px(-3, -12, 2, 1, cloakHighlight);
+
+            // High standing collar with crimson inner lining
+            px(-8, -9, 3, 3, collarIn);
+            px(-5, -8, 2, 2, collarIn);
+
+            // Akatsuki Red Cloud Motif on back
             px(-4, -12, 3, 2, cloudWhite);
             px(-3, -12, 2, 1, cloudRed);
 
-            // 4. Head (Low near ground, looking at opponent at +x)
-            px(-11, -12, 5, 5, out);
-            px(-10, -11, 4, 4, skin);
-            px(-12, -14, 5, 4, hairDark);
-            px(-11, -15, 5, 4, hairMain);
-            px(-10, -15, 3, 2, hairLight);
-            px(-7, -10, 2, 2, rinneIris);
-            px(-7, -10, 1, 1, '#ffffff');
+            // Draping cloak hem
+            px(-3, -10, 4, 4, out);
+            px(-2, -9, 3, 3, cloakMain);
+
+            // 4. Yahiko Head (Low near planted hand, looking forward at opponent at +x!)
+            px(-8, -10, 2, 2, skinDark); // Neck
+            px(-12, -14, 6, 5, out);
+            px(-11, -13, 5, 4, skin);
+            px(-11, -11, 4, 2, skinDark);
+
+            // Hidden Rain Rogue Headband
+            px(-12, -13, 6, 2, bandCloth);
+            px(-11, -13, 4, 2, bandMetal);
+            px(-10, -12, 3, 1, bandMetalShade);
+            px(-9, -13, 1, 2, out);
+
+            // Rinnegan Eye (focused intently on opponent at +x!)
+            px(-8, -11, 2, 2, rinneIris);
+            px(-8, -11, 1, 1, '#ffffff');
+
+            // Chakra Receiver Studs
+            px(-7, -11, 1, 1, piercing);
+            px(-12, -12, 1, 2, piercing);
+
+            // Yahiko Iconic Bright Orange Spiky Hair
+            px(-13, -17, 7, 4, out);
+            px(-12, -16, 6, 3, hairDark);
+            px(-11, -17, 5, 4, hairMain);
+            px(-10, -17, 3, 2, hairLight);
+            px(-14, -15, 2, 2, hairDark);
+            px(-13, -16, 2, 2, hairMain);
+            px(-9, -18, 2, 2, hairMain);
+            px(-8, -17, 2, 2, hairLight);
 
             // 5. Guard Arm (Tucked near chest)
             drawLimb(-4, -10, -3, -7, 2, cloakMain, cloakShade);
             px(-3, -7, 2, 2, skin);
+            px(-2, -6, 1, 1, nailPolish);
 
             // 6. Kicking Leg (Whips diagonally UP and OVER into the sky!)
-            drawLimb(-1, -12, 6, -20, 3, pantsMain, out);
-            drawLimb(6, -20, 14, -30, 2, wrapMain, wrapShade);
-            px(13, -32, 4, 3, out);
-            px(14, -32, 2, 2, sandalCol);
-            px(15, -31, 2, 1, skin);
+            // Thigh (dark trousers) from hips (-2, -12) to knee (3, -18)
+            drawLimb(-2, -12, 3, -18, 2, pantsMain, out);
+            // Shin (white shinobi bandages) from knee (3, -18) to ankle (8, -25)
+            drawLimb(3, -18, 8, -25, 2, wrapMain, wrapShade);
+            // Ninja Sandal & bare toes at the apex (9, -26)
+            px(8, -27, 4, 3, out);
+            px(9, -27, 2, 2, sandalCol);
+            px(10, -26, 2, 1, skin);
 
-            // 7. Sharp 180° Meia Lua Arc Trail
-            ctx.save();
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 2.5;
-            ctx.globalAlpha = 0.85;
-            ctx.beginPath();
-            if (f === 1) {
-                ctx.arc(baseX, baseY - 16 * P, 22 * P, Math.PI * 0.9, -Math.PI * 0.15, true);
-            } else {
-                ctx.arc(baseX, baseY - 16 * P, 22 * P, Math.PI * 0.1, Math.PI * 1.15, false);
-            }
-            ctx.stroke();
-            ctx.restore();
+            // NO white arc line - kept clean as requested!
 
             ctx.imageSmoothingEnabled = prevSmooth;
             ctx.restore();
@@ -20435,21 +20446,7 @@ function drawPixelPain(fighter, frozenInDraw) {
         px(tx - 3 + cloakHemOffset, ty - 4, 2, 2, cloakShade);
     }
 
-    // Upward crescent wind/chakra arc during launcher kick
-    if (drawAttacking && drawAttackType === 'launcher_kick' && progress >= 0.22 && progress < 0.68) {
-        ctx.save();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2.5;
-        ctx.globalAlpha = 0.85;
-        ctx.beginPath();
-        if (f === 1) {
-            ctx.arc(baseX + 2 * P, baseY - 12 * P, 15 * P, -Math.PI * 0.45, Math.PI * 0.15);
-        } else {
-            ctx.arc(baseX - 2 * P, baseY - 12 * P, 15 * P, Math.PI * 0.85, Math.PI * 1.45);
-        }
-        ctx.stroke();
-        ctx.restore();
-    }
+
 
     // 6) Front Leg
     drawLimb(legF[0] + tx, legF[1] + ty, legF[2] + tx, legF[3] + ty, 2, pantsMain, out);
