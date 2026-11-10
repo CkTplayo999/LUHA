@@ -13192,6 +13192,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.airComboEnded = false;             // True if air combo ended early due to knock-away or 4th hit
                 this.brawlerAirStep = 0;                // 1..4 distinct air animation step for Brawler
                 this.lastAirHitKnockedAway = false;     // Whether the last air combo hit triggered knock-away
+                this.airComboTotalDmg = 0;              // Total air combo damage accumulator (capped at 35% max HP)
 
                             }
 
@@ -14960,6 +14961,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     this.airComboCount = 0;
                     this.airComboEnded = false;
                     this.brawlerAirStep = 0;
+                    this.airComboTotalDmg = 0;
                 }
 
                 if (this.type === 'sixeye') {
@@ -16587,6 +16589,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             const isAirborneAttack = this.y < config.groundY - 10;
                             if (isAirborneAttack) {
                                 this.airComboCount = (this.airComboCount || 0) + 1;
+                                if (this.airComboCount === 1) {
+                                    this.airComboTotalDmg = 0;
+                                }
                                 this.brawlerAirStep = this.airComboCount; // 1, 2, 3, or 4 (distinct air animations!)
                                 this.attackMax = 11;
                                 this.attackTimer = 11;
@@ -16922,14 +16927,45 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         } else {
                             let baseDmg = opponent.isBlocking ? 2 : 8;
                             if (this.type === 'martial') {
-                                let currentChance = this.blackFlashChance;
-                                if (Math.random() < currentChance) {
-                                    dmg = baseDmg * 3.6;
-                                    isBlackFlashHit = true;
-                                    this.blackFlashChance = Math.min(0.70, currentChance + 0.36);
+                                const isAirCombo = (this.y < config.groundY - 10 && this.attackType === 'punch');
+                                if (isAirCombo) {
+                                    const hitNum = Math.min(4, Math.max(1, this.brawlerAirStep || this.airComboCount || 1));
+                                    // Brawler Storm 4 Air Combo damage scaling:
+                                    // Total 4 hits with full Sét Đen (Black Flash crits) = EXACTLY 35% HP (35 HP out of 100 max HP):
+                                    // Hit 1: 7.5 HP, Hit 2: 8.0 HP, Hit 3: 9.0 HP, Hit 4: 10.5 HP -> Sum = 35.0 HP!
+                                    // Normal hits (no Sét Đen):
+                                    // Hit 1: 3.0 HP, Hit 2: 3.2 HP, Hit 3: 3.8 HP, Hit 4: 4.5 HP -> Sum = 14.5 HP!
+                                    const airBaseDmgTable = [0, 3.0, 3.2, 3.8, 4.5];
+                                    const airCritDmgTable = [0, 7.5, 8.0, 9.0, 10.5];
+
+                                    let currentChance = this.blackFlashChance;
+                                    const bfRoll = (typeof window._testBlackFlashRoll === 'number') ? window._testBlackFlashRoll : Math.random();
+                                    const isCrit = (bfRoll < currentChance);
+                                    if (isCrit) {
+                                        dmg = opponent.isBlocking ? ((airCritDmgTable[hitNum] || 8.75) * 0.35) : (airCritDmgTable[hitNum] || 8.75);
+                                        isBlackFlashHit = true;
+                                        this.blackFlashChance = Math.min(0.70, currentChance + 0.36);
+                                    } else {
+                                        dmg = opponent.isBlocking ? ((airBaseDmgTable[hitNum] || 3.5) * 0.35) : (airBaseDmgTable[hitNum] || 3.5);
+                                        this.blackFlashChance = 0.19;
+                                    }
+                                    // Guaranteed hard cap: cumulative air combo damage can never exceed 35% HP (35 HP)
+                                    const currentAirDmg = this.airComboTotalDmg || 0;
+                                    if (currentAirDmg + dmg > 35) {
+                                        dmg = Math.max(0, 35 - currentAirDmg);
+                                    }
+                                    this.airComboTotalDmg = currentAirDmg + dmg;
                                 } else {
-                                    dmg = baseDmg;
-                                    this.blackFlashChance = 0.19;
+                                    let currentChance = this.blackFlashChance;
+                                    const bfRoll = (typeof window._testBlackFlashRoll === 'number') ? window._testBlackFlashRoll : Math.random();
+                                    if (bfRoll < currentChance) {
+                                        dmg = baseDmg * 3.6;
+                                        isBlackFlashHit = true;
+                                        this.blackFlashChance = Math.min(0.70, currentChance + 0.36);
+                                    } else {
+                                        dmg = baseDmg;
+                                        this.blackFlashChance = 0.19;
+                                    }
                                 }
                             } else {
                                 dmg = baseDmg;
@@ -16953,8 +16989,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             return;
                         }
                         if (!(opponent.type === 'sixeye' && opponent.isInfinityShieldActive) && !opponent.isSaiyanDodging) {
-                            dmg = opponent.isBlocking ? 4 : 12;
-                            opponent.health = Math.max(0, opponent.health - dmg);
+                            dmg = opponent.isBlocking ? 3 : 8;
 
                             // Universal Launcher Kick: Kicks opponent high into the air!
                             opponent.y = Math.min(opponent.y, config.groundY - 12);
@@ -17116,7 +17151,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                             if (this.type === 'martial') {
                                 gameState.pixelEffects.push(new PixelVFX('black_flash_pixel', midX, midY, this.facing, this.color));
-                                gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x, config.groundY, -this.facing, this.color));
+                                if (this.y >= config.groundY - 15) {
+                                    gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x, config.groundY, -this.facing, this.color));
+                                } else {
+                                    gameState.pixelEffects.push(new PixelVFX('air_ring', midX, midY, this.facing, '#ff0033'));
+                                }
+                                announceText(isAirHit ? `AIR BLACK FLASH (${Math.min(4, this.brawlerAirStep || this.airComboCount || 1)}/4)!` : 'BLACK FLASH!', '#ff0033');
                             } else {
                                 createExplosion(midX, midY, "#000000", 35, 2.5);
                                 createExplosion(midX, midY, "#ff0000", 30, 2);
