@@ -3976,13 +3976,13 @@
                         if (xL > 25) {
                             gameState.pixelEffects.push(new PixelVFX('dust_puff', xL, floorY, -1, '#dfe6e9'));
                             for (let k = 0; k < 2; k++) {
-                                gameState.particles.push(new Particle(xL, floorY - 2, '#b2bec3', -2 - Math.random() * 2.5, -1.5 - Math.random() * 2.5, 14));
+                                gameState.particles.push(new Particle(xL, floorY - 2, '#b2bec3', 1.0, false, 0, 0, 'wind'));
                             }
                         }
                         if (xR < canvas.width - 25) {
                             gameState.pixelEffects.push(new PixelVFX('dust_puff', xR, floorY, 1, '#dfe6e9'));
                             for (let k = 0; k < 2; k++) {
-                                gameState.particles.push(new Particle(xR, floorY - 2, '#b2bec3', 2 + Math.random() * 2.5, -1.5 - Math.random() * 2.5, 14));
+                                gameState.particles.push(new Particle(xR, floorY - 2, '#b2bec3', 1.0, false, 0, 0, 'wind'));
                             }
                         }
                     }
@@ -14786,6 +14786,29 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         this.painShinraCooldown -= 1 * config.timeScale;
                         if (this.painShinraCooldown < 0) this.painShinraCooldown = 0;
                     }
+
+                    // Any projectile active or incoming while Shinra Tensei is active vanishes completely!
+                    if (this.attacking && this.attackType === 'shinra_tensei') {
+                        if (opponent && opponent.projectiles && opponent.projectiles.length > 0) {
+                            for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
+                                const p = opponent.projectiles[i];
+                                if (!p.active) continue;
+                                p.active = false;
+                                gameState.pixelEffects.push(new PixelVFX('impact_burst', p.x, p.y, p.facing || 1, '#ffffff', { maxFrames: 14 }));
+                                createExplosion(p.x, p.y, '#ffffff', 8, 0.9);
+                            }
+                        }
+                        if (gameState.deidaraBugs && gameState.deidaraBugs.length > 0) {
+                            for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
+                                const b = gameState.deidaraBugs[i];
+                                if (b.owner === opponent) {
+                                    b.exploded = true;
+                                    createExplosion(b.x, b.y, '#ffffff', 8, 0.9);
+                                    gameState.deidaraBugs.splice(i, 1);
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // ============== MINER per-frame tick ==============
@@ -14967,10 +14990,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.pixelEffects.push(new PixelVFX('dust_puff', wallX, this.y - 25, -this.painWallSide, '#dfe6e9'));
                         gameState.pixelEffects.push(new PixelVFX('dust_puff', wallX, this.y - 55, -this.painWallSide, '#dfe6e9'));
 
-                        for (let i = 0; i < 14; i++) {
-                            const sVx = -this.painWallSide * (2 + Math.random() * 5);
-                            const sVy = (Math.random() - 0.5) * 6;
-                            gameState.particles.push(new Particle(wallX, this.y - 45 + (Math.random() - 0.5) * 45, i % 2 === 0 ? '#bdc3c7' : '#7f8c8d', sVx, sVy, 22));
+                        for (let i = 0; i < 12; i++) {
+                            gameState.particles.push(new Particle(wallX, this.y - 45 + (Math.random() - 0.5) * 45, i % 2 === 0 ? '#bdc3c7' : '#7f8c8d', 1.0, false, 0, 0, 'rock'));
                         }
                     }
                 }
@@ -15451,6 +15472,16 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     
                     let target = (p.owner === this) ? opponent : this;
                     let shooter = (p.owner === this) ? this : opponent;
+
+                    // Shinra Tensei Projectile Erasure: Any projectile flying towards Pain while Shinra Tensei is active disintegrates instantly!
+                    if (target && target.type === 'pain' && target.attacking && target.attackType === 'shinra_tensei') {
+                        if (p.active) {
+                            p.active = false;
+                            gameState.pixelEffects.push(new PixelVFX('impact_burst', p.x, p.y, p.facing || 1, '#ffffff', { maxFrames: 14 }));
+                            createExplosion(p.x, p.y, '#ffffff', 8, 0.9);
+                        }
+                        return;
+                    }
                     
                     if (p.age > 12) {
                         const distToOwner = Math.sqrt(Math.pow(p.x - p.owner.x, 2) + Math.pow(p.y - (p.owner.y - 45), 2));
@@ -16922,18 +16953,33 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.flashAlpha = 0.35;
                         gameState.flashColor = '#a55eea';
 
-                        // Spawn 360-degree expanding air rings centered at Pain
-                        gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', this.x, this.y - 45, this.facing, '#a55eea', { maxFrames: 24 }));
-                        gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', this.x, this.y - 45, this.facing, '#ffffff', { maxFrames: 20 }));
+                        // Spawn EXACTLY ONE clean, translucent white shockwave dome resting on the arena floor
+                        gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', this.x, config.groundY, this.facing, '#ffffff', { maxFrames: 22 }));
 
-                        // Spawn ground dust & earth burst rolling to left and right along bridge floor
-                        gameState.pixelEffects.push(new PixelVFX('shinra_ground_burst', this.x - 15, config.groundY, -1, '#b2bec3', { maxFrames: 26 }));
-                        gameState.pixelEffects.push(new PixelVFX('shinra_ground_burst', this.x + 15, config.groundY, 1, '#b2bec3', { maxFrames: 26 }));
-
-                        // Extra flying gravel particles
+                        // Ground earth gravel particles with natural gravity
                         for (let i = 0; i < 8; i++) {
                             const dir = i % 2 === 0 ? 1 : -1;
-                            gameState.particles.push(new Particle(this.x + dir * (10 + Math.random() * 40), config.groundY - 2, i % 2 === 0 ? '#7f8c8d' : '#2d3436', dir * (2 + Math.random() * 5), -(4 + Math.random() * 6), 20));
+                            gameState.particles.push(new Particle(this.x + dir * (10 + Math.random() * 35), config.groundY - 2, i % 2 === 0 ? '#7f8c8d' : '#2d3436', 1.0, false, 0, 0, 'rock'));
+                        }
+
+                        // Projectile Erasure: ANY active projectile incoming or on screen vanishes instantly!
+                        if (opponent && opponent.projectiles && opponent.projectiles.length > 0) {
+                            for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
+                                const p = opponent.projectiles[i];
+                                p.active = false;
+                                gameState.pixelEffects.push(new PixelVFX('impact_burst', p.x, p.y, p.facing || 1, '#ffffff', { maxFrames: 14 }));
+                                createExplosion(p.x, p.y, '#ffffff', 8, 1.0);
+                            }
+                        }
+                        if (gameState.deidaraBugs && gameState.deidaraBugs.length > 0) {
+                            for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
+                                const b = gameState.deidaraBugs[i];
+                                if (b.owner === opponent) {
+                                    b.exploded = true;
+                                    createExplosion(b.x, b.y, '#ffffff', 8, 1.0);
+                                    gameState.deidaraBugs.splice(i, 1);
+                                }
+                            }
                         }
 
                         // Radial 360-degree Repulsion Hit Detection: 20% HP damage + Wall Splat Knockback

@@ -3852,8 +3852,8 @@
             if (p2Class === 'raijin') p2.color = '#e74c3c';
             if (p1Class === 'taichi') p1.color = '#ffffff';
             if (p2Class === 'taichi') p2.color = '#000000';
-            document.getElementById('p1-v-cooldown-bar').style.display = (p1Class === 'miner' || p1Class === 'deidara' || p1Class === 'hooper') ? 'block' : 'none';
-            document.getElementById('p2-v-cooldown-bar').style.display = (p2Class === 'miner' || p2Class === 'deidara' || p2Class === 'hooper') ? 'block' : 'none';
+            document.getElementById('p1-v-cooldown-bar').style.display = (p1Class === 'miner' || p1Class === 'deidara' || p1Class === 'hooper' || p1Class === 'pain') ? 'block' : 'none';
+            document.getElementById('p2-v-cooldown-bar').style.display = (p2Class === 'miner' || p2Class === 'deidara' || p2Class === 'hooper' || p2Class === 'pain') ? 'block' : 'none';
             gameState.hooperCutsceneActive = false;
             gameState.hooperCutsceneTimer = 0;
             gameState.hooperCutsceneCaster = null;
@@ -3933,6 +3933,8 @@
                     kind === 'swapper_matrix_swap' ? 18 :
                     kind === 'saiyan_vanish_trail' ? 12 :
                     kind === 'ki_spark' ? 12 :
+                    kind === 'shinra_tensei_ring' ? 24 :
+                    kind === 'shinra_ground_burst' ? 24 :
                     kind === 'air_ring' ? 12 : 12
                 );
                 this.vx = opts.vx || 0;
@@ -3960,6 +3962,31 @@
                 this.frame += config.timeScale;
                 this.x += this.vx * config.timeScale;
                 this.y += this.vy * config.timeScale;
+
+                if (this.kind === 'shinra_tensei_ring') {
+                    const t = this.frame / this.maxFrames;
+                    const expT = 1 - Math.pow(1 - t, 2.0);
+                    const rad = expT * 310;
+                    const floorY = config.groundY;
+
+                    // As the shockwave sweeps outward, spawn dust right at the sweeping contact points!
+                    if (rad > 12 && this.frame <= 18 && Math.floor(this.frame) % 2 === 0) {
+                        const xL = this.x - rad;
+                        const xR = this.x + rad;
+                        if (xL > 25) {
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', xL, floorY, -1, '#dfe6e9'));
+                            for (let k = 0; k < 2; k++) {
+                                gameState.particles.push(new Particle(xL, floorY - 2, '#b2bec3', 1.0, false, 0, 0, 'wind'));
+                            }
+                        }
+                        if (xR < canvas.width - 25) {
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', xR, floorY, 1, '#dfe6e9'));
+                            for (let k = 0; k < 2; k++) {
+                                gameState.particles.push(new Particle(xR, floorY - 2, '#b2bec3', 1.0, false, 0, 0, 'wind'));
+                            }
+                        }
+                    }
+                }
                 for (let i = 0; i < this.shards.length; i++) {
                     const s = this.shards[i];
                     s.dx += s.vx * config.timeScale;
@@ -4030,6 +4057,88 @@
                     if (t < 0.65) {
                         px(-Math.floor(rad * 0.6), 2, Math.floor(rad * 1.2), 1, cDark);
                     }
+                }
+                else if (this.kind === 'shinra_tensei_ring') {
+                    // Translucent White Single Expansive Shockwave Dome (Resting strictly on arena floor)
+                    const expT = 1 - Math.pow(1 - t, 2.0);
+                    const maxRad = 310;
+                    const rad = expT * maxRad;
+                    const alpha = Math.max(0, 1 - Math.pow(t, 1.25));
+                    const floorY = config.groundY;
+
+                    ctx.save();
+                    // 1. Strict ground clipping: NEVER radiates down into the floor/abyss!
+                    ctx.beginPath();
+                    ctx.rect(0, 0, canvas.width, floorY);
+                    ctx.clip();
+
+                    // 2. Soft translucent white interior mist
+                    const grad = ctx.createRadialGradient(bx, floorY, Math.max(0, rad * 0.75), bx, floorY, rad);
+                    grad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                    grad.addColorStop(0.70, `rgba(255, 255, 255, ${alpha * 0.10})`);
+                    grad.addColorStop(1, `rgba(255, 255, 255, ${alpha * 0.28})`);
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(bx, floorY, rad, Math.PI, 0, false);
+                    ctx.fill();
+
+                    // 3. Just ONE clean, prominent, translucent white ring!
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.88})`;
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.arc(bx, floorY, rad, Math.PI, 0, false);
+                    ctx.stroke();
+
+                    // Subtle soft inner rim
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.40})`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(bx, floorY, Math.max(0, rad - 3), Math.PI, 0, false);
+                    ctx.stroke();
+
+                    ctx.restore();
+                }
+                else if (this.kind === 'shinra_ground_burst') {
+                    // Earth Debris & Massive Billowing Dust Clouds rolling along the ground
+                    // Note: px() already flips horizontally based on facing!
+                    const dist = Math.floor(t * 36); // expands horizontally outwards
+                    const rise = Math.floor(Math.sin(t * Math.PI) * 5); // stays low along floor
+
+                    const drawPuff = (px0, py0, r) => {
+                        for (let dy = -r; dy <= r; dy++) {
+                            const span = Math.round(Math.sqrt(Math.max(0, r * r - dy * dy)));
+                            if (span <= 0) continue;
+                            px(px0 - span - 1, py0 + dy, span * 2 + 2, 1, '#090b10');
+                        }
+                        for (let dy = -r; dy <= r; dy++) {
+                            const span = Math.round(Math.sqrt(Math.max(0, r * r - dy * dy)));
+                            if (span <= 0) continue;
+                            const col = dy < -r * 0.3 ? '#ffffff' : (dy < r * 0.2 ? '#dfe6e9' : '#b2bec3');
+                            px(px0 - span, py0 + dy, span * 2, 1, col);
+                        }
+                    };
+
+                    // Billowing dust cloud rolling along the stone floor
+                    const cloudSize = Math.max(2, Math.floor((1 - Math.abs(t - 0.5) * 1.3) * 5));
+                    drawPuff(dist, -rise - 3, cloudSize);
+                    drawPuff(dist - 4, -rise - 2, Math.max(1, cloudSize - 1));
+                    drawPuff(dist + 3, -rise - 2, Math.max(1, cloudSize - 2));
+
+                    // Ground fracture crack on bridge
+                    px(dist - 5, -1, 10, 2, '#090b10');
+                    px(dist - 4, 0, 8, 1, '#2d3436');
+
+                    // Blasted rock gravel flying upward with arching gravity
+                    const gravT = t * 1.5;
+                    const rockX = dist + Math.floor(gravT * 14);
+                    const rockY = -Math.floor((gravT - gravT * gravT) * 32) - 3;
+                    px(rockX, rockY, 2, 2, '#090b10');
+                    px(rockX, rockY, 1, 1, '#7f8c8d');
+
+                    const rock2X = dist - Math.floor(gravT * 8);
+                    const rock2Y = -Math.floor((gravT * 0.9 - gravT * gravT * 0.8) * 24) - 2;
+                    px(rock2X, rock2Y, 2, 2, '#090b10');
+                    px(rock2X, rock2Y, 1, 1, '#636e72');
                 }
                 else if (this.kind === 'fist_smear') {
                     const style = this.opts.comboStep || 0;
@@ -13206,7 +13315,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.puller = null;
 
                 this.isInfinityShieldActive = false;
-                this.dioKnifeCooldown = 0; 
+                this.dioKnifeCooldown = 0;
+                this.painWallSplat = false;
+                this.painWallStuck = false;
+                this.painWallTimer = 0;
+                this.painWallSide = 0; 
 
                 if (type === 'saiyan') {
                     this.color = id === 1 ? '#00d2ff' : '#ff2e4c';
@@ -13281,6 +13394,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     this.hooperAnkleDashTimer = 0;      // Brief pose timer after Ankle Break dash
                     this.isStunned = false;
                     this.stunTimer = 0;
+                }
+
+                if (type === 'pain') {
+                    this.painShinraCooldown = 0;
+                    this.painShinraMax = 300;           // 5s @ 60fps canon Shinra Tensei interval
                 }
                 this.hooperAnkleFallTimer = 0;          // Visual knockdown timer when ankle-broken by Hooper
                 this.airComboCount = 0;                 // Storm 4 Air Combo hit count (max 4 per jump)
@@ -14662,6 +14780,37 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 }
 
+                // ============== PAIN per-frame tick ==============
+                if (this.type === 'pain') {
+                    if (this.painShinraCooldown > 0) {
+                        this.painShinraCooldown -= 1 * config.timeScale;
+                        if (this.painShinraCooldown < 0) this.painShinraCooldown = 0;
+                    }
+
+                    // Any projectile active or incoming while Shinra Tensei is active vanishes completely!
+                    if (this.attacking && this.attackType === 'shinra_tensei') {
+                        if (opponent && opponent.projectiles && opponent.projectiles.length > 0) {
+                            for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
+                                const p = opponent.projectiles[i];
+                                if (!p.active) continue;
+                                p.active = false;
+                                gameState.pixelEffects.push(new PixelVFX('impact_burst', p.x, p.y, p.facing || 1, '#ffffff', { maxFrames: 14 }));
+                                createExplosion(p.x, p.y, '#ffffff', 8, 0.9);
+                            }
+                        }
+                        if (gameState.deidaraBugs && gameState.deidaraBugs.length > 0) {
+                            for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
+                                const b = gameState.deidaraBugs[i];
+                                if (b.owner === opponent) {
+                                    b.exploded = true;
+                                    createExplosion(b.x, b.y, '#ffffff', 8, 0.9);
+                                    gameState.deidaraBugs.splice(i, 1);
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // ============== MINER per-frame tick ==============
                 if (this.type === 'miner') {
                     if (this.minerFlashCooldown > 0) {
@@ -14817,10 +14966,56 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 }
 
+                // Wall Splat collision check (blown into wall by Shinra Tensei)
+                if (this.painWallSplat && !this.painWallStuck) {
+                    if ((this.x <= 48 && this.velX < 0) || (this.x >= canvas.width - 48 && this.velX > 0)) {
+                        this.painWallSplat = false;
+                        this.painWallStuck = true;
+                        this.painWallTimer = 50; // ~0.83s stuck flat against the wall!
+                        this.painWallSide = (this.x <= 48) ? -1 : 1;
+                        this.x = (this.painWallSide === -1) ? 30 : canvas.width - 30;
+                        this.y = Math.min(this.y, config.groundY - 32); // Pinned off the floor
+                        this.velX = 0;
+                        this.velY = 0;
+                        this.isStunned = true;
+                        this.stunTimer = 65;
+
+                        announceText('WALL SPLAT!', '#ffffff');
+                        gameState.shake = 22;
+                        gameState.flashAlpha = 0.35;
+                        gameState.flashColor = '#ffffff';
+
+                        const wallX = this.painWallSide === -1 ? 25 : canvas.width - 25;
+                        gameState.pixelEffects.push(new PixelVFX('impact_burst', wallX, this.y - 45, -this.painWallSide, '#ffffff', { maxFrames: 22 }));
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', wallX, this.y - 25, -this.painWallSide, '#dfe6e9'));
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', wallX, this.y - 55, -this.painWallSide, '#dfe6e9'));
+
+                        for (let i = 0; i < 12; i++) {
+                            gameState.particles.push(new Particle(wallX, this.y - 45 + (Math.random() - 0.5) * 45, i % 2 === 0 ? '#bdc3c7' : '#7f8c8d', 1.0, false, 0, 0, 'rock'));
+                        }
+                    }
+                }
+
+                // While stuck against the wall: pinned in place until timer runs out
+                if (this.painWallStuck) {
+                    this.painWallTimer -= 1 * config.timeScale;
+                    this.velX = 0;
+                    this.velY = 0;
+                    this.x = (this.painWallSide === -1) ? 30 : canvas.width - 30;
+                    this.isStunned = true;
+                    if (this.painWallTimer <= 0) {
+                        this.painWallStuck = false;
+                        this.velX = -this.painWallSide * 2.5; // slight bounce off wall
+                        this.velY = 3.5; // slide down to ground
+                        this.stunTimer = 18;
+                    }
+                    return;
+                }
+
                 if (this.isStunned) {
                     this.stunTimer -= (1 * config.timeScale);
                     this.x += this.velX * config.timeScale;
-                    this.velX *= 0.88;
+                    this.velX *= (this.painWallSplat ? 0.96 : 0.88);
                     this.x = Math.max(30, Math.min(canvas.width - 30, this.x));
                     if (this.stunTimer <= 0) {
                         this.isStunned = false;
@@ -15277,6 +15472,16 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     
                     let target = (p.owner === this) ? opponent : this;
                     let shooter = (p.owner === this) ? this : opponent;
+
+                    // Shinra Tensei Projectile Erasure: Any projectile flying towards Pain while Shinra Tensei is active disintegrates instantly!
+                    if (target && target.type === 'pain' && target.attacking && target.attackType === 'shinra_tensei') {
+                        if (p.active) {
+                            p.active = false;
+                            gameState.pixelEffects.push(new PixelVFX('impact_burst', p.x, p.y, p.facing || 1, '#ffffff', { maxFrames: 14 }));
+                            createExplosion(p.x, p.y, '#ffffff', 8, 0.9);
+                        }
+                        return;
+                    }
                     
                     if (p.age > 12) {
                         const distToOwner = Math.sqrt(Math.pow(p.x - p.owner.x, 2) + Math.pow(p.y - (p.owner.y - 45), 2));
@@ -16730,6 +16935,75 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 
 
                 if (type === 'punch') {
+                    if (this.type === 'pain') {
+                        if (this.painShinraCooldown > 0) {
+                            announceText('SHINRA TENSEI: ' + (this.painShinraCooldown / 60).toFixed(1) + 's', '#a55eea');
+                            return;
+                        }
+                        this.painShinraCooldown = this.painShinraMax;
+                        this.attacking = true;
+                        this.attackType = 'shinra_tensei';
+                        this.attackMax = 22;
+                        this.attackTimer = 22;
+                        this.internalCooldown = 28;
+                        this.hitOnce = false;
+
+                        announceText('SHINRA TENSEI!', '#a55eea');
+                        gameState.shake = 18;
+                        gameState.flashAlpha = 0.35;
+                        gameState.flashColor = '#a55eea';
+
+                        // Spawn EXACTLY ONE clean, translucent white shockwave dome resting on the arena floor
+                        gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', this.x, config.groundY, this.facing, '#ffffff', { maxFrames: 22 }));
+
+                        // Ground earth gravel particles with natural gravity
+                        for (let i = 0; i < 8; i++) {
+                            const dir = i % 2 === 0 ? 1 : -1;
+                            gameState.particles.push(new Particle(this.x + dir * (10 + Math.random() * 35), config.groundY - 2, i % 2 === 0 ? '#7f8c8d' : '#2d3436', 1.0, false, 0, 0, 'rock'));
+                        }
+
+                        // Projectile Erasure: ANY active projectile incoming or on screen vanishes instantly!
+                        if (opponent && opponent.projectiles && opponent.projectiles.length > 0) {
+                            for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
+                                const p = opponent.projectiles[i];
+                                p.active = false;
+                                gameState.pixelEffects.push(new PixelVFX('impact_burst', p.x, p.y, p.facing || 1, '#ffffff', { maxFrames: 14 }));
+                                createExplosion(p.x, p.y, '#ffffff', 8, 1.0);
+                            }
+                        }
+                        if (gameState.deidaraBugs && gameState.deidaraBugs.length > 0) {
+                            for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
+                                const b = gameState.deidaraBugs[i];
+                                if (b.owner === opponent) {
+                                    b.exploded = true;
+                                    createExplosion(b.x, b.y, '#ffffff', 8, 1.0);
+                                    gameState.deidaraBugs.splice(i, 1);
+                                }
+                            }
+                        }
+
+                        // Radial 360-degree Repulsion Hit Detection: 20% HP damage + Wall Splat Knockback
+                        if (opponent && !opponent.isDead) {
+                            const dist = Math.hypot(opponent.x - this.x, (opponent.y - 45) - (this.y - 45));
+                            if (dist < 320) {
+                                this.hitOnce = true;
+                                const pushDir = opponent.x >= this.x ? 1 : -1;
+                                opponent.velX = pushDir * 40; // Super high speed towards the wall!
+                                opponent.velY = -3.5;
+                                opponent.health = Math.max(0, opponent.health - 20); // Exact 20% HP damage!
+                                opponent.isStunned = true;
+                                opponent.stunTimer = 75;
+                                opponent.painWallSplat = true; // Wall stick flag!
+                                opponent.painWallStuck = false;
+                                gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 45, -pushDir, '#ffffff', { maxFrames: 20 }));
+                                if (opponent.health <= 0) {
+                                    opponent.health = 0;
+                                    triggerWin(this);
+                                }
+                            }
+                        }
+                        return;
+                    }
                     if (this.type === 'zookeeper') {
                         this.attackMax = 20; this.attackTimer = 20; this.internalCooldown = 50;
                         gameState.pixelEffects.push(new PixelVFX('zookeeper_whip_crack', this.x + 85 * this.facing, this.y - 42, this.facing, this.color));
@@ -16844,6 +17118,28 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 if (gameState.timestopActive && opponent !== gameState.timestopCaster) {
                     opponent.isBlocking = false;
+                }
+
+                if (this.attackType === 'shinra_tensei') {
+                    if (this.hitOnce) return;
+                    const dist = Math.hypot(opponent.x - this.x, (opponent.y - 45) - (this.y - 45));
+                    if (dist < 320) {
+                        this.hitOnce = true;
+                        const pushDir = opponent.x >= this.x ? 1 : -1;
+                        opponent.velX = pushDir * 40;
+                        opponent.velY = -3.5;
+                        opponent.health = Math.max(0, opponent.health - 20); // Exact 20% HP damage!
+                        opponent.isStunned = true;
+                        opponent.stunTimer = 75;
+                        opponent.painWallSplat = true;
+                        opponent.painWallStuck = false;
+                        gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 45, -pushDir, '#ffffff', { maxFrames: 20 }));
+                        if (opponent.health <= 0) {
+                            opponent.health = 0;
+                            triggerWin(this);
+                        }
+                    }
+                    return;
                 }
 
                 const isSpecialThrust = (this.attackType === 'multithrust' && this.attackTimer <= 6);
@@ -18850,29 +19146,31 @@ function drawPixelPain(fighter, frozenInDraw) {
         armB = [-3, -18,  0, -17,  4, -17];
         armF = [ 2, -18,  5, -17,  8, -17];
         cloakHemOffset = -1;
-    } else if (drawAttacking && drawAttackType === 'punch') {
-        // Divine Palm Thrust (Shinra Tensei stance)
+    } else if (drawAttacking && (drawAttackType === 'punch' || drawAttackType === 'shinra_tensei')) {
+        // Tendō Pain Divine Double-Palm Shinra Tensei Stance
         expr = 'focus';
-        if (progress < 0.3) {
+        if (progress < 0.25) {
             torsoLean = -2;
             headX = -2; headY = -24;
-            armB = [-4, -18, -6, -15, -7, -13];
-            armF = [ 1, -18, -1, -16,  0, -14];
+            armB = [-4, -18, -6, -17, -5, -16];
+            armF = [ 2, -18,  0, -17,  2, -16];
             legB = [-4, -10, -5, -5, -6, 0];
             legF = [ 2, -10,  3, -5,  4, 0];
-        } else if (progress < 0.7) {
-            torsoLean = 3;
-            headX = 2; headY = -23;
-            armB = [-5, -18, -7, -14, -8, -12];
-            armF = [ 4, -18,  9, -17, 15, -17]; // Full divine palm thrust forward!
-            legB = [-5, -10, -7, -5, -8, 0];
-            legF = [ 3, -10,  5, -5,  6, 0];
-            cloakHemOffset = -3;
+        } else if (progress < 0.75) {
+            torsoLean = 2;
+            headX = 2; headY = -24;
+            bodyY = -2; // Divine levitation during repulsive blast!
+            armB = [-3, -18,  5, -18, 14, -18]; // Both palms outstretched forward!
+            armF = [ 3, -18, 10, -17, 18, -17];
+            legB = [-6, -10, -8, -5, -9, 0];
+            legF = [ 3, -10,  6, -5,  7, 0];
+            cloakHemOffset = -6; // Cloak blown backward by repulsive pressure
+            cloakSpread = 4;
         } else {
             torsoLean = 1;
             headX = 1; headY = -24;
-            armF = [ 3, -18,  7, -16, 11, -15];
-            armB = [-4, -18, -6, -14, -6, -12];
+            armB = [-4, -18, -2, -16,  2, -14];
+            armF = [ 3, -18,  6, -16,  9, -14];
         }
     } else if (drawAttacking && (drawAttackType === 'kick' || drawAttackType === 'launcher_kick')) {
         // Akatsuki snap kick
@@ -23448,6 +23746,14 @@ function drawPixelMage(fighter, frozenInDraw) {
                     } else {
                         me.attack('hooper_c');
                     }
+                } else if (me.type === 'pain') {
+                    if (canSpecial && rand < 0.35) {
+                        me.attack('special');
+                    } else if (me.painShinraCooldown <= 0 && rand < 0.70) {
+                        me.attack('punch');
+                    } else {
+                        me.attack('kick');
+                    }
                 } else if (me.type === 'martial') {
                     const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                     const oppInAir = opponent.y < config.groundY - 25;
@@ -23478,8 +23784,12 @@ function drawPixelMage(fighter, frozenInDraw) {
         }
 
         function applyVelocity(fighter, targetV) {
-            if (fighter.isParrying || fighter.isTransforming || fighter.isBeingPulled || fighter.isStunned || fighter.isCinematicActive) {
+            if (fighter.isParrying || fighter.isTransforming || fighter.isBeingPulled || fighter.isCinematicActive) {
                 fighter.velX = 0;
+                return;
+            }
+            if (fighter.isStunned) {
+                // Stunned by attack: preserve knockback velX!
                 return;
             }
             if ((!fighter.isBlocking || fighter.type === 'sixeye') && !fighter.isCharging && !fighter.isSaiyanDodging) {
@@ -23549,8 +23859,10 @@ function drawPixelMage(fighter, frozenInDraw) {
                 } else {
                     p1.isBlocking = p1HoldingBlock;
                 }
-                if (p1.isParrying || p1.isTransforming || p1.isBeingPulled || p1.isStunned || p1.isCinematicActive || p1.phantomChargingB || p1.slasherUltActive || p1.isRidingDragon) {
+                if (p1.isParrying || p1.isTransforming || p1.isBeingPulled || p1.isCinematicActive || p1.phantomChargingB || p1.slasherUltActive || p1.isRidingDragon) {
                     p1.velX = 0;
+                } else if (p1.isStunned) {
+                    // Stunned by attack: preserve knockback velX!
                 } else if ((!p1.isBlocking || p1.type === 'sixeye') && !p1.isCharging && !p1.isSaiyanDodging) {
                     let p1TargetVelX = 0;
                     let p1SpeedMult = (p1.type === 'phantom' && p1.phantomSpeedBoostActive) ? 2.0 : 1;
@@ -23572,7 +23884,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                         if (keys['KeyV']) p1.attack('hooper_v');
                         if (keys['KeyB']) p1.attack('hooper_ult');
                     } else {
-                    if (keys['KeyC']) p1.attack(p1.type === 'gunslinger' ? 'slash' : ((p1.type === 'martial' || p1.type === 'taichi' || p1.type === 'werewolf' || p1.type === 'sixeye' || p1.type === 'saiyan' || p1.type === 'dio' || p1.type === 'raijin' || p1.type === 'phantom' || p1.type === 'zookeeper') ? 'punch' : 'slash'));
+                    if (keys['KeyC']) p1.attack(p1.type === 'gunslinger' ? 'slash' : ((p1.type === 'martial' || p1.type === 'taichi' || p1.type === 'werewolf' || p1.type === 'sixeye' || p1.type === 'saiyan' || p1.type === 'dio' || p1.type === 'raijin' || p1.type === 'phantom' || p1.type === 'zookeeper' || p1.type === 'pain') ? 'punch' : 'slash'));
                     if (keys['KeyV']) p1.attack(p1.type === 'phantom' ? 'phantom_speed_boost' : (p1.type === 'miner' ? 'miner_flash' : 'kick'));
                     if (p1.type === 'phantom') {
                         if (keys['KeyB']) {
@@ -23608,8 +23920,10 @@ function drawPixelMage(fighter, frozenInDraw) {
                 } else {
                     p2.isBlocking = p2HoldingBlock;
                 }
-                if (p2.isParrying || p2.isTransforming || p2.isBeingPulled || p2.isStunned || p2.isCinematicActive || p2.phantomChargingB || p2.slasherUltActive || p2.isRidingDragon) {
+                if (p2.isParrying || p2.isTransforming || p2.isBeingPulled || p2.isCinematicActive || p2.phantomChargingB || p2.slasherUltActive || p2.isRidingDragon) {
                     p2.velX = 0;
+                } else if (p2.isStunned) {
+                    // Stunned by attack: preserve knockback velX!
                 } else if ((!p2.isBlocking || p2.type === 'sixeye') && !p2.isCharging && !p2.isSaiyanDodging) {
                     let p2SpeedMult = (p2.type === 'phantom' && p2.phantomSpeedBoostActive) ? 2.0 : 1;
                     let p2TargetVelX = 0;
@@ -23631,7 +23945,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                         if (keys['KeyK']) p2.attack('hooper_v');
                         if (keys['KeyL']) p2.attack('hooper_ult');
                     } else {
-                    if (keys['KeyJ']) p2.attack(p2.type === 'gunslinger' ? 'slash' : ((p2.type === 'martial' || p2.type === 'taichi' || p2.type === 'werewolf' || p2.type === 'sixeye' || p2.type === 'saiyan' || p2.type === 'raijin' || p2.type === 'dio' || p2.type === 'phantom' || p2.type === 'zookeeper') ? 'punch' : 'slash'));
+                    if (keys['KeyJ']) p2.attack(p2.type === 'gunslinger' ? 'slash' : ((p2.type === 'martial' || p2.type === 'taichi' || p2.type === 'werewolf' || p2.type === 'sixeye' || p2.type === 'saiyan' || p2.type === 'raijin' || p2.type === 'dio' || p2.type === 'phantom' || p2.type === 'zookeeper' || p2.type === 'pain') ? 'punch' : 'slash'));
                     if (keys['KeyK']) p2.attack(p2.type === 'phantom' ? 'phantom_speed_boost' : (p2.type === 'miner' ? 'miner_flash' : 'kick'));
                     if (p2.type === 'phantom') {
                         if (keys['KeyL']) {
@@ -24166,6 +24480,14 @@ function drawPixelMage(fighter, frozenInDraw) {
                 }
                 if (p2.type === 'hooper') {
                     const pct = (p2.hooperVCooldown / p2.hooperVMax) * 100;
+                    document.getElementById('p2-v-cooldown-fill').style.width = `${Math.max(0, Math.min(100, 100 - pct))}%`;
+                }
+                if (p1.type === 'pain') {
+                    const pct = (p1.painShinraCooldown / p1.painShinraMax) * 100;
+                    document.getElementById('p1-v-cooldown-fill').style.width = `${Math.max(0, Math.min(100, 100 - pct))}%`;
+                }
+                if (p2.type === 'pain') {
+                    const pct = (p2.painShinraCooldown / p2.painShinraMax) * 100;
                     document.getElementById('p2-v-cooldown-fill').style.width = `${Math.max(0, Math.min(100, 100 - pct))}%`;
                 }
 
