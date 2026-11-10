@@ -3962,6 +3962,31 @@
                 this.frame += config.timeScale;
                 this.x += this.vx * config.timeScale;
                 this.y += this.vy * config.timeScale;
+
+                if (this.kind === 'shinra_tensei_ring') {
+                    const t = this.frame / this.maxFrames;
+                    const expT = 1 - Math.pow(1 - t, 2.0);
+                    const rad = expT * 310;
+                    const floorY = config.groundY;
+
+                    // As the shockwave sweeps outward, spawn dust right at the sweeping contact points!
+                    if (rad > 12 && this.frame <= 18 && Math.floor(this.frame) % 2 === 0) {
+                        const xL = this.x - rad;
+                        const xR = this.x + rad;
+                        if (xL > 25) {
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', xL, floorY, -1, '#dfe6e9'));
+                            for (let k = 0; k < 2; k++) {
+                                gameState.particles.push(new Particle(xL, floorY - 2, '#b2bec3', -2 - Math.random() * 2.5, -1.5 - Math.random() * 2.5, 14));
+                            }
+                        }
+                        if (xR < canvas.width - 25) {
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', xR, floorY, 1, '#dfe6e9'));
+                            for (let k = 0; k < 2; k++) {
+                                gameState.particles.push(new Particle(xR, floorY - 2, '#b2bec3', 2 + Math.random() * 2.5, -1.5 - Math.random() * 2.5, 14));
+                            }
+                        }
+                    }
+                }
                 for (let i = 0; i < this.shards.length; i++) {
                     const s = this.shards[i];
                     s.dx += s.vx * config.timeScale;
@@ -4034,82 +4059,44 @@
                     }
                 }
                 else if (this.kind === 'shinra_tensei_ring') {
-                    // Translucent White Rapid Expansive "Chưởng Khí"
-                    const expT = 1 - Math.pow(1 - t, 2.2); // Explosive early expansion!
-                    const maxRadPx = 295; // Massive expansive radius (~590px diameter!)
-                    const radPx = expT * maxRadPx;
-                    const alpha = Math.max(0, 1 - Math.pow(t, 1.2));
+                    // Translucent White Single Expansive Shockwave Dome (Resting strictly on arena floor)
+                    const expT = 1 - Math.pow(1 - t, 2.0);
+                    const maxRad = 310;
+                    const rad = expT * maxRad;
+                    const alpha = Math.max(0, 1 - Math.pow(t, 1.25));
+                    const floorY = config.groundY;
 
-                    // 1. Translucent White Blast Dome (Soft Radial Shockwave Gradient)
-                    if (radPx > 10) {
-                        const grad = ctx.createRadialGradient(bx, by, Math.max(0, radPx * 0.35), bx, by, radPx);
-                        grad.addColorStop(0, `rgba(255, 255, 255, 0)`);
-                        grad.addColorStop(0.65, `rgba(255, 255, 255, ${alpha * 0.12})`);
-                        grad.addColorStop(0.88, `rgba(255, 255, 255, ${alpha * 0.32})`);
-                        grad.addColorStop(1, `rgba(255, 255, 255, 0)`);
-                        ctx.fillStyle = grad;
-                        ctx.beginPath();
-                        ctx.arc(bx, by, radPx, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
+                    ctx.save();
+                    // 1. Strict ground clipping: NEVER radiates down into the floor/abyss!
+                    ctx.beginPath();
+                    ctx.rect(0, 0, canvas.width, floorY);
+                    ctx.clip();
 
-                    // 2. Outermost Sonic Air Pressure Wavefront (Thick translucent white ridge)
-                    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.90})`;
+                    // 2. Soft translucent white interior mist
+                    const grad = ctx.createRadialGradient(bx, floorY, Math.max(0, rad * 0.75), bx, floorY, rad);
+                    grad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                    grad.addColorStop(0.70, `rgba(255, 255, 255, ${alpha * 0.10})`);
+                    grad.addColorStop(1, `rgba(255, 255, 255, ${alpha * 0.28})`);
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(bx, floorY, rad, Math.PI, 0, false);
+                    ctx.fill();
+
+                    // 3. Just ONE clean, prominent, translucent white ring!
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.88})`;
                     ctx.lineWidth = 4;
                     ctx.beginPath();
-                    ctx.arc(bx, by, radPx, 0, Math.PI * 2);
+                    ctx.arc(bx, floorY, rad, Math.PI, 0, false);
                     ctx.stroke();
 
-                    // 3. Secondary High-Pressure Compression Crest (Bright crisp white)
-                    if (radPx > 15) {
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.95})`;
-                        ctx.lineWidth = 2.5;
-                        ctx.beginPath();
-                        ctx.arc(bx, by, radPx * 0.92, 0, Math.PI * 2);
-                        ctx.stroke();
-                    }
+                    // Subtle soft inner rim
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.40})`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(bx, floorY, Math.max(0, rad - 3), Math.PI, 0, false);
+                    ctx.stroke();
 
-                    // 4. Middle Compression Echo Ring
-                    if (radPx > 35) {
-                        ctx.strokeStyle = `rgba(240, 245, 255, ${alpha * 0.55})`;
-                        ctx.lineWidth = 2;
-                        ctx.beginPath();
-                        ctx.arc(bx, by, radPx * 0.78, 0, Math.PI * 2);
-                        ctx.stroke();
-                    }
-
-                    // 5. Inner Core Ripple (Faint Rinnegan violet essence within translucent white)
-                    if (radPx > 55) {
-                        ctx.strokeStyle = `rgba(180, 160, 240, ${alpha * 0.4})`;
-                        ctx.lineWidth = 1.5;
-                        ctx.beginPath();
-                        ctx.arc(bx, by, radPx * 0.55, 0, Math.PI * 2);
-                        ctx.stroke();
-                    }
-
-                    // 6. 24 Radial Air Gust / Wind Refraction Streaks ("Chưởng Khí")
-                    const streakCount = 24;
-                    for (let i = 0; i < streakCount; i++) {
-                        const ang = (i / streakCount) * Math.PI * 2 + (this.frame * 0.05);
-                        const innerR = Math.max(5, radPx * 0.80);
-                        const outerR = radPx * 1.04;
-                        const x1 = bx + Math.cos(ang) * innerR;
-                        const y1 = by + Math.sin(ang) * innerR;
-                        const x2 = bx + Math.cos(ang) * outerR;
-                        const y2 = by + Math.sin(ang) * outerR;
-
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.75})`;
-                        ctx.lineWidth = (i % 2 === 0) ? 2.5 : 1.5;
-                        ctx.beginPath();
-                        ctx.moveTo(x1, y1);
-                        ctx.lineTo(x2, y2);
-                        ctx.stroke();
-
-                        if (i % 3 === 0) {
-                            ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.85})`;
-                            ctx.fillRect(Math.round(x2) - 2, Math.round(y2) - 2, 4, 4);
-                        }
-                    }
+                    ctx.restore();
                 }
                 else if (this.kind === 'shinra_ground_burst') {
                     // Earth Debris & Massive Billowing Dust Clouds rolling along the ground
@@ -23751,8 +23738,12 @@ function drawPixelMage(fighter, frozenInDraw) {
         }
 
         function applyVelocity(fighter, targetV) {
-            if (fighter.isParrying || fighter.isTransforming || fighter.isBeingPulled || fighter.isStunned || fighter.isCinematicActive) {
+            if (fighter.isParrying || fighter.isTransforming || fighter.isBeingPulled || fighter.isCinematicActive) {
                 fighter.velX = 0;
+                return;
+            }
+            if (fighter.isStunned) {
+                // Stunned by attack: preserve knockback velX!
                 return;
             }
             if ((!fighter.isBlocking || fighter.type === 'sixeye') && !fighter.isCharging && !fighter.isSaiyanDodging) {
@@ -23822,8 +23813,10 @@ function drawPixelMage(fighter, frozenInDraw) {
                 } else {
                     p1.isBlocking = p1HoldingBlock;
                 }
-                if (p1.isParrying || p1.isTransforming || p1.isBeingPulled || p1.isStunned || p1.isCinematicActive || p1.phantomChargingB || p1.slasherUltActive || p1.isRidingDragon) {
+                if (p1.isParrying || p1.isTransforming || p1.isBeingPulled || p1.isCinematicActive || p1.phantomChargingB || p1.slasherUltActive || p1.isRidingDragon) {
                     p1.velX = 0;
+                } else if (p1.isStunned) {
+                    // Stunned by attack: preserve knockback velX!
                 } else if ((!p1.isBlocking || p1.type === 'sixeye') && !p1.isCharging && !p1.isSaiyanDodging) {
                     let p1TargetVelX = 0;
                     let p1SpeedMult = (p1.type === 'phantom' && p1.phantomSpeedBoostActive) ? 2.0 : 1;
@@ -23881,8 +23874,10 @@ function drawPixelMage(fighter, frozenInDraw) {
                 } else {
                     p2.isBlocking = p2HoldingBlock;
                 }
-                if (p2.isParrying || p2.isTransforming || p2.isBeingPulled || p2.isStunned || p2.isCinematicActive || p2.phantomChargingB || p2.slasherUltActive || p2.isRidingDragon) {
+                if (p2.isParrying || p2.isTransforming || p2.isBeingPulled || p2.isCinematicActive || p2.phantomChargingB || p2.slasherUltActive || p2.isRidingDragon) {
                     p2.velX = 0;
+                } else if (p2.isStunned) {
+                    // Stunned by attack: preserve knockback velX!
                 } else if ((!p2.isBlocking || p2.type === 'sixeye') && !p2.isCharging && !p2.isSaiyanDodging) {
                     let p2SpeedMult = (p2.type === 'phantom' && p2.phantomSpeedBoostActive) ? 2.0 : 1;
                     let p2TargetVelX = 0;
