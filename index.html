@@ -3712,7 +3712,8 @@
             hooperCutsceneTimer: 0,
             hooperCutsceneDuration: 115,
             hooperCutsceneCaster: null,
-            hooperBalls: []
+            hooperBalls: [],
+            chibakuTensei: []
         };
 
         function announceText(text, color) {
@@ -3832,6 +3833,7 @@
             gameState.hooperCutsceneTimer = 0;
             gameState.hooperCutsceneCaster = null;
             gameState.hooperBalls = [];
+            gameState.chibakuTensei = [];
             canvas.classList.remove('shake');
         }
 
@@ -6050,7 +6052,7 @@
             }
 
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isDashing;
@@ -6534,7 +6536,7 @@
             }
 
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isDashing;
@@ -7030,7 +7032,7 @@
             }
 
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isGliding = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -7401,7 +7403,7 @@
             }
 
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -7822,7 +7824,7 @@
 
             // 2) Animation State Machine
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const inAir = fighter.y < config.groundY - 2;
             const speed = Math.abs(fighter.velX);
             const walkPhase = (fighter.walkCycle || 0) * (isBeast ? 1.35 : 1.05);
@@ -8260,7 +8262,7 @@
             }
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -8703,7 +8705,7 @@
             }
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging && !fighter.isSaiyanDodging;
@@ -9175,7 +9177,7 @@
 
             // Determine Animation State & Progress
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -9702,7 +9704,7 @@ function drawPixelZookeeper(fighter, frozenInDraw) {
 
             // Animation Progress & State
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -10095,7 +10097,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
             // 3) Animation State & Kinematics
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -10543,7 +10545,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
             // Kinematics & States
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging && !fighter.isParrying;
@@ -13267,6 +13269,381 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             ctx.restore();
         }
 
+
+        // ============ 16-BIT PIXEL ART CHIBAKU TENSEI (GRAVITATIONAL PLANETARY SATELLITE) ============
+        function drawPixelRockChunk(ctx, x, y, sizeType, angle, seed) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+            const P = 2; // High-precision 2px pixel grid
+            
+            const px = (gx, gy, gw, gh, col) => {
+                ctx.fillStyle = col;
+                ctx.fillRect(gx * P, gy * P, gw * P, gh * P);
+            };
+
+            // 16-Bit Handcrafted Earth & Bedrock Palette
+            const cOut   = '#181b22'; // Dark bedrock perimeter
+            const cDeep  = '#2d3436'; // Deep rock crevice & shadow
+            const cBase  = '#576574'; // Slate stone body
+            const cMid   = '#747d8c'; // Intermediate rock face
+            const cLight = '#a4b0be'; // Sunlit chiseled ridge
+            const cHigh  = '#f1f2f6'; // Razor specular granite glint
+            const cLoam  = '#3d261a'; // Rich dark topsoil layer
+            const cTurf  = '#2ed573'; // Arena grass turf fringe
+            const cMoss  = '#1e824c'; // Deep moss edge
+
+            if (sizeType === 'huge') {
+                // Massive Bedrock Boulder Slab (~18x14 cells = 36x28px)
+                px(-8, -6, 16, 12, cOut);
+                px(-9, -4, 18, 8, cOut);
+                px(-7, -7, 14, 14, cOut);
+                
+                // Arena surface turf cap
+                px(-7, -6, 14, 2, cMoss);
+                px(-6, -7, 12, 1, cTurf);
+                px(-8, -4, 16, 2, cLoam);
+                
+                // Multi-faceted chiseled granite face
+                px(-8, -2, 16, 8, cBase);
+                px(-7, -2, 7, 7, cMid);     // Lit face
+                px(-6, -1, 5, 2, cLight);   // High ridge
+                px(-4, -1, 2, 1, cHigh);    // Glint
+                px(0, -2, 8, 8, cDeep);     // Shadow face
+                
+                // Jagged fault line cracks
+                px(-2, -3, 1, 4, cOut);
+                px(-1, 1, 3, 1, cOut);
+                px(2, 2, 1, 3, cOut);
+            } else if (sizeType === 'large') {
+                // Angular Stone Block (~14x10 cells = 28x20px)
+                px(-6, -4, 12, 8, cOut);
+                px(-7, -3, 14, 6, cOut);
+                px(-5, -5, 10, 10, cOut);
+                
+                px(-5, -4, 10, 2, cLoam);
+                px(-6, -2, 6, 6, cMid);
+                px(-5, -3, 4, 3, cLight);
+                px(-4, -2, 2, 1, cHigh);
+                px(0, -2, 6, 6, cDeep);
+                px(1, -1, 4, 4, cBase);
+                px(0, 0, 1, 3, cOut);
+            } else if (sizeType === 'medium') {
+                // Craggy Earth Rock (~10x8 cells = 20x16px)
+                px(-4, -3, 8, 6, cOut);
+                px(-5, -2, 10, 4, cOut);
+                px(-3, -4, 6, 8, cOut);
+                
+                px(-4, -2, 4, 4, cLight);
+                px(0, -2, 4, 4, cDeep);
+                px(-1, -1, 2, 2, cMid);
+                px(-2, -1, 1, 1, cHigh);
+            } else {
+                // Jagged Granite Shard (~6x6 cells = 12x12px)
+                px(-2, -2, 4, 4, cOut);
+                px(-1, -2, 2, 4, cMid);
+                px(-2, -1, 4, 2, cMid);
+                px(-1, -1, 1, 1, cHigh);
+                px(0, 0, 2, 2, cDeep);
+            }
+
+            ctx.imageSmoothingEnabled = prevSmooth;
+            ctx.restore();
+        }
+
+        class ChibakuTensei {
+            constructor(caster, target) {
+                this.caster = caster;
+                this.target = target;
+                this.facing = caster.facing;
+                this.startX = caster.x + caster.facing * 18;
+                this.startY = caster.y - 45;
+                this.x = this.startX;
+                this.y = this.startY;
+                
+                // Apex coordinates in the upper sky above the arena
+                this.apexX = Math.round(Math.max(140, Math.min(canvas.width - 140, target ? target.x : (caster.x + caster.facing * 180))));
+                this.apexY = 135;
+                
+                this.state = 'rising'; // 'rising' | 'attracting' | 'detonating'
+                this.active = true;
+                this.age = 0;
+                this.coreRadius = 6;
+                this.satelliteRadius = 10;
+                this.maxSatelliteRadius = 55;
+                this.rocks = [];
+                this.initRocks();
+            }
+
+            initRocks() {
+                this.rocks = [];
+                const numRocks = 34;
+                for (let i = 0; i < numRocks; i++) {
+                    const spreadX = this.apexX + (Math.random() - 0.5) * 580;
+                    const startX = Math.max(40, Math.min(canvas.width - 40, spreadX));
+                    const startY = config.groundY + Math.random() * 6;
+                    
+                    let sizeType;
+                    if (i < 6) sizeType = 'huge';        // 6 massive bedrock boulders
+                    else if (i < 15) sizeType = 'large'; // 9 large angular stone blocks
+                    else if (i < 25) sizeType = 'medium';// 10 medium craggy earth chunks
+                    else sizeType = 'small';             // 9 small shards
+                    
+                    const delay = 14 + Math.floor(Math.random() * 42); // Rips from ground in waves
+                    const targetAngle = (i / numRocks) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
+                    const targetDist = 12 + Math.random() * (this.maxSatelliteRadius - 14);
+
+                    this.rocks.push({
+                        x: startX,
+                        y: startY,
+                        vx: 0,
+                        vy: 0,
+                        angle: Math.random() * Math.PI * 2,
+                        rotSpeed: (Math.random() - 0.5) * 0.22,
+                        sizeType: sizeType,
+                        delay: delay,
+                        spawned: false,
+                        adhered: false,
+                        targetAngle: targetAngle,
+                        targetDist: targetDist,
+                        orbitAngle: targetAngle,
+                        orbitDist: targetDist,
+                        seed: i
+                    });
+                }
+            }
+
+            update() {
+                if (gameState.timestopActive) return;
+                this.age += 1 * config.timeScale;
+
+                // Phase 1: Rising from Pain's palms to apex
+                if (this.age <= 22) {
+                    const t = Math.min(1.0, this.age / 22);
+                    const easeT = 1 - Math.pow(1 - t, 3);
+                    this.x = this.startX + (this.apexX - this.startX) * easeT;
+                    this.y = this.startY + (this.apexY - this.startY) * easeT;
+
+                    if (Math.random() > 0.2) {
+                        const sp = new Particle(this.x + (Math.random() - 0.5) * 8, this.y + (Math.random() - 0.5) * 8, Math.random() > 0.4 ? '#a55eea' : '#000000', 1.0);
+                        sp.specialBehavior = 'pixel';
+                        sp.size = 2;
+                        gameState.particles.push(sp);
+                    }
+
+                    if (this.target && !this.target.isDead) {
+                        this.target.isStunned = true;
+                        this.target.stunTimer = 6;
+                    }
+
+                    if (this.age >= 22) {
+                        this.state = 'attracting';
+                        gameState.shake = 18;
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y, 1, '#ffffff'));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y, -1, '#a55eea'));
+                    }
+                    return;
+                }
+
+                // Phase 2: Active Gravitational Singularity & Suction
+                if (this.age > 22 && this.age < 125) {
+                    // Suction on Opponent
+                    if (this.target && !this.target.isDead) {
+                        const dx = this.x - this.target.x;
+                        const dy = this.y - (this.target.y - 45);
+                        const dist = Math.hypot(dx, dy);
+
+                        this.target.isStunned = true;
+                        this.target.stunTimer = 6;
+
+                        if (dist > 18) {
+                            this.target.velX = Math.max(-14, Math.min(14, dx * 0.18));
+                            this.target.velY = Math.max(-16, Math.min(16, dy * 0.18));
+                        } else {
+                            this.target.velX = 0;
+                            this.target.velY = 0;
+                            this.target.x = this.x;
+                            this.target.y = this.y + 45;
+
+                            if (Math.floor(this.age) % 12 === 0) {
+                                this.target.health = Math.max(1, this.target.health - 2);
+                                gameState.shake = Math.max(gameState.shake || 0, 8);
+                                gameState.pixelEffects.push(new PixelVFX('impact_burst', this.x + (Math.random()-0.5)*20, this.y + (Math.random()-0.5)*20, 1, '#a4b0be', { maxFrames: 10, P: 2 }));
+                            }
+                        }
+                    }
+
+                    // Suction & Flight of Rock Blocks
+                    for (let i = 0; i < this.rocks.length; i++) {
+                        const rock = this.rocks[i];
+                        if (!rock.spawned && this.age >= rock.delay) {
+                            rock.spawned = true;
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', rock.x, config.groundY, (rock.x < this.x ? 1 : -1), '#dfe6e9'));
+                            for (let k = 0; k < 2; k++) {
+                                gameState.particles.push(new Particle(rock.x + (Math.random() - 0.5) * 10, config.groundY - 3, '#7f8c8d', 1.0, false, 0, 0, 'rock'));
+                            }
+                        }
+
+                        if (rock.spawned && !rock.adhered) {
+                            const rdx = this.x - rock.x;
+                            const rdy = this.y - rock.y;
+                            const rdist = Math.hypot(rdx, rdy);
+                            const spd = Math.min(22, 6 + (1 - rdist / 550) * 16);
+                            rock.vx = (rdx / rdist) * spd;
+                            rock.vy = (rdy / rdist) * spd;
+                            rock.x += rock.vx * config.timeScale;
+                            rock.y += rock.vy * config.timeScale;
+                            rock.angle += rock.rotSpeed * config.timeScale;
+
+                            if (rdist <= this.satelliteRadius + 12) {
+                                rock.adhered = true;
+                                rock.orbitDist = Math.min(rdist, this.satelliteRadius);
+                                rock.orbitAngle = Math.atan2(rock.y - this.y, rock.x - this.x);
+                                this.satelliteRadius = Math.min(this.maxSatelliteRadius, this.satelliteRadius + 1.4);
+                                if (Math.random() > 0.35) {
+                                    gameState.pixelEffects.push(new PixelVFX('impact_burst', rock.x, rock.y, 1, '#a4b0be', { maxFrames: 10, P: 2 }));
+                                }
+                            }
+                        } else if (rock.adhered) {
+                            rock.orbitAngle += 0.012 * config.timeScale;
+                            rock.x = this.x + Math.cos(rock.orbitAngle) * rock.orbitDist;
+                            rock.y = this.y + Math.sin(rock.orbitAngle) * rock.orbitDist;
+                            rock.angle += 0.012 * config.timeScale;
+                        }
+                    }
+
+                    this.coreRadius = 6 + Math.sin(this.age * 0.25) * 1.5;
+                    return;
+                }
+
+                // Phase 3: Planetary Shatter & Catastrophic Collapse (frames 125 -> 155)
+                if (this.age >= 125) {
+                    if (this.state !== 'detonating') {
+                        this.state = 'detonating';
+                        gameState.flashAlpha = 0.55;
+                        gameState.flashColor = '#ffffff';
+                        gameState.shake = 32;
+                        announceText('SHATTER!', '#ff793f');
+
+                        for (let i = 0; i < this.rocks.length; i++) {
+                            const rock = this.rocks[i];
+                            rock.adhered = false;
+                            const bAngle = Math.atan2(rock.y - this.y, rock.x - this.x);
+                            const bSpd = 16 + Math.random() * 22;
+                            rock.vx = Math.cos(bAngle) * bSpd;
+                            rock.vy = Math.sin(bAngle) * bSpd;
+                            rock.rotSpeed = (Math.random() - 0.5) * 0.5;
+                        }
+
+                        createShinraExplosion(this.x, this.y, '#ff793f', 1, true);
+                        createShinraExplosion(this.x, this.y, '#ffffff', -1, true);
+
+                        if (this.target && !this.target.isDead) {
+                            this.target.velY = 22; // Violent downward meteor slam
+                            this.target.velX = (this.target.x >= this.x ? 1 : -1) * 8;
+                            this.target.health = Math.max(0, this.target.health - 22);
+                            this.target.isStunned = true;
+                            this.target.stunTimer = 45;
+                            if (this.target.health <= 0) {
+                                this.target.health = 0;
+                                triggerWin(this.caster);
+                            }
+                        }
+                    }
+
+                    for (let i = 0; i < this.rocks.length; i++) {
+                        const rock = this.rocks[i];
+                        rock.x += rock.vx * config.timeScale;
+                        rock.y += rock.vy * config.timeScale;
+                        rock.vy += 0.5 * config.timeScale;
+                        rock.angle += rock.rotSpeed * config.timeScale;
+                    }
+
+                    if (this.target && this.target.y >= config.groundY - 5 && this.target.velY > 0) {
+                        gameState.pixelEffects.push(new PixelVFX('impact_burst', this.target.x, config.groundY, 1, '#dfe6e9', { maxFrames: 24, P: 4 }));
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', this.target.x - 22, config.groundY, -1, '#bdc3c7'));
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', this.target.x + 22, config.groundY, 1, '#bdc3c7'));
+                        this.target.velY = 0;
+                    }
+
+                    if (this.age >= 155) {
+                        this.active = false;
+                        this.caster.painChibakuActive = false;
+                        this.caster.cooldown = 240; // 4s cooldown on B
+                    }
+                }
+            }
+
+            drawBack() {
+                if (!this.active) return;
+                ctx.save();
+
+                if (this.state === 'attracting' || this.state === 'rising') {
+                    // Concentric space-time distortion ripples
+                    ctx.save();
+                    ctx.globalAlpha = 0.35 + Math.sin(this.age * 0.15) * 0.15;
+                    for (let r = 24; r <= 70; r += 16) {
+                        const ringR = (r + this.age * 2.2) % 75;
+                        ctx.strokeStyle = '#a55eea';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, ringR, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+
+                    // White Event Horizon & Purple Void Corona
+                    const pulse = Math.sin(this.age * 0.25) * 2;
+                    const coreR = Math.max(5, Math.round(this.coreRadius));
+                    
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, coreR + 3 + pulse, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#5a189a';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, coreR + 1 + pulse * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Pure Obsidian Singularity Core
+                    ctx.fillStyle = '#000000';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, coreR, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Rear rocks (orbit angle behind the sphere: sin < 0)
+                for (let i = 0; i < this.rocks.length; i++) {
+                    const rock = this.rocks[i];
+                    if (!rock.spawned) continue;
+                    if (rock.adhered && Math.sin(rock.orbitAngle) < 0) {
+                        drawPixelRockChunk(ctx, rock.x, rock.y, rock.sizeType, rock.angle, rock.seed);
+                    }
+                }
+
+                ctx.restore();
+            }
+
+            drawFront() {
+                if (!this.active) return;
+                ctx.save();
+
+                // Front rocks (orbit angle in front of sphere: sin >= 0, or rocks flying/bursting)
+                for (let i = 0; i < this.rocks.length; i++) {
+                    const rock = this.rocks[i];
+                    if (!rock.spawned) continue;
+                    if (!rock.adhered || Math.sin(rock.orbitAngle) >= 0) {
+                        drawPixelRockChunk(ctx, rock.x, rock.y, rock.sizeType, rock.angle, rock.seed);
+                    }
+                }
+
+                ctx.restore();
+            }
+        }
+
         class Stickman {
             constructor(x, color, id, type) {
                 this.id = id; this.type = type;
@@ -13408,6 +13785,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 if (type === 'pain') {
                     this.painShinraCooldown = 0;
                     this.painShinraMax = 300;           // 5s @ 60fps canon Shinra Tensei interval
+                    this.painChibakuWindow = 0;         // Follow-up window for [B] Chibaku Tensei
+                    this.painChibakuActive = false;
                 }
                 this.hooperAnkleFallTimer = 0;          // Visual knockdown timer when ankle-broken by Hooper
                 this.airComboCount = 0;                 // Storm 4 Air Combo hit count (max 4 per jump)
@@ -14794,6 +15173,15 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     if (this.painShinraCooldown > 0) {
                         this.painShinraCooldown -= 1 * config.timeScale;
                         if (this.painShinraCooldown < 0) this.painShinraCooldown = 0;
+                    }
+                    if (this.painChibakuWindow > 0) {
+                        this.painChibakuWindow -= 1 * config.timeScale;
+                        if (this.painChibakuWindow <= 0) {
+                            this.painChibakuWindow = 0;
+                            if (this.hasLaunchedOpponent && opponent && (opponent.y >= config.groundY - 1)) {
+                                this.hasLaunchedOpponent = false;
+                            }
+                        }
                     }
 
                     // Aerial Levitation & Hover logic
@@ -16645,6 +17033,28 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 }
 
+                // ── PAIN CHIBAKU TENSEI FOLLOW-UP (Can cancel launcher_kick recovery) ─────────────
+                if (this.type === 'pain' && type === 'pain_chibaku') {
+                    if (this.isDead || this.isStunned || this.isBeingPulled || this.isParrying || this.isTransforming) return;
+                    this.painChibakuWindow = 0;
+                    this.hasLaunchedOpponent = false;
+                    this.attacking = true;
+                    this.attackType = 'pain_chibaku_cast';
+                    this.attackMax = 32;
+                    this.attackTimer = 32;
+                    this.internalCooldown = 40;
+                    this.painChibakuActive = true;
+
+                    announceText('CHIBAKU TENSEI!', '#a55eea');
+                    gameState.shake = 22;
+                    gameState.flashAlpha = 0.40;
+                    gameState.flashColor = '#a55eea';
+
+                    if (!gameState.chibakuTensei) gameState.chibakuTensei = [];
+                    gameState.chibakuTensei.push(new ChibakuTensei(this, opponent));
+                    return;
+                }
+
                 if (this.attacking || this.isDead || (this.isBlocking && type !== 'launcher_kick' && !(this.type === 'fisherman' && type === 'special')) || this.internalCooldown > 0 || this.isCharging || this.isParrying || this.isTransforming || this.isBeingPulled || this.isStunned || this.isSaiyanDodging || this.phantomChargingB || this.slasherUltActive) return;
                 if ((type === 'dash' || type === 'special' || type === 'saiyan_beam') && this.cooldown > 0) return;
                 if (gameState.timestopActive && this !== gameState.timestopCaster) return;
@@ -17199,6 +17609,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 } 
                 
+
+
 
                 if (this.type === 'pain' && type === 'pain_ult') {
                     if (this.isDead || this.isStunned || this.isBeingPulled) return;
@@ -17782,10 +18194,16 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             this.brawlerAirStep = 0;
                             this.airComboTotalDmg = 0;
 
+                            if (this.type === 'pain') {
+                                this.painChibakuWindow = 85; // ~1.4s follow-up window for [B] Chibaku Tensei!
+                                announceText('AIR LAUNCH! [B] CHIBAKU TENSEI', '#a55eea');
+                            } else {
+                                announceText('AIR LAUNCH!', this.color);
+                            }
+
                             gameState.shake = 18;
                             gameState.flashAlpha = 0.35;
                             gameState.flashColor = this.color;
-                            announceText('AIR LAUNCH!', this.color);
 
                             gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 35, this.facing, this.color, { maxFrames: 22, P: 4 }));
                             gameState.pixelEffects.push(new PixelVFX('gale_kick', opponent.x, opponent.y - 45, this.facing, this.color));
@@ -19497,7 +19915,7 @@ function drawPixelPain(fighter, frozenInDraw) {
 
     // 3) Kinematics & Animation State Machine
     const drawAttacking = frozenInDraw ? false : fighter.attacking;
-    const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+    const drawAttackType = frozenInDraw ? '' : fighter.attackType;
     const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
     const isAirborne = fighter.y < config.groundY - 2;
     const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -19569,7 +19987,54 @@ function drawPixelPain(fighter, frozenInDraw) {
             armB = [-4, -18, -2, -16,  2, -14];
             armF = [ 3, -18,  6, -16,  9, -14];
         }
-    } else if (drawAttacking && (drawAttackType === 'kick' || drawAttackType === 'launcher_kick')) {
+    } else if (drawAttacking && drawAttackType === 'launcher_kick') {
+        // TENDŌ PAIN 180-DEGREE SOMERSAULT CRESCENT FLASH KICK
+        if (progress < 0.22) {
+            // Phase 1: Dynamic low crouch spring
+            expr = 'focus';
+            bodyY = 2; torsoLean = -2;
+            headX = -2; headY = -22;
+            legB = [-3, -6, -5, -3, -6, 0];
+            legF = [2, -8, 4, -4, 2, 0];
+            armB = [-4, -14, -7, -10, -6, -4];
+            armF = [2, -14, 5, -10, 6, -4];
+            cloakHemOffset = 1;
+        } else if (progress < 0.68) {
+            // Phase 2: Inverted 180° Skyward Somersault Kick!
+            expr = 'shout';
+            bodyY = -6; torsoLean = -4;
+            headX = -3; headY = -28;
+            legB = [-2, -13, -5, -7, -4, -2]; // Tucked support knee
+            legF = [3, -15, 11, -26, 17, -36]; // Full 180° vertical crescent extension!
+            armB = [-4, -21, -9, -17, -11, -13];
+            armF = [2, -21, 6, -17, 9, -19];
+            cloakHemOffset = -8;
+            cloakSpread = 6; // Billowing Akatsuki cloak flared up into the air!
+        } else {
+            // Phase 3: Fluid rotational landing & upright recovery
+            expr = 'normal';
+            bodyY = -1; torsoLean = -1;
+            headX = 0; headY = -24;
+            legF = [2, -10, 6, -6, 7, 0];
+            legB = [-3, -10, -4, -5, -5, 0];
+            armB = [-4, -18, -5, -15, -4, -13];
+            armF = [2, -18, 5, -15, 6, -13];
+            cloakHemOffset = -2;
+            cloakSpread = 1;
+        }
+    } else if (drawAttacking && drawAttackType === 'pain_chibaku_cast') {
+        // TENDŌ PAIN CHIBAKU TENSEI PRAYER SEAL POSE
+        expr = 'focus';
+        torsoLean = 0;
+        headX = 0; headY = -24;
+        bodyY = -1;
+        armB = [-3, -18, -1, -16, 2, -15];
+        armF = [3, -18, 1, -16, 2, -15];
+        legB = [-3, -10, -4, -5, -5, 0];
+        legF = [2, -10, 3, -5, 4, 0];
+        cloakHemOffset = -1;
+        cloakSpread = 2;
+    } else if (drawAttacking && drawAttackType === 'kick') {
         // Akatsuki snap kick
         expr = 'focus';
         if (progress < 0.35) {
@@ -19941,7 +20406,7 @@ function drawPixelDeidara(fighter, frozenInDraw) {
 
     // Kinematics & States
     const drawAttacking = frozenInDraw ? false : fighter.attacking;
-    const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+    const drawAttackType = frozenInDraw ? '' : fighter.attackType;
     const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
     const isAirborne = (fighter.y < config.groundY - 2) && !fighter.isRidingDragon;
     const isRunning = !isAirborne && !fighter.isRidingDragon && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -20802,7 +21267,7 @@ function drawPixelMage(fighter, frozenInDraw) {
 
     // Animation States
     const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-    const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+    const drawAttackType = frozenInDraw ? '' : fighter.attackType;
     const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
     const isAirborne     = fighter.y < config.groundY - 2;
     const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -21200,7 +21665,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -21429,7 +21894,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -21657,7 +22122,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -21873,7 +22338,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             }
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -22050,7 +22515,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -22372,7 +22837,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = !fighter.slasherUltActive && (fighter.y < config.groundY - 2);
             const isRunning      = !isAirborne && !fighter.slasherUltActive && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -24182,12 +24647,17 @@ function drawPixelMage(fighter, frozenInDraw) {
                         me.attack('hooper_c');
                     }
                 } else if (me.type === 'pain') {
-                    if (canSpecial && rand < 0.35) {
-                        me.attack('special');
+                    const oppInAir = opponent.y < config.groundY - 20;
+                    if ((me.painChibakuWindow > 0 || (me.hasLaunchedOpponent && oppInAir)) && !me.painChibakuActive) {
+                        me.attack('pain_chibaku', opponent);
+                    } else if (!oppInAir && dist < 95 && rand < 0.35) {
+                        me.attack('launcher_kick', opponent);
+                    } else if (canSpecial && rand < 0.35) {
+                        me.attack('special', opponent);
                     } else if (me.painShinraCooldown <= 0 && rand < 0.70) {
-                        me.attack('punch');
+                        me.attack('punch', opponent);
                     } else {
-                        me.attack('kick');
+                        me.attack('kick', opponent);
                     }
                 } else if (me.type === 'martial') {
                     const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
@@ -24331,7 +24801,12 @@ function drawPixelMage(fighter, frozenInDraw) {
                         }
                     } else if (p1.type === 'pain') {
                         if (keys['KeyB']) {
-                            p1.attack('pain_ult');
+                            const oppInAir = p2 && (p2.y < config.groundY - 20);
+                            if ((p1.painChibakuWindow > 0 || (p1.hasLaunchedOpponent && oppInAir)) && !p1.painChargingUlt && !p1.painChibakuActive) {
+                                p1.attack('pain_chibaku', p2);
+                            } else if (!p1.painChibakuActive) {
+                                p1.attack('pain_ult');
+                            }
                         } else if (p1.painChargingUlt) {
                             p1.releasePainUlt();
                         }
@@ -24396,7 +24871,12 @@ function drawPixelMage(fighter, frozenInDraw) {
                         }
                     } else if (p2.type === 'pain') {
                         if (keys['KeyL']) {
-                            p2.attack('pain_ult');
+                            const oppInAir = p1 && (p1.y < config.groundY - 20);
+                            if ((p2.painChibakuWindow > 0 || (p2.hasLaunchedOpponent && oppInAir)) && !p2.painChargingUlt && !p2.painChibakuActive) {
+                                p2.attack('pain_chibaku', p1);
+                            } else if (!p2.painChibakuActive) {
+                                p2.attack('pain_ult');
+                            }
                         } else if (p2.painChargingUlt) {
                             p2.releasePainUlt();
                         }
@@ -24480,6 +24960,14 @@ function drawPixelMage(fighter, frozenInDraw) {
 
                 p1.update(p2);
                 p2.update(p1);
+
+                if (gameState.chibakuTensei) {
+                    for (let i = gameState.chibakuTensei.length - 1; i >= 0; i--) {
+                        const ct = gameState.chibakuTensei[i];
+                        ct.update();
+                        if (!ct.active) gameState.chibakuTensei.splice(i, 1);
+                    }
+                }
 
                 // Update & draw pending lightning strike 16-bit pixel target beacons
                 if (!gameState.timestopActive) {
@@ -24796,8 +25284,14 @@ function drawPixelMage(fighter, frozenInDraw) {
                         r.update(); r.draw();
                         if (!r.active) gameState.roadrollers.splice(i, 1);
                     }
+                    if (gameState.chibakuTensei) {
+                        gameState.chibakuTensei.forEach(ct => ct.drawBack());
+                    }
                     p1.draw();
                     p2.draw();
+                    if (gameState.chibakuTensei) {
+                        gameState.chibakuTensei.forEach(ct => ct.drawFront());
+                    }
 
                     for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
                         const b = gameState.deidaraBugs[i];
