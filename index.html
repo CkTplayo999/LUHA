@@ -13353,240 +13353,192 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             ctx.restore();
         }
 
-                function drawPixelPlanetoid(ctx, cx, cy, radius, age, isDetonating, pass) {
-            if (radius <= 0) return;
+                const VORONOI_ROCK_CELLS = [[[0.571, 0.553], [0.443, 0.784], [0.384, 0.699], [0.414, 0.39], [0.443, 0.369]], [[-0.891, -0.268], [-0.855, -0.216], [-0.908, -0.005], [-1.2, -0.079], [-1.2, -0.33]], [[0.214, 0.321], [0.184, 0.185], [0.199, 0.13], [0.262, 0.047], [0.447, -0.003], [0.56, 0.062], [0.574, 0.265], [0.443, 0.369], [0.414, 0.39]], [[-0.671, -0.671], [-0.579, -0.592], [-0.514, -0.387], [-0.662, -0.397]], [[0.115, -0.848], [0.164, -0.876], [0.234, -0.817], [0.211, -0.719], [0.196, -0.7], [0.066, -0.684], [0.097, -0.796]], [[-0.005, -0.855], [-0.132, -0.71], [-0.172, -0.716], [-0.421, -1.2], [-0.32, -1.2]], [[0.022, -0.582], [-0.114, -0.695], [0.097, -0.796], [0.066, -0.684]], [[0.02, 0.702], [0.048, 0.671], [0.059, 0.664], [0.236, 1.2], [0.095, 1.2]], [[0.443, 0.784], [0.571, 0.553], [0.585, 0.531], [0.66, 0.518], [0.79, 0.543], [1.2, 0.781], [1.2, 1.2], [0.573, 1.2]], [[-0.881, 0.202], [-0.797, 0.162], [-0.7, 0.328], [-0.788, 0.671], [-0.844, 0.745]], [[-0.172, -0.716], [-0.264, -0.619], [-0.825, -1.2], [-0.421, -1.2]], [[0.231, 0.603], [0.097, 0.606], [-0.037, 0.473], [0.201, 0.352]], [[0.732, 0.013], [0.738, -0.006], [0.962, -0.201], [1.2, -0.304], [1.2, 0.208]], [[0.979, -1.128], [0.462, -0.748], [0.234, -0.817], [0.164, -0.876], [0.201, -1.2], [1.053, -1.2]], [[-0.354, 0.046], [-0.44, -0.178], [-0.371, -0.246], [-0.362, -0.25], [-0.276, -0.248], [-0.209, -0.067], [-0.212, -0.014]], [[-0.851, 0.756], [-0.844, 0.745], [-0.788, 0.671], [-0.324, 0.389], [-0.256, 0.373], [-0.293, 0.728]], [[-0.197, 0.82], [-0.293, 0.728], [-0.256, 0.373], [-0.238, 0.36], [-0.216, 0.367], [-0.111, 0.45], [-0.104, 0.623]], [[0.666, -0.538], [0.395, -0.545], [0.462, -0.748], [0.979, -1.128]], [[-0.264, -0.252], [0.012, -0.184], [-0.069, -0.018], [-0.209, -0.067], [-0.276, -0.248]], [[-0.142, -0.448], [-0.27, -0.605], [-0.264, -0.619], [-0.172, -0.716], [-0.132, -0.71], [-0.114, -0.695], [0.022, -0.582], [0.047, -0.515]], [[-0.4, 0.347], [-0.658, 0.296], [-0.651, 0.287], [-0.566, 0.209]], [[-0.7, -0.32], [-0.662, -0.397], [-0.514, -0.387], [-0.371, -0.246], [-0.44, -0.178], [-0.487, -0.163]], [[0.595, 0.29], [0.585, 0.531], [0.571, 0.553], [0.443, 0.369], [0.574, 0.265]], [[-0.114, -0.695], [-0.132, -0.71], [-0.005, -0.855], [0.115, -0.848], [0.097, -0.796]], [[-0.791, 0.043], [-0.87, 0.07], [-1.2, 0.002], [-1.2, -0.079], [-0.908, -0.005]], [[-0.065, 0.649], [-0.104, 0.623], [-0.111, 0.45], [-0.037, 0.473], [0.097, 0.606], [0.059, 0.664], [0.048, 0.671]], [[0.444, -0.162], [0.385, -0.382], [0.652, -0.411], [0.747, -0.341], [0.754, -0.322]], [[-0.079, 0.073], [-0.14, 0.115], [-0.212, -0.014], [-0.209, -0.067], [-0.069, -0.018]], [[0.201, 0.352], [-0.037, 0.473], [-0.111, 0.45], [-0.216, 0.367], [0.184, 0.185], [0.214, 0.321]], [[0.657, 0.324], [0.595, 0.29], [0.574, 0.265], [0.56, 0.062], [0.732, 0.013], [1.2, 0.208], [1.2, 0.404]], [[0.158, -0.427], [0.338, -0.436], [0.385, -0.382], [0.444, -0.162], [0.447, -0.003], [0.262, 0.047], [0.043, -0.191]], [[-0.373, -0.516], [-0.362, -0.25], [-0.371, -0.246], [-0.514, -0.387], [-0.579, -0.592]], [[-0.487, -0.163], [-0.44, -0.178], [-0.354, 0.046], [-0.344, 0.149], [-0.547, 0.125], [-0.647, -0.017]], [[0.344, -0.451], [0.395, -0.545], [0.666, -0.538], [0.652, -0.411], [0.385, -0.382], [0.338, -0.436]], [[-0.682, -0.012], [-0.647, -0.017], [-0.547, 0.125], [-0.566, 0.209], [-0.651, 0.287]], [[0.755, -0.322], [0.754, -0.322], [0.747, -0.341], [1.2, -1.157], [1.2, -0.337]], [[-0.837, -0.294], [-0.7, -0.32], [-0.487, -0.163], [-0.647, -0.017], [-0.682, -0.012], [-0.696, -0.011], [-0.855, -0.216], [-0.891, -0.268]], [[-0.373, -0.516], [-0.31, -0.582], [-0.27, -0.605], [-0.142, -0.448], [-0.264, -0.252], [-0.276, -0.248], [-0.362, -0.25]], [[0.344, -0.451], [0.338, -0.436], [0.158, -0.427], [0.101, -0.479], [0.196, -0.7], [0.211, -0.719]], [[-0.766, 0.047], [-0.797, 0.162], [-0.881, 0.202], [-1.153, 0.189], [-0.87, 0.07], [-0.791, 0.043]], [[-0.245, 0.278], [-0.238, 0.36], [-0.256, 0.373], [-0.324, 0.389], [-0.4, 0.347], [-0.566, 0.209], [-0.547, 0.125], [-0.344, 0.149]], [[-0.216, 0.367], [-0.238, 0.36], [-0.245, 0.278], [-0.14, 0.115], [-0.079, 0.073], [0.199, 0.13], [0.184, 0.185]], [[-0.687, -0.697], [-0.793, -0.951], [-0.31, -0.582], [-0.373, -0.516], [-0.579, -0.592], [-0.671, -0.671]], [[-0.696, -0.011], [-0.682, -0.012], [-0.651, 0.287], [-0.658, 0.296], [-0.7, 0.328], [-0.797, 0.162], [-0.766, 0.047]], [[-0.87, 0.07], [-1.153, 0.189], [-1.2, 0.193], [-1.2, 0.002]], [[-0.043, 0.739], [-0.065, 0.649], [0.048, 0.671], [0.02, 0.702]], [[-0.696, -0.011], [-0.766, 0.047], [-0.791, 0.043], [-0.908, -0.005], [-0.855, -0.216]], [[0.462, -0.748], [0.395, -0.545], [0.344, -0.451], [0.211, -0.719], [0.234, -0.817]], [[0.747, -0.341], [0.652, -0.411], [0.666, -0.538], [0.979, -1.128], [1.053, -1.2], [1.2, -1.2], [1.2, -1.157]], [[-1.2, 1.082], [-0.851, 0.756], [-0.293, 0.728], [-0.197, 0.82], [-0.173, 0.865], [-0.1, 1.2], [-1.2, 1.2]], [[0.657, 0.324], [0.695, 0.422], [0.66, 0.518], [0.585, 0.531], [0.595, 0.29]], [[0.101, -0.479], [0.047, -0.515], [0.022, -0.582], [0.066, -0.684], [0.196, -0.7]], [[-1.2, 1.082], [-1.2, 0.193], [-1.153, 0.189], [-0.881, 0.202], [-0.844, 0.745], [-0.851, 0.756]], [[0.766, -0.221], [0.962, -0.201], [0.738, -0.006]], [[-0.14, 0.115], [-0.245, 0.278], [-0.344, 0.149], [-0.354, 0.046], [-0.212, -0.014]], [[-0.173, 0.865], [-0.197, 0.82], [-0.104, 0.623], [-0.065, 0.649], [-0.043, 0.739]], [[0.79, 0.543], [0.66, 0.518], [0.695, 0.422]], [[-0.658, 0.296], [-0.4, 0.347], [-0.324, 0.389], [-0.788, 0.671], [-0.7, 0.328]], [[-0.079, 0.073], [-0.069, -0.018], [0.012, -0.184], [0.043, -0.191], [0.262, 0.047], [0.199, 0.13]], [[-0.793, -0.951], [-0.687, -0.697], [-0.837, -0.294], [-0.891, -0.268], [-1.2, -0.33], [-1.2, -1.2], [-0.918, -1.2]], [[0.79, 0.543], [0.695, 0.422], [0.657, 0.324], [1.2, 0.404], [1.2, 0.781]], [[-0.173, 0.865], [-0.043, 0.739], [0.02, 0.702], [0.095, 1.2], [-0.1, 1.2]], [[0.164, -0.876], [0.115, -0.848], [-0.005, -0.855], [-0.32, -1.2], [0.201, -1.2]], [[-0.264, -0.619], [-0.27, -0.605], [-0.31, -0.582], [-0.793, -0.951], [-0.918, -1.2], [-0.825, -1.2]], [[0.231, 0.603], [0.201, 0.352], [0.214, 0.321], [0.414, 0.39], [0.384, 0.699]], [[-0.687, -0.697], [-0.671, -0.671], [-0.662, -0.397], [-0.7, -0.32], [-0.837, -0.294]], [[0.444, -0.162], [0.754, -0.322], [0.755, -0.322], [0.766, -0.221], [0.738, -0.006], [0.732, 0.013], [0.56, 0.062], [0.447, -0.003]], [[-0.142, -0.448], [0.047, -0.515], [0.101, -0.479], [0.158, -0.427], [0.043, -0.191], [0.012, -0.184], [-0.264, -0.252]], [[0.059, 0.664], [0.097, 0.606], [0.231, 0.603], [0.384, 0.699], [0.443, 0.784], [0.573, 1.2], [0.236, 1.2]], [[0.962, -0.201], [0.766, -0.221], [0.755, -0.322], [1.2, -0.337], [1.2, -0.304]]];
+
+        function drawAnimeChibakuPlanetoid(ctx, cx, cy, radius, age, isDetonating, pass) {
+            const R = Math.round(radius);
+            if (R <= 0) return;
+
             ctx.save();
             const prevSmooth = ctx.imageSmoothingEnabled;
             ctx.imageSmoothingEnabled = false;
 
-            const cOut         = '#181b22'; // Dark bedrock perimeter
-            const cDeep        = '#2d3436'; // Deep rock crevice & shadow
-            const cDark        = '#1e272e'; // Dark basalt
-            const cBase        = '#576574'; // Slate stone body
-            const cMid         = '#747d8c'; // Intermediate rock face
-            const cLight       = '#a4b0be'; // Sunlit chiseled ridge
-            const cHigh        = '#f1f2f6'; // Specular granite glint
-            const cLoam        = '#3d261a'; // Rich dark topsoil
-            const cTurf        = '#2ed573'; // Arena turf grass
-            const cMoss        = '#1e824c'; // Deep moss edge
-            const cChakra      = '#a55eea'; // Rinnegan purple gravity chakra
-            const cChakraLight = '#dcdde1'; // Radiant core energy
-
-            const R = Math.round(radius);
-
             if (pass === 'back') {
-                // 1) Space-Time Gravitational Distortion Waves
+                // 1. Purple Gravitational Distortion Space-Time Rings
                 ctx.save();
                 ctx.globalAlpha = 0.35 + Math.sin(age * 0.15) * 0.15;
-                for (let r = 24; r <= 88; r += 18) {
-                    const ringR = (r + age * 2.2) % 95;
-                    ctx.strokeStyle = cChakra;
-                    ctx.lineWidth = 2;
+                for (let r = 50; r <= R + 60; r += 28) {
+                    const ringR = (r + age * 2.2) % (R + 70);
+                    ctx.strokeStyle = '#a55eea';
+                    ctx.lineWidth = 2.5;
                     ctx.beginPath();
                     ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
                     ctx.stroke();
                 }
                 ctx.restore();
 
-                // 2) Solid Rear Bedrock Mass (Foundation behind trapped fighter)
-                ctx.fillStyle = cOut;
+                // 2. Base Solid Rock Foundation (Rear hemisphere behind trapped fighter)
+                ctx.fillStyle = '#181410';
                 ctx.beginPath();
                 ctx.arc(cx, cy, R + 3, 0, Math.PI * 2);
                 ctx.fill();
 
-                ctx.fillStyle = cDeep;
+                ctx.fillStyle = '#3a342c';
                 ctx.beginPath();
                 ctx.arc(cx, cy, R, 0, Math.PI * 2);
                 ctx.fill();
-
-                ctx.fillStyle = cBase;
-                ctx.beginPath();
-                ctx.arc(cx - R * 0.25, cy - R * 0.25, R * 0.72, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Rear perimeter jagged boulders
-                for (let b = 0; b < 8; b++) {
-                    const bAngle = (b / 8) * Math.PI * 2 + 0.3;
-                    const bDist = R + 1;
-                    const bx = cx + Math.cos(bAngle) * bDist;
-                    const by = cy + Math.sin(bAngle) * bDist;
-                    drawPixelRockChunk(ctx, bx, by, 'medium', bAngle, b * 3);
-                }
             } else if (pass === 'front') {
-                // 3) Front Hemisphere of the GIGANTIC ROCK SPHERE (QUẢ CẦU ĐÁ TO)
-                ctx.save();
-
-                // Outer Craggy Perimeter Boulders (16 multi-sized protruding boulders)
-                const numPerimBoulders = 16;
-                for (let b = 0; b < numPerimBoulders; b++) {
-                    const bAngle = (b / numPerimBoulders) * Math.PI * 2 + Math.sin(b * 3.7) * 0.18;
-                    const bDist = R + Math.sin(b * 5.1 + age * 0.05) * 2;
-                    const bx = cx + Math.cos(bAngle) * bDist;
-                    const by = cy + Math.sin(bAngle) * bDist;
-                    const sType = (b % 4 === 0 ? 'huge' : (b % 2 === 0 ? 'large' : 'medium'));
-                    drawPixelRockChunk(ctx, bx, by, sType, bAngle + 0.35, b + 5);
-                }
-
-                // Front Solid Tectonic Crust clipped to the sphere body
+                // 3. Jigsaw Interlocking Voronoi Rock Slabs (Exact match to anime reference photo!)
                 ctx.save();
                 ctx.beginPath();
                 ctx.arc(cx, cy, R, 0, Math.PI * 2);
                 ctx.clip();
 
-                // Base slate stone foundation
-                ctx.fillStyle = cBase;
+                // Solid base earth underlayer
+                ctx.fillStyle = '#3a342c';
                 ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
 
-                // Multiple Interlocking Surface Rock Plates across the entire sphere
-                // Plate A (Upper Left): Sunlit granite plateau
-                ctx.fillStyle = cMid;
-                ctx.beginPath();
-                ctx.moveTo(cx - R * 0.85, cy - R * 0.3);
-                ctx.lineTo(cx - R * 0.35, cy - R * 0.85);
-                ctx.lineTo(cx + R * 0.1, cy - R * 0.4);
-                ctx.lineTo(cx - R * 0.2, cy - R * 0.1);
-                ctx.closePath();
-                ctx.fill();
+                const basePalette = [
+                    '#6d6255', '#7d7263', '#5d5347', '#8e8271', 
+                    '#766b5d', '#544c41', '#847868', '#645a4e',
+                    '#7b7061', '#5a5144', '#8a7d6d', '#6f6456'
+                ];
 
-                ctx.fillStyle = cLight;
-                ctx.beginPath();
-                ctx.moveTo(cx - R * 0.7, cy - R * 0.4);
-                ctx.lineTo(cx - R * 0.35, cy - R * 0.75);
-                ctx.lineTo(cx - R * 0.1, cy - R * 0.35);
-                ctx.closePath();
-                ctx.fill();
+                // Render each Voronoi rock plate
+                for (let i = 0; i < VORONOI_ROCK_CELLS.length; i++) {
+                    const poly = VORONOI_ROCK_CELLS[i];
+                    if (poly.length < 3) continue;
 
-                ctx.fillStyle = cHigh;
-                ctx.fillRect(cx - R * 0.55, cy - R * 0.65, R * 0.25, R * 0.08);
+                    // Calculate polygon centroid for 3D lighting
+                    let sumX = 0, sumY = 0;
+                    for (let p of poly) {
+                        sumX += p[0];
+                        sumY += p[1];
+                    }
+                    const midX = sumX / poly.length;
+                    const midY = sumY / poly.length;
 
-                // Plate B (Top Center Turf & Loam): Arena surface bedrock with grassy crest
-                ctx.fillStyle = cLoam;
-                ctx.fillRect(cx - R * 0.35, cy - R * 0.88, R * 0.7, R * 0.32);
-                ctx.fillStyle = cMoss;
-                ctx.fillRect(cx - R * 0.3, cy - R * 0.92, R * 0.62, R * 0.18);
-                ctx.fillStyle = cTurf;
-                ctx.fillRect(cx - R * 0.25, cy - R * 0.96, R * 0.52, R * 0.1);
+                    // 3D Directional Lighting: Sun from top-left (-0.65, -0.65)
+                    const lightDot = (-midX * 0.65 - midY * 0.65);
 
-                // Plate C (Upper Right): Chiseled angular rock block
-                ctx.fillStyle = cDeep;
-                ctx.fillRect(cx + R * 0.2, cy - R * 0.65, R * 0.65, R * 0.45);
-                ctx.fillStyle = cMid;
-                ctx.fillRect(cx + R * 0.25, cy - R * 0.55, R * 0.45, R * 0.3);
-                ctx.fillStyle = cLight;
-                ctx.fillRect(cx + R * 0.28, cy - R * 0.5, R * 0.2, R * 0.15);
+                    const colHex = basePalette[i % basePalette.length];
+                    let cr = parseInt(colHex.slice(1, 3), 16);
+                    let cg = parseInt(colHex.slice(3, 5), 16);
+                    let cb = parseInt(colHex.slice(5, 7), 16);
 
-                // Plate D (Lower Left): Heavy basalt slab
-                ctx.fillStyle = cDeep;
-                ctx.beginPath();
-                ctx.moveTo(cx - R * 0.9, cy + R * 0.1);
-                ctx.lineTo(cx - R * 0.15, cy + R * 0.15);
-                ctx.lineTo(cx - R * 0.3, cy + R * 0.85);
-                ctx.lineTo(cx - R * 0.8, cy + R * 0.6);
-                ctx.closePath();
-                ctx.fill();
+                    if (lightDot > 0) {
+                        const boost = lightDot * 50;
+                        cr = Math.min(235, cr + boost);
+                        cg = Math.min(225, cg + boost * 0.95);
+                        cb = Math.min(215, cb + boost * 0.9);
+                    } else {
+                        const dark = Math.abs(lightDot) * 45;
+                        cr = Math.max(25, cr - dark);
+                        cg = Math.max(22, cg - dark);
+                        cb = Math.max(19, cb - dark);
+                    }
 
-                ctx.fillStyle = cDark;
-                ctx.fillRect(cx - R * 0.7, cy + R * 0.3, R * 0.35, R * 0.4);
+                    ctx.beginPath();
+                    ctx.moveTo(cx + poly[0][0] * R, cy + poly[0][1] * R);
+                    for (let p = 1; p < poly.length; p++) {
+                        ctx.lineTo(cx + poly[p][0] * R, cy + poly[p][1] * R);
+                    }
+                    ctx.closePath();
 
-                // Plate E (Lower Right): Deep shadowed abyssal bedrock
-                ctx.fillStyle = cDark;
-                ctx.beginPath();
-                ctx.arc(cx + R * 0.45, cy + R * 0.45, R * 0.68, 0, Math.PI * 2);
-                ctx.fill();
+                    ctx.fillStyle = 'rgb(' + Math.round(cr) + ',' + Math.round(cg) + ',' + Math.round(cb) + ')';
+                    ctx.fill();
 
-                // Surface Turf Cap #2 on side slab
-                ctx.fillStyle = cLoam;
-                ctx.fillRect(cx + R * 0.4, cy - R * 0.1, R * 0.45, R * 0.2);
-                ctx.fillStyle = cTurf;
-                ctx.fillRect(cx + R * 0.42, cy - R * 0.12, R * 0.38, R * 0.08);
+                    // Dark deep rock crevice crack outline between plates
+                    ctx.strokeStyle = '#181410';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
 
-                // Embedded Handcrafted 16-Bit Rock Chunks on the face
-                drawPixelRockChunk(ctx, cx - R * 0.45, cy - R * 0.2, 'medium', 0.5, 1);
-                drawPixelRockChunk(ctx, cx + R * 0.42, cy - R * 0.3, 'medium', -0.6, 2);
-                drawPixelRockChunk(ctx, cx - R * 0.35, cy + R * 0.45, 'large', 1.2, 3);
-                drawPixelRockChunk(ctx, cx + R * 0.35, cy + R * 0.4, 'large', -0.8, 4);
-
-                // Deep Tectonic Seams & Curved Fault Line Fissures
-                ctx.strokeStyle = cOut;
-                ctx.lineWidth = 3;
-
-                // Major equatorial fault line
-                ctx.beginPath();
-                ctx.ellipse(cx, cy, R * 0.96, R * 0.32, -0.18, 0, Math.PI * 2);
-                ctx.stroke();
-
-                // Upper curved fault line
-                ctx.beginPath();
-                ctx.ellipse(cx, cy - R * 0.38, R * 0.78, R * 0.24, 0.22, 0, Math.PI * 2);
-                ctx.stroke();
-
-                // Lower curved fault line
-                ctx.beginPath();
-                ctx.ellipse(cx, cy + R * 0.4, R * 0.82, R * 0.28, -0.14, 0, Math.PI * 2);
-                ctx.stroke();
-
-                // Meridian fracture
-                ctx.beginPath();
-                ctx.ellipse(cx - R * 0.08, cy, R * 0.28, R * 0.92, 0.08, 0, Math.PI * 2);
-                ctx.stroke();
-
-                // Glowing Purple Gravitational Fissures (Rinnegan Singularity Veins)
-                const pulseGlow = Math.sin(age * 0.2) * 0.35 + 0.65;
-                ctx.save();
-                ctx.globalAlpha = isDetonating ? 1.0 : (0.65 * pulseGlow);
-                ctx.strokeStyle = isDetonating ? '#ffffff' : cChakra;
-                ctx.lineWidth = isDetonating ? 4 : 2;
-
-                ctx.beginPath();
-                ctx.ellipse(cx, cy, R * 0.96, R * 0.32, -0.18, 0, Math.PI * 2);
-                ctx.stroke();
-
-                ctx.strokeStyle = isDetonating ? '#ff793f' : cChakraLight;
-                ctx.lineWidth = isDetonating ? 2 : 1;
-                ctx.beginPath();
-                ctx.ellipse(cx - R * 0.08, cy, R * 0.28, R * 0.92, 0.08, 0, Math.PI * 2);
-                ctx.stroke();
+                    // Subtle internal fracture line inside some slabs
+                    if (i % 3 === 0) {
+                        ctx.strokeStyle = '#221c17';
+                        ctx.lineWidth = 1.2;
+                        ctx.beginPath();
+                        ctx.moveTo(cx + poly[0][0] * R, cy + poly[0][1] * R);
+                        ctx.lineTo(cx + midX * R, cy + midY * R);
+                        ctx.stroke();
+                    }
+                }
 
                 if (isDetonating) {
-                    // Shatter spiderweb cracks
+                    // Blinding white shatter cracks
                     ctx.strokeStyle = '#ffffff';
-                    ctx.lineWidth = 3;
-                    for (let s = 0; s < 8; s++) {
-                        const sAngle = (s / 8) * Math.PI * 2;
+                    ctx.lineWidth = 4;
+                    for (let s = 0; s < 12; s++) {
+                        const sAngle = (s / 12) * Math.PI * 2;
                         ctx.beginPath();
                         ctx.moveTo(cx, cy);
                         ctx.lineTo(cx + Math.cos(sAngle) * R * 1.15, cy + Math.sin(sAngle) * R * 1.15);
                         ctx.stroke();
                     }
                 }
-                ctx.restore();
 
                 ctx.restore(); // end clip
 
-                // Heavy Bedrock Outline Ring
-                ctx.strokeStyle = cOut;
-                ctx.lineWidth = 3.5;
+                // 4. Heavy rugged bedrock perimeter ring
+                ctx.strokeStyle = '#14100c';
+                ctx.lineWidth = 4;
                 ctx.beginPath();
                 ctx.arc(cx, cy, R, 0, Math.PI * 2);
                 ctx.stroke();
 
-                // Central Singularity Event Horizon (Pulsing obsidian eye inside the rock sphere)
-                const coreR = Math.max(6, Math.round(R * 0.16 + Math.sin(age * 0.25) * 2));
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
-                ctx.arc(cx, cy, coreR + 4, 0, Math.PI * 2);
-                ctx.fill();
+                // 5. Horizontal Cloud Deck wrapping across lower sphere (Exact anime match!)
+                ctx.save();
+                const cloudY = cy + R * 0.52;
+                const cloudPuffs = [
+                    { dx: -R * 0.95, dy: 0, rw: 52, rh: 18, col: 'rgba(215, 205, 195, 0.82)' },
+                    { dx: -R * 0.55, dy: -5, rw: 68, rh: 22, col: 'rgba(235, 226, 216, 0.90)' },
+                    { dx: -R * 0.12, dy: 3, rw: 82, rh: 26, col: 'rgba(245, 238, 230, 0.94)' },
+                    { dx: R * 0.45, dy: -4, rw: 66, rh: 20, col: 'rgba(230, 222, 212, 0.90)' },
+                    { dx: R * 0.88, dy: 5, rw: 54, rh: 18, col: 'rgba(215, 205, 195, 0.82)' },
+                    { dx: -R * 0.75, dy: 12, rw: 58, rh: 16, col: 'rgba(165, 155, 145, 0.68)' },
+                    { dx: 0, dy: 15, rw: 90, rh: 18, col: 'rgba(175, 165, 155, 0.72)' },
+                    { dx: R * 0.65, dy: 11, rw: 62, rh: 16, col: 'rgba(160, 150, 140, 0.68)' }
+                ];
 
-                ctx.fillStyle = cChakra;
-                ctx.beginPath();
-                ctx.arc(cx, cy, coreR + 2, 0, Math.PI * 2);
-                ctx.fill();
+                for (let cp of cloudPuffs) {
+                    ctx.fillStyle = cp.col;
+                    ctx.beginPath();
+                    ctx.ellipse(cx + cp.dx, cloudY + cp.dy, cp.rw, cp.rh, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
 
-                ctx.fillStyle = '#000000';
-                ctx.beginPath();
-                ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
-                ctx.fill();
+                // 6. Shower of Falling / Rising Rock Shards Beneath
+                ctx.save();
+                const shards = [
+                    { dx: -R * 0.65, dy: R * 0.80, w: 7, h: 12, ang: 0.3 },
+                    { dx: -R * 0.52, dy: R * 1.02, w: 6, h: 10, ang: -0.4 },
+                    { dx: -R * 0.42, dy: R * 1.22, w: 8, h: 14, ang: 0.6 },
+                    { dx: -R * 0.32, dy: R * 0.86, w: 5, h: 9, ang: -0.2 },
+                    { dx: -R * 0.20, dy: R * 1.12, w: 7, h: 11, ang: 0.5 },
+                    { dx: -R * 0.10, dy: R * 1.32, w: 6, h: 10, ang: -0.3 },
+                    { dx: -R * 0.02, dy: R * 0.95, w: 8, h: 13, ang: 0.1 },
+                    { dx: R * 0.10, dy: R * 1.25, w: 7, h: 12, ang: -0.5 },
+                    { dx: R * 0.22, dy: R * 0.90, w: 6, h: 9, ang: 0.4 },
+                    { dx: R * 0.32, dy: R * 1.18, w: 8, h: 14, ang: -0.2 },
+                    { dx: R * 0.45, dy: R * 0.98, w: 5, h: 10, ang: 0.7 },
+                    { dx: R * 0.58, dy: R * 1.20, w: 7, h: 11, ang: -0.4 },
+                    { dx: R * 0.68, dy: R * 0.85, w: 6, h: 9, ang: 0.2 }
+                ];
 
+                ctx.fillStyle = '#221c17';
+                for (let sh of shards) {
+                    const sx = cx + sh.dx;
+                    const sy = cy + sh.dy;
+                    ctx.save();
+                    ctx.translate(sx, sy);
+                    ctx.rotate(sh.ang);
+                    ctx.fillRect(-sh.w / 2, -sh.h / 2, sh.w, sh.h);
+                    ctx.strokeStyle = '#120f0c';
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(-sh.w / 2, -sh.h / 2, sh.w, sh.h);
+                    ctx.restore();
+                }
                 ctx.restore();
             }
 
@@ -13606,16 +13558,16 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 
                 // Apex coordinates in the upper sky above the arena
                 this.apexX = Math.round(Math.max(140, Math.min(canvas.width - 140, target ? target.x : (caster.x + caster.facing * 180))));
-                this.apexY = 135;
+                this.apexY = 125;
                 
                 this.state = 'rising'; // 'rising' | 'attracting' | 'detonating'
                 this.active = true;
                 this.age = 0;
                 this.coreRadius = 6;
-                this.sphereRadius = 12; // Radius of the solid planetary rock sphere
-                this.maxSphereRadius = 56; // Expands to a massive 112px diameter rock sphere!
-                this.satelliteRadius = 12;
-                this.maxSatelliteRadius = 58;
+                this.sphereRadius = 24; // Radius of the solid planetary rock sphere
+                this.maxSphereRadius = 110; // Expands to colossal 220px diameter anime rock sphere!
+                this.satelliteRadius = 24;
+                this.maxSatelliteRadius = 115;
                 this.rocks = [];
                 this.initRocks();
             }
@@ -13692,9 +13644,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 // Phase 2: Active Gravitational Singularity & Formation of Massive Rock Sphere (frames 22 -> 125)
                 if (this.age > 22 && this.age < 125) {
-                    // Smoothly grow the solid planetary rock sphere as earth accumulates
-                    const growthRatio = Math.min(1.0, (this.age - 22) / 60);
-                    this.sphereRadius = 14 + growthRatio * (this.maxSphereRadius - 14);
+                    // Smoothly grow the colossal planetary rock sphere as earth accumulates
+                    const growthRatio = Math.min(1.0, (this.age - 22) / 45);
+                    this.sphereRadius = 24 + growthRatio * (this.maxSphereRadius - 24);
                     this.satelliteRadius = this.sphereRadius;
 
                     // Suction on Opponent
@@ -13829,7 +13781,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 // Draw the solid rear foundation of the giant rock sphere & space-time ripples
                 if (this.state === 'attracting' || this.state === 'rising') {
-                    drawPixelPlanetoid(ctx, this.x, this.y, this.sphereRadius, this.age, false, 'back');
+                    drawAnimeChibakuPlanetoid(ctx, this.x, this.y, this.sphereRadius, this.age, false, 'back');
                 }
 
                 // Rear rock blocks
@@ -13850,7 +13802,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 // Draw the solid front tectonic crust of the GIGANTIC ROCK SPHERE encasing the opponent!
                 if (this.state === 'attracting' || this.state === 'rising' || (this.state === 'detonating' && this.age < 135)) {
-                    drawPixelPlanetoid(ctx, this.x, this.y, this.sphereRadius, this.age, this.state === 'detonating', 'front');
+                    drawAnimeChibakuPlanetoid(ctx, this.x, this.y, this.sphereRadius, this.age, this.state === 'detonating', 'front');
                 }
 
                 // Front rock blocks (flying in or adhered on front face)
@@ -20210,38 +20162,86 @@ function drawPixelPain(fighter, frozenInDraw) {
             armF = [ 3, -18,  6, -16,  9, -14];
         }
     } else if (drawAttacking && drawAttackType === 'launcher_kick') {
-        // TENDŌ PAIN HIGH UPWARD LAUNCHER KICK (THƯỢNG TIÊU CƯỚC)
-        if (progress < 0.22) {
-            // Phase 1: Dynamic chamber - sinking center of gravity and lifting knee
+        // TENDŌ PAIN MEIA LUA DE COMPASSO (180° CAPOEIRA HAND-PLANT KICK FROM REFERENCE PHOTO)
+        if (progress < 0.20) {
+            // Phase 1: Rotational drop & reach for the ground
             expr = 'focus';
-            bodyY = 1; torsoLean = -1;
-            headX = -1; headY = -23;
-            legB = [-4, -9, -6, -4, -6, 0];
-            legF = [1, -9, 4, -12, 2, -9];
-            armB = [-4, -16, -6, -14, -5, -12];
-            armF = [2, -16, 4, -15, 6, -13];
+            bodyY = 2; torsoLean = 1;
+            headX = 0; headY = -18;
+            legB = [-2, -8, -4, -4, -4, 0];
+            legF = [ 2, -8,  3, -9,  1, -6];
+            armB = [-3, -14, -1, -10,  1, -6];
+            armF = [ 2, -14,  3, -8,   2, -2];
             cloakHemOffset = 1;
-        } else if (progress < 0.68) {
-            // Phase 2: High Skyward Launcher Strike (Proportioned, natural martial arts posture!)
-            expr = 'shout';
-            bodyY = 0; torsoLean = -3;
-            headX = -2; headY = -24;
-            legB = [-4, -10, -6, -5, -7, 0]; // Grounded, bent supporting leg for solid leverage
-            legF = [1, -10, 4, -16, 7, -25]; // Clean vertical extension launching opponent skyward!
-            armB = [-5, -17, -8, -13, -10, -10]; // Back arm swept back for balance, wide sleeve trailing
-            armF = [1, -17, 4, -16, 6, -14];     // Front arm in poised open-palm guard
-            cloakHemOffset = -4;
-            cloakSpread = 3; // Akatsuki cloak flowing smoothly back with the strike
+        } else if (progress < 0.75) {
+            // Phase 2: EXACT CAPOEIRA MEIA LUA POSE MATCHING USER'S REFERENCE IMAGE!
+            // Hand planted on ground, body inverted low, support leg rooted, kicking leg whipping 180° skyward!
+            // 1. Planted Hand on the Floor (Right arm in photo, planted at x = -7, y = 0)
+            px(-9, -1, 4, 2, out);
+            px(-8, -1, 3, 1, skin);
+            drawLimb(-5, -9, -7, -1, 2, cloakMain, cloakShade);
+            drawLimb(-7, -4, -8, -1, 2, skin, skinDark);
+
+            // 2. Supporting Leg (Left leg in photo, planted at x = 1, y = 0)
+            px(0, -1, 4, 2, sandalCol);
+            drawLimb(1, -6, 1, -1, 2, wrapMain, wrapShade);
+            drawLimb(-1, -12, 1, -6, 2, pantsMain, out);
+
+            // 3. Torso & Inverted Akatsuki Cloak
+            px(-7, -12, 8, 6, out);
+            px(-6, -11, 6, 5, cloakMain);
+            px(-6, -10, 3, 4, cloakShade);
+            px(-7, -8, 7, 2, collarIn);
+            px(-4, -12, 3, 2, cloudWhite);
+            px(-3, -12, 2, 1, cloudRed);
+
+            // 4. Head (Low near ground, looking at opponent at +x)
+            px(-11, -12, 5, 5, out);
+            px(-10, -11, 4, 4, skin);
+            px(-12, -14, 5, 4, hairDark);
+            px(-11, -15, 5, 4, hairMain);
+            px(-10, -15, 3, 2, hairLight);
+            px(-7, -10, 2, 2, rinneIris);
+            px(-7, -10, 1, 1, '#ffffff');
+
+            // 5. Guard Arm (Tucked near chest)
+            drawLimb(-4, -10, -3, -7, 2, cloakMain, cloakShade);
+            px(-3, -7, 2, 2, skin);
+
+            // 6. Kicking Leg (Whips diagonally UP and OVER into the sky!)
+            drawLimb(-1, -12, 6, -20, 3, pantsMain, out);
+            drawLimb(6, -20, 14, -30, 2, wrapMain, wrapShade);
+            px(13, -32, 4, 3, out);
+            px(14, -32, 2, 2, sandalCol);
+            px(15, -31, 2, 1, skin);
+
+            // 7. Sharp 180° Meia Lua Arc Trail
+            ctx.save();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2.5;
+            ctx.globalAlpha = 0.85;
+            ctx.beginPath();
+            if (f === 1) {
+                ctx.arc(baseX, baseY - 16 * P, 22 * P, Math.PI * 0.9, -Math.PI * 0.15, true);
+            } else {
+                ctx.arc(baseX, baseY - 16 * P, 22 * P, Math.PI * 0.1, Math.PI * 1.15, false);
+            }
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.imageSmoothingEnabled = prevSmooth;
+            ctx.restore();
+            return;
         } else {
-            // Phase 3: Fluid retraction & return to battle stance
+            // Phase 3: Fluid push-off & return to battle stance
             expr = 'normal';
-            bodyY = 0; torsoLean = -1;
-            headX = 0; headY = -24;
+            bodyY = 1; torsoLean = -1;
+            headX = 0; headY = -22;
             legB = [-3, -10, -4, -5, -5, 0];
-            legF = [2, -10, 5, -8, 6, -3];
-            armB = [-4, -18, -5, -15, -4, -13];
-            armF = [2, -18, 5, -15, 6, -13];
-            cloakHemOffset = -2;
+            legF = [ 2, -10,  5, -6,  6, 0];
+            armB = [-4, -17, -5, -14, -4, -12];
+            armF = [ 2, -17,  5, -14,  6, -12];
+            cloakHemOffset = -1;
             cloakSpread = 1;
         }
     } else if (drawAttacking && drawAttackType === 'pain_chibaku_cast') {
