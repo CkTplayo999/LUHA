@@ -14833,14 +14833,14 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         this.painLevitating = false;
                     }
 
-                    // Ultimate Charging Logic (Chō Shinra Tensei - max 4.0s / 240 frames)
+                    // Ultimate Charging Logic (Chō Shinra Tensei - max 2.0s / 120 frames)
                     if (this.painChargingUlt) {
                         this.painUltChargeTimer = (this.painUltChargeTimer || 0) + 1 * config.timeScale;
                         this.painLevitating = true;
                         this.velY = 0; this.velX = 0;
 
                         // Inward condensing chakra motes
-                        if (Math.random() > 0.15) {
+                        if (Math.random() > 0.12) {
                             const ang = Math.random() * Math.PI * 2;
                             const dist = 50 + Math.random() * 80;
                             const px = this.x + Math.cos(ang) * dist;
@@ -14849,12 +14849,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             gameState.particles.push(p);
                         }
 
-                        // Building screen rumble
-                        const cRatio = Math.min(1.0, this.painUltChargeTimer / 240);
-                        gameState.shake = Math.min(14, 2 + cRatio * 12);
+                        // Building screen rumble (scales up smoothly to 2s)
+                        const cRatio = Math.min(1.0, this.painUltChargeTimer / 120);
+                        gameState.shake = Math.min(15, 2 + cRatio * 13);
 
-                        // Auto-unleash at full 4 seconds!
-                        if (this.painUltChargeTimer >= 240) {
+                        // Auto-unleash at full 2 seconds!
+                        if (this.painUltChargeTimer >= 120) {
                             this.releasePainUlt();
                         }
                     }
@@ -14862,15 +14862,18 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     // Dynamic Shockwave Contact: As the Shinra Tensei dome sweeps across, directly interact & detonate/repel projectiles!
                     if (this.attacking && this.attackType === 'shinra_tensei') {
                         const tProg = (this.attackMax - this.attackTimer) / this.attackMax;
-                        const shockwaveRadius = (1 - Math.pow(1 - tProg, 2.0)) * 320;
-                        const originY = (this.y < config.groundY - 15) ? (this.y - 45) : config.groundY;
+                        const maxR = this.painCurrentMaxRadius || 320;
+                        const shockwaveRadius = (1 - Math.pow(1 - tProg, 2.0)) * maxR;
+                        const originY = (this.y < config.groundY - 15) ? (this.y - 45) : (config.groundY - 45);
 
                         if (opponent && opponent.projectiles && opponent.projectiles.length > 0) {
                             for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
                                 const p = opponent.projectiles[i];
                                 if (!p.active || p.isRepelledByShinra) continue;
+                                const pRadius = p.radius || (p.isMageBubble ? 50 : (p.owner && p.owner.type === 'martial' ? 38 : 30));
                                 const dist = Math.hypot(p.x - this.x, p.y - originY);
-                                if (dist <= shockwaveRadius + 35) {
+                                // Immediate detonation as soon as the outer edge touches the shockwave or touches Pain!
+                                if (dist <= shockwaveRadius + pRadius + 15 || dist <= pRadius + 50) {
                                     interactShinraWithProjectile(p, this);
                                 }
                             }
@@ -16081,17 +16084,24 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 if (!this.painChargingUlt) return;
                 const opponent = (typeof p1 !== 'undefined' && this.id === p1.id) ? (typeof p2 !== 'undefined' ? p2 : null) : (typeof p1 !== 'undefined' ? p1 : null);
                 const chargeTimer = this.painUltChargeTimer || 0;
-                const chargeRatio = Math.min(1.0, chargeTimer / 240); // 0.0 to 1.0 (4 seconds max)
+                const chargeRatio = Math.min(1.0, chargeTimer / 120); // 0.0 to 1.0 (2 seconds max)
 
                 this.painChargingUlt = false;
                 this.painUltChargeTimer = 0;
-                this.internalCooldown = 35;
+                this.internalCooldown = 30;
 
-                const isJustTap = (chargeTimer < 12);
-                const isMaxCharge = (chargeRatio >= 0.96);
+                // 5-second cooldown on B (300 frames @ 60fps)
+                this.cooldown = 300;
+                this.maxCooldown = 300;
+
+                const isJustTap = (chargeTimer < 10);
+                const isMaxCharge = (chargeRatio >= 0.95);
 
                 const originX = this.x;
                 const originY = (this.y < config.groundY - 15) ? (this.y - 45) : config.groundY;
+
+                const maxRad = isJustTap ? 320 : (isMaxCharge ? 750 : (320 + (750 - 320) * chargeRatio));
+                this.painCurrentMaxRadius = maxRad;
 
                 this.attacking = true;
                 this.attackType = 'shinra_tensei';
@@ -17152,6 +17162,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 if (this.type === 'pain' && type === 'pain_ult') {
                     if (this.isDead || this.isStunned || this.isBeingPulled) return;
+                    // 5-second cooldown guardrail on B:
+                    if (this.cooldown > 0) {
+                        announceText('COOLDOWN: ' + (this.cooldown / 60).toFixed(1) + 's', '#a55eea');
+                        return;
+                    }
                     if (!this.painChargingUlt) {
                         this.painChargingUlt = true;
                         this.painUltChargeTimer = 0;
@@ -18643,10 +18658,15 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 createExplosion(p.x, p.y, '#ffffff', 8, 1.2);
                 gameState.shake = Math.max(gameState.shake || 0, 12);
             } else {
-                // Energy / heavy projectile: DIRECT SHATTER DETONATION!
+                // Energy / heavy projectile (Mage bubble, Hadou-fist, Hollow purple, etc.): IMMEDIATE SHATTER DETONATION!
                 p.active = false;
-                const isMega = p.isHollowPurple || p.isSaiyanUltWave || p.isPhantomChargedBall || p.isMageBubble;
+                const isMega = p.isHollowPurple || p.isSaiyanUltWave || p.isPhantomChargedBall || p.isMageBubble || (p.owner && p.owner.type === 'martial');
                 createShinraExplosion(p.x, p.y, p.color, pushDir, isMega);
+                if (p.isMageBubble) {
+                    createMagePixelExplosion(p.x, p.y, 2.0, true, p.color);
+                } else if (p.isMageSpark) {
+                    createMagePixelExplosion(p.x, p.y, 1.2, false, p.color);
+                }
             }
         }
 
@@ -19510,7 +19530,7 @@ function drawPixelPain(fighter, frozenInDraw) {
 
         if (fighter.painChargingUlt) {
             const chargeTimer = fighter.painUltChargeTimer || 0;
-            const chargeRatio = Math.min(1.0, chargeTimer / 240);
+            const chargeRatio = Math.min(1.0, chargeTimer / 120);
             const glowR = 12 + chargeRatio * 20;
             const grad = ctx.createRadialGradient(baseX, baseY - 45, 2, baseX, baseY - 45, glowR * P);
             grad.addColorStop(0, 'rgba(165, 94, 234, 0.45)');
