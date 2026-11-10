@@ -11272,7 +11272,29 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 }
 
-                this.age += (1 * config.timeScale); 
+                this.age += (1 * config.timeScale);
+
+                // Shinra Tensei Repelled Deflection flight
+                if (this.isRepelledByShinra) {
+                    this.repelledLife = (this.repelledLife !== undefined ? this.repelledLife : 26) - 1;
+                    this.x += this.speed * this.facing * config.timeScale;
+                    this.y += (this.angleY || 0) * config.timeScale;
+
+                    if (Math.random() > 0.25) {
+                        const pCol = Math.random() > 0.4 ? '#ffffff' : (this.color || '#a55eea');
+                        const tp = new Particle(this.x, this.y, pCol, 1.2);
+                        tp.specialBehavior = 'wind';
+                        tp.vx = -this.facing * (2 + Math.random() * 5);
+                        tp.vy = (Math.random() - 0.5) * 4;
+                        gameState.particles.push(tp);
+                    }
+
+                    if (this.x <= 35 || this.x >= canvas.width - 35 || this.repelledLife <= 0) {
+                        this.active = false;
+                        createShinraExplosion(this.x, this.y, this.color || '#ffffff', this.facing, false);
+                    }
+                    return;
+                } 
 
                 if (this.isMageSpark) {
                     this.x += this.speed * this.facing * config.timeScale;
@@ -14787,24 +14809,32 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         if (this.painShinraCooldown < 0) this.painShinraCooldown = 0;
                     }
 
-                    // Any projectile active or incoming while Shinra Tensei is active vanishes completely!
+                    // Dynamic Shockwave Contact: As the Shinra Tensei dome sweeps across, directly interact & detonate/repel projectiles!
                     if (this.attacking && this.attackType === 'shinra_tensei') {
+                        const tProg = (this.attackMax - this.attackTimer) / this.attackMax;
+                        const shockwaveRadius = (1 - Math.pow(1 - tProg, 2.0)) * 320;
+
                         if (opponent && opponent.projectiles && opponent.projectiles.length > 0) {
                             for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
                                 const p = opponent.projectiles[i];
-                                if (!p.active) continue;
-                                p.active = false;
-                                gameState.pixelEffects.push(new PixelVFX('impact_burst', p.x, p.y, p.facing || 1, '#ffffff', { maxFrames: 14 }));
-                                createExplosion(p.x, p.y, '#ffffff', 8, 0.9);
+                                if (!p.active || p.isRepelledByShinra) continue;
+                                const dist = Math.hypot(p.x - this.x, p.y - (this.y - 45));
+                                if (dist <= shockwaveRadius + 35) {
+                                    interactShinraWithProjectile(p, this);
+                                }
                             }
                         }
                         if (gameState.deidaraBugs && gameState.deidaraBugs.length > 0) {
                             for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
                                 const b = gameState.deidaraBugs[i];
                                 if (b.owner === opponent) {
-                                    b.exploded = true;
-                                    createExplosion(b.x, b.y, '#ffffff', 8, 0.9);
-                                    gameState.deidaraBugs.splice(i, 1);
+                                    const dist = Math.hypot(b.x - this.x, b.y - (this.y - 45));
+                                    if (dist <= shockwaveRadius + 35) {
+                                        b.exploded = true;
+                                        const pushDir = b.x >= this.x ? 1 : -1;
+                                        createShinraExplosion(b.x, b.y, '#f39c12', pushDir, true);
+                                        gameState.deidaraBugs.splice(i, 1);
+                                    }
                                 }
                             }
                         }
@@ -15473,14 +15503,30 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     let target = (p.owner === this) ? opponent : this;
                     let shooter = (p.owner === this) ? this : opponent;
 
-                    // Shinra Tensei Projectile Erasure: Any projectile flying towards Pain while Shinra Tensei is active disintegrates instantly!
+                    // Shinra Tensei Direct Projectile Interaction: Incoming projectiles striking the expanding barrier detonate or get repelled!
                     if (target && target.type === 'pain' && target.attacking && target.attackType === 'shinra_tensei') {
-                        if (p.active) {
-                            p.active = false;
-                            gameState.pixelEffects.push(new PixelVFX('impact_burst', p.x, p.y, p.facing || 1, '#ffffff', { maxFrames: 14 }));
-                            createExplosion(p.x, p.y, '#ffffff', 8, 0.9);
+                        if (p.active && !p.isRepelledByShinra) {
+                            interactShinraWithProjectile(p, target);
                         }
                         return;
+                    }
+
+                    // Repelled projectile hitting opponent
+                    if (p.active && p.isRepelledByShinra) {
+                        const distToOpp = Math.hypot(p.x - target.x, p.y - (target.y - 45));
+                        if (distToOpp < 45) {
+                            p.active = false;
+                            if (!target.isInfinityShieldActive && !target.isSaiyanDodging) {
+                                target.health = Math.max(0, target.health - (target.isBlocking ? 3 : 10));
+                                target.velX = p.facing * 12;
+                                target.velY = -3;
+                                target.isStunned = true;
+                                target.stunTimer = 22;
+                                if (target.health <= 0) { target.health = 0; triggerWin(shooter); }
+                            }
+                            createShinraExplosion(p.x, p.y, p.color || '#ffffff', p.facing, false);
+                            return;
+                        }
                     }
                     
                     if (p.age > 12) {
@@ -16962,22 +17008,28 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             gameState.particles.push(new Particle(this.x + dir * (10 + Math.random() * 35), config.groundY - 2, i % 2 === 0 ? '#7f8c8d' : '#2d3436', 1.0, false, 0, 0, 'rock'));
                         }
 
-                        // Projectile Erasure: ANY active projectile incoming or on screen vanishes instantly!
+                        // Direct Projectile Interaction: Any projectile already close to Pain gets blasted/repelled immediately!
                         if (opponent && opponent.projectiles && opponent.projectiles.length > 0) {
                             for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
                                 const p = opponent.projectiles[i];
-                                p.active = false;
-                                gameState.pixelEffects.push(new PixelVFX('impact_burst', p.x, p.y, p.facing || 1, '#ffffff', { maxFrames: 14 }));
-                                createExplosion(p.x, p.y, '#ffffff', 8, 1.0);
+                                if (!p.active || p.isRepelledByShinra) continue;
+                                const dist = Math.hypot(p.x - this.x, p.y - (this.y - 45));
+                                if (dist <= 75) {
+                                    interactShinraWithProjectile(p, this);
+                                }
                             }
                         }
                         if (gameState.deidaraBugs && gameState.deidaraBugs.length > 0) {
                             for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
                                 const b = gameState.deidaraBugs[i];
                                 if (b.owner === opponent) {
-                                    b.exploded = true;
-                                    createExplosion(b.x, b.y, '#ffffff', 8, 1.0);
-                                    gameState.deidaraBugs.splice(i, 1);
+                                    const dist = Math.hypot(b.x - this.x, b.y - (this.y - 45));
+                                    if (dist <= 75) {
+                                        b.exploded = true;
+                                        const pushDir = b.x >= this.x ? 1 : -1;
+                                        createShinraExplosion(b.x, b.y, '#f39c12', pushDir, true);
+                                        gameState.deidaraBugs.splice(i, 1);
+                                    }
                                 }
                             }
                         }
@@ -18349,6 +18401,70 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             gameState.shake = Math.max(gameState.shake || 0, isMega ? 22 : 14);
             gameState.flashAlpha = Math.max(gameState.flashAlpha || 0, isMega ? 0.45 : 0.28);
             gameState.flashColor = '#fff2a8';
+        }
+
+        // ============ SHINRA TENSEI PROJECTILE INTERACTION, DEFLECTION & DETONATION ============
+        function createShinraExplosion(x, y, color = '#ffffff', pushDir = 1, isMega = false) {
+            const count = isMega ? 38 : 24;
+            const baseCol = color || '#ffffff';
+            const cols = [baseCol, '#ffffff', '#e2e8f0', '#a55eea', '#cbd5e1'];
+
+            // 16-bit directional pixel shrapnel propelled violently AWAY in pushDir (shards flying away)
+            for (let i = 0; i < count; i++) {
+                const col = cols[Math.floor(Math.random() * cols.length)];
+                const spd = (0.9 + Math.random() * 2.2) * (isMega ? 1.4 : 1.0);
+                const p = new Particle(x + (Math.random() - 0.5) * 16, y + (Math.random() - 0.5) * 16, col, spd);
+                p.specialBehavior = 'pixel';
+                p.size = (Math.random() * 2.5 + 2.0) * (isMega ? 1.5 : 1.0);
+                p.vx = pushDir * (8 + Math.random() * 18) * spd;
+                p.vy = (Math.random() - 0.5) * 14 * spd - 2.0;
+                gameState.particles.push(p);
+            }
+
+            // Expanding dual shockwave pixel rings
+            gameState.pixelEffects.push(new PixelVFX('impact_burst', x, y, pushDir, baseCol, { maxFrames: isMega ? 22 : 16 }));
+            gameState.pixelEffects.push(new PixelVFX('impact_burst', x, y, -pushDir, '#ffffff', { maxFrames: isMega ? 18 : 12 }));
+            gameState.pixelEffects.push(new PixelVFX('air_ring', x, y, pushDir, '#ffffff'));
+
+            // Ground dust puffs if near the floor
+            if (y >= config.groundY - 55) {
+                gameState.pixelEffects.push(new PixelVFX('dust_puff', x - 15 * pushDir, config.groundY, -pushDir, '#bdc3c7'));
+                gameState.pixelEffects.push(new PixelVFX('dust_puff', x + 25 * pushDir, config.groundY, pushDir, '#bdc3c7'));
+            }
+
+            gameState.shake = Math.max(gameState.shake || 0, isMega ? 22 : 15);
+            gameState.flashAlpha = Math.max(gameState.flashAlpha || 0, isMega ? 0.40 : 0.25);
+            gameState.flashColor = '#ffffff';
+        }
+
+        function interactShinraWithProjectile(p, painCaster) {
+            if (!p || !p.active) return;
+            const pushDir = (p.x >= painCaster.x) ? 1 : -1;
+
+            // Direct deflection check: solid/compact projectiles get violently repelled & blasted away!
+            const isSolid = (p.isDioKnife || p.isFishingHook || p.isScytheCut || 
+                (p.owner && (p.owner.type === 'gunslinger' || p.owner.type === 'shinobi' || p.owner.type === 'duelist' || p.owner.type === 'miner')));
+
+            if (isSolid && !p.isRepelledByShinra) {
+                // Direct physical deflection: violent knockback away from Pain!
+                p.isRepelledByShinra = true;
+                p.facing = pushDir;
+                p.speed = 36;
+                p.angleY = (Math.random() - 0.5) * 4;
+                p.owner = painCaster; // Pain is now the owner of the repelled projectile
+                p.repelledLife = 26;
+                p.color = '#ffffff';
+                // Direct deflection collision spark & burst
+                gameState.pixelEffects.push(new PixelVFX('impact_burst', p.x, p.y, pushDir, '#ffffff', { maxFrames: 14 }));
+                gameState.pixelEffects.push(new PixelVFX('air_ring', p.x, p.y, pushDir, '#ffffff'));
+                createExplosion(p.x, p.y, '#ffffff', 8, 1.2);
+                gameState.shake = Math.max(gameState.shake || 0, 12);
+            } else {
+                // Energy / heavy projectile: DIRECT SHATTER DETONATION!
+                p.active = false;
+                const isMega = p.isHollowPurple || p.isSaiyanUltWave || p.isPhantomChargedBall || p.isMageBubble;
+                createShinraExplosion(p.x, p.y, p.color, pushDir, isMega);
+            }
         }
 
 
