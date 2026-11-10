@@ -3479,7 +3479,7 @@
               get portrait() { return this.getPortrait(1); }
             },
             { id: 'pain', name: 'PAIN', tier: 'special', color: '#ff793f', p2Color: '#a55eea',
-              desc: '★ Lục Đạo Luân Hồi - Tendō Pain! Đôi mắt Rinnegan, phong thái thần linh & cử động pixel 16-bit 60fps mượt mà.',
+              desc: '★ 16-Bit God of Six Paths & Akatsuki Leader! Divine Rinnegan, Shinra Tensei repulsion shockwaves, mid-air levitation & catastrophic Chō Shinra Tensei.',
               stats: { atk: 5, def: 4, spd: 4, ult: 5 },
               getPortrait(player) {
                   return `<svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
@@ -11264,6 +11264,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
             }
             update() { 
+                if (!this.active) return;
                 if (gameState.timestopActive) {
                     if (this.owner !== gameState.timestopCaster) {
                         return;
@@ -11276,27 +11277,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 this.age += (1 * config.timeScale);
 
-                // Shinra Tensei Repelled Deflection flight
-                if (this.isRepelledByShinra) {
-                    this.repelledLife = (this.repelledLife !== undefined ? this.repelledLife : 26) - 1;
-                    this.x += this.speed * this.facing * config.timeScale;
-                    this.y += (this.angleY || 0) * config.timeScale;
 
-                    if (Math.random() > 0.25) {
-                        const pCol = Math.random() > 0.4 ? '#ffffff' : (this.color || '#a55eea');
-                        const tp = new Particle(this.x, this.y, pCol, 1.2);
-                        tp.specialBehavior = 'wind';
-                        tp.vx = -this.facing * (2 + Math.random() * 5);
-                        tp.vy = (Math.random() - 0.5) * 4;
-                        gameState.particles.push(tp);
-                    }
-
-                    if (this.x <= 35 || this.x >= canvas.width - 35 || this.repelledLife <= 0) {
-                        this.active = false;
-                        createShinraExplosion(this.x, this.y, this.color || '#ffffff', this.facing, false);
-                    }
-                    return;
-                } 
 
                 if (this.isMageSpark) {
                     this.x += this.speed * this.facing * config.timeScale;
@@ -11425,6 +11406,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
             }
             draw() {
+                if (!this.active) return;
                 ctx.save(); ctx.shadowBlur = 40; ctx.shadowColor = this.color;
                 if (this.isHollowPurple) {
                     ctx.save();
@@ -14869,25 +14851,55 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         if (opponent && opponent.projectiles && opponent.projectiles.length > 0) {
                             for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
                                 const p = opponent.projectiles[i];
-                                if (!p.active || p.isRepelledByShinra) continue;
+                                if (!p || !p.active) continue;
                                 const pRadius = p.radius || (p.isMageBubble ? 50 : (p.owner && p.owner.type === 'martial' ? 38 : 30));
                                 const dist = Math.hypot(p.x - this.x, p.y - originY);
                                 // Immediate detonation as soon as the outer edge touches the shockwave or touches Pain!
-                                if (dist <= shockwaveRadius + pRadius + 15 || dist <= pRadius + 50) {
+                                if (dist <= shockwaveRadius + pRadius + 20 || dist <= pRadius + 65) {
                                     interactShinraWithProjectile(p, this);
                                 }
                             }
+                            opponent.projectiles = opponent.projectiles.filter(p => p && p.active);
                         }
                         if (gameState.deidaraBugs && gameState.deidaraBugs.length > 0) {
                             for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
                                 const b = gameState.deidaraBugs[i];
                                 if (b.owner === opponent) {
                                     const dist = Math.hypot(b.x - this.x, b.y - originY);
-                                    if (dist <= shockwaveRadius + 35) {
+                                    if (dist <= shockwaveRadius + 35 || dist <= 95) {
                                         b.exploded = true;
                                         const pushDir = b.x >= this.x ? 1 : -1;
                                         createShinraExplosion(b.x, b.y, '#f39c12', pushDir, true);
                                         gameState.deidaraBugs.splice(i, 1);
+                                    }
+                                }
+                            }
+                        }
+                        if (gameState.deidaraBombs && gameState.deidaraBombs.length > 0) {
+                            for (let i = gameState.deidaraBombs.length - 1; i >= 0; i--) {
+                                const b = gameState.deidaraBombs[i];
+                                if (b.owner === opponent && b.active) {
+                                    const dist = Math.hypot(b.x - this.x, b.y - originY);
+                                    if (dist <= shockwaveRadius + 35 || dist <= 95) {
+                                        b.active = false;
+                                        const pushDir = b.x >= this.x ? 1 : -1;
+                                        createShinraExplosion(b.x, b.y, '#f39c12', pushDir, true);
+                                        gameState.deidaraBombs.splice(i, 1);
+                                    }
+                                }
+                            }
+                        }
+                        if (gameState.hooperBalls && gameState.hooperBalls.length > 0) {
+                            for (let i = gameState.hooperBalls.length - 1; i >= 0; i--) {
+                                const hb = gameState.hooperBalls[i];
+                                if (hb.active && hb.owner === opponent) {
+                                    const dist = Math.hypot(hb.x - this.x, hb.y - originY);
+                                    if (dist <= shockwaveRadius + 30 || dist <= 95) {
+                                        hb.active = false;
+                                        hb.owner.hooperHasBall = true;
+                                        const pushDir = hb.x >= this.x ? 1 : -1;
+                                        createShinraExplosion(hb.x, hb.y, '#ff6b00', pushDir, false);
+                                        gameState.hooperBalls.splice(i, 1);
                                     }
                                 }
                             }
@@ -15546,40 +15558,42 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     if (!frozenByTimestop) this.checkHit(opponent);
                 }
 
-                this.projectiles.forEach((p, index) => {
+                // Clean inactive projectiles before iteration
+                this.projectiles = this.projectiles.filter(p => p && p.active);
+
+                for (let index = this.projectiles.length - 1; index >= 0; index--) {
+                    const p = this.projectiles[index];
+                    if (!p || !p.active) {
+                        this.projectiles.splice(index, 1);
+                        continue;
+                    }
+
                     // Critical Time Stop Freeze Guardrail: Skip entirely for non-caster frozen projectiles
                     if (gameState.timestopActive && p.owner !== gameState.timestopCaster) {
-                        return;
+                        continue;
                     }
                     
                     p.update();
+                    if (!p.active) {
+                        this.projectiles.splice(index, 1);
+                        continue;
+                    }
                     
                     let target = (p.owner === this) ? opponent : this;
                     let shooter = (p.owner === this) ? this : opponent;
 
-                    // Shinra Tensei Direct Projectile Interaction: Incoming projectiles striking the expanding barrier detonate or get repelled!
+                    // Shinra Tensei Direct Projectile Interaction: Incoming projectiles striking the expanding barrier detonate instantly!
                     if (target && target.type === 'pain' && target.attacking && target.attackType === 'shinra_tensei') {
-                        if (p.active && !p.isRepelledByShinra) {
+                        const targetOriginY = (target.y < config.groundY - 15) ? (target.y - 45) : (config.groundY - 45);
+                        const tProg = 1 - (target.attackTimer / (target.attackMax || 22));
+                        const maxR = target.painCurrentMaxRadius || 310;
+                        const shockwaveR = (1 - Math.pow(1 - tProg, 2.0)) * maxR;
+                        const pRadius = p.radius || (p.isMageBubble ? 50 : (p.owner && p.owner.type === 'martial' ? 38 : 30));
+                        const distToPain = Math.hypot(p.x - target.x, p.y - targetOriginY);
+                        if (p.active && (distToPain <= shockwaveR + pRadius + 20 || distToPain <= pRadius + 65)) {
                             interactShinraWithProjectile(p, target);
-                        }
-                        return;
-                    }
-
-                    // Repelled projectile hitting opponent
-                    if (p.active && p.isRepelledByShinra) {
-                        const distToOpp = Math.hypot(p.x - target.x, p.y - (target.y - 45));
-                        if (distToOpp < 45) {
-                            p.active = false;
-                            if (!target.isInfinityShieldActive && !target.isSaiyanDodging) {
-                                target.health = Math.max(0, target.health - (target.isBlocking ? 3 : 10));
-                                target.velX = p.facing * 12;
-                                target.velY = -3;
-                                target.isStunned = true;
-                                target.stunTimer = 22;
-                                if (target.health <= 0) { target.health = 0; triggerWin(shooter); }
-                            }
-                            createShinraExplosion(p.x, p.y, p.color || '#ffffff', p.facing, false);
-                            return;
+                            this.projectiles.splice(index, 1);
+                            continue;
                         }
                     }
                     
@@ -15871,7 +15885,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                     if(!p.isRedSphere && (p.x < -100 || p.x > canvas.width + 100)) p.active = false;
                     if(!p.active) this.projectiles.splice(index, 1);
-                });
+                }
+                this.projectiles = this.projectiles.filter(p => p && p.active);
             }
 
             slasherChannelUpdate(opponent) {
@@ -16120,9 +16135,13 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', originX, originY, this.facing, '#ffffff', { maxFrames: 22 }));
 
                     if (opponent && opponent.projectiles) {
-                        opponent.projectiles.forEach(p => {
-                            if (p.active && Math.hypot(p.x - originX, p.y - originY) <= 85) interactShinraWithProjectile(p, this);
-                        });
+                        for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
+                            const p = opponent.projectiles[i];
+                            if (p && p.active && Math.hypot(p.x - originX, p.y - originY) <= 120) {
+                                interactShinraWithProjectile(p, this);
+                            }
+                        }
+                        opponent.projectiles = opponent.projectiles.filter(p => p && p.active);
                     }
 
                     if (opponent && !opponent.isDead) {
@@ -16167,11 +16186,13 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.particles.push(new Particle(k, config.groundY - 3, '#7f8c8d', 1.2, false, 0, 0, 'rock'));
                     }
 
-                    // Destroy/repel all projectiles in field
+                    // Destroy all projectiles in field
                     if (opponent && opponent.projectiles) {
-                        opponent.projectiles.forEach(p => {
-                            if (p.active) interactShinraWithProjectile(p, this);
-                        });
+                        for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
+                            const p = opponent.projectiles[i];
+                            if (p && p.active) interactShinraWithProjectile(p, this);
+                        }
+                        opponent.projectiles = opponent.projectiles.filter(p => p && p.active);
                     }
                     if (gameState.deidaraBugs) {
                         gameState.deidaraBugs.forEach(b => {
@@ -16181,6 +16202,25 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             }
                         });
                         gameState.deidaraBugs = [];
+                    }
+                    if (gameState.deidaraBombs) {
+                        gameState.deidaraBombs.forEach(b => {
+                            if (b.owner === opponent && b.active) {
+                                b.active = false;
+                                createShinraExplosion(b.x, b.y, '#f39c12', (b.x >= originX ? 1 : -1), true);
+                            }
+                        });
+                        gameState.deidaraBombs = [];
+                    }
+                    if (gameState.hooperBalls) {
+                        gameState.hooperBalls.forEach(hb => {
+                            if (hb.active && hb.owner === opponent) {
+                                hb.active = false;
+                                hb.owner.hooperHasBall = true;
+                                createShinraExplosion(hb.x, hb.y, '#ff6b00', (hb.x >= originX ? 1 : -1), false);
+                            }
+                        });
+                        gameState.hooperBalls = [];
                     }
 
                     // Damage: EXACT 70% OF CURRENT HP IF FULL 4s, otherwise scaled!
@@ -17209,23 +17249,53 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         if (opponent && opponent.projectiles && opponent.projectiles.length > 0) {
                             for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
                                 const p = opponent.projectiles[i];
-                                if (!p.active || p.isRepelledByShinra) continue;
+                                if (!p || !p.active) continue;
                                 const dist = Math.hypot(p.x - this.x, p.y - (this.y - 45));
-                                if (dist <= 75) {
+                                if (dist <= 95) {
                                     interactShinraWithProjectile(p, this);
                                 }
                             }
+                            opponent.projectiles = opponent.projectiles.filter(p => p && p.active);
                         }
                         if (gameState.deidaraBugs && gameState.deidaraBugs.length > 0) {
                             for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
                                 const b = gameState.deidaraBugs[i];
                                 if (b.owner === opponent) {
                                     const dist = Math.hypot(b.x - this.x, b.y - (this.y - 45));
-                                    if (dist <= 75) {
+                                    if (dist <= 95) {
                                         b.exploded = true;
                                         const pushDir = b.x >= this.x ? 1 : -1;
                                         createShinraExplosion(b.x, b.y, '#f39c12', pushDir, true);
                                         gameState.deidaraBugs.splice(i, 1);
+                                    }
+                                }
+                            }
+                        }
+                        if (gameState.deidaraBombs && gameState.deidaraBombs.length > 0) {
+                            for (let i = gameState.deidaraBombs.length - 1; i >= 0; i--) {
+                                const b = gameState.deidaraBombs[i];
+                                if (b.owner === opponent && b.active) {
+                                    const dist = Math.hypot(b.x - this.x, b.y - (this.y - 45));
+                                    if (dist <= 95) {
+                                        b.active = false;
+                                        const pushDir = b.x >= this.x ? 1 : -1;
+                                        createShinraExplosion(b.x, b.y, '#f39c12', pushDir, true);
+                                        gameState.deidaraBombs.splice(i, 1);
+                                    }
+                                }
+                            }
+                        }
+                        if (gameState.hooperBalls && gameState.hooperBalls.length > 0) {
+                            for (let i = gameState.hooperBalls.length - 1; i >= 0; i--) {
+                                const hb = gameState.hooperBalls[i];
+                                if (hb.active && hb.owner === opponent) {
+                                    const dist = Math.hypot(hb.x - this.x, hb.y - (this.y - 45));
+                                    if (dist <= 95) {
+                                        hb.active = false;
+                                        hb.owner.hooperHasBall = true;
+                                        const pushDir = hb.x >= this.x ? 1 : -1;
+                                        createShinraExplosion(hb.x, hb.y, '#ff6b00', pushDir, false);
+                                        gameState.hooperBalls.splice(i, 1);
                                     }
                                 }
                             }
@@ -18639,34 +18709,42 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             if (!p || !p.active) return;
             const pushDir = (p.x >= painCaster.x) ? 1 : -1;
 
-            // Direct deflection check: solid/compact projectiles get violently repelled & blasted away!
-            const isSolid = (p.isDioKnife || p.isFishingHook || p.isScytheCut || 
-                (p.owner && (p.owner.type === 'gunslinger' || p.owner.type === 'shinobi' || p.owner.type === 'duelist' || p.owner.type === 'miner')));
+            // Instantly deactivate and completely neutralize
+            p.active = false;
+            p.speed = 0;
+            p.vx = 0;
+            p.vy = 0;
+            p.angleY = 0;
 
-            if (isSolid && !p.isRepelledByShinra) {
-                // Direct physical deflection: violent knockback away from Pain!
-                p.isRepelledByShinra = true;
-                p.facing = pushDir;
-                p.speed = 36;
-                p.angleY = (Math.random() - 0.5) * 4;
-                p.owner = painCaster; // Pain is now the owner of the repelled projectile
-                p.repelledLife = 26;
-                p.color = '#ffffff';
-                // Direct deflection collision spark & burst
-                gameState.pixelEffects.push(new PixelVFX('impact_burst', p.x, p.y, pushDir, '#ffffff', { maxFrames: 14 }));
-                gameState.pixelEffects.push(new PixelVFX('air_ring', p.x, p.y, pushDir, '#ffffff'));
-                createExplosion(p.x, p.y, '#ffffff', 8, 1.2);
-                gameState.shake = Math.max(gameState.shake || 0, 12);
-            } else {
-                // Energy / heavy projectile (Mage bubble, Hadou-fist, Hollow purple, etc.): IMMEDIATE SHATTER DETONATION!
-                p.active = false;
-                const isMega = p.isHollowPurple || p.isSaiyanUltWave || p.isPhantomChargedBall || p.isMageBubble || (p.owner && p.owner.type === 'martial');
-                createShinraExplosion(p.x, p.y, p.color, pushDir, isMega);
-                if (p.isMageBubble) {
-                    createMagePixelExplosion(p.x, p.y, 2.0, true, p.color);
-                } else if (p.isMageSpark) {
-                    createMagePixelExplosion(p.x, p.y, 1.2, false, p.color);
-                }
+            const hitX = p.x;
+            const hitY = p.y;
+            const pCol = p.color || '#ffffff';
+
+            // Teleport off-screen immediately so it can never be seen or drawn
+            p.x = -99999;
+            p.y = -99999;
+
+            // Immediately purge from all fighter projectile lists
+            if (p.owner && p.owner.projectiles) {
+                const idx = p.owner.projectiles.indexOf(p);
+                if (idx !== -1) p.owner.projectiles.splice(idx, 1);
+            }
+            if (typeof p1 !== 'undefined' && p1 && p1.projectiles) {
+                const idx1 = p1.projectiles.indexOf(p);
+                if (idx1 !== -1) p1.projectiles.splice(idx1, 1);
+            }
+            if (typeof p2 !== 'undefined' && p2 && p2.projectiles) {
+                const idx2 = p2.projectiles.indexOf(p);
+                if (idx2 !== -1) p2.projectiles.splice(idx2, 1);
+            }
+
+            // High-impact dramatic detonation & pixel destruction burst
+            const isMega = p.isHollowPurple || p.isSaiyanUltWave || p.isPhantomChargedBall || p.isMageBubble || (p.owner && p.owner.type === 'martial');
+            createShinraExplosion(hitX, hitY, pCol, pushDir, isMega);
+            if (p.isMageBubble) {
+                createMagePixelExplosion(hitX, hitY, 2.2, true, pCol);
+            } else if (p.isMageSpark) {
+                createMagePixelExplosion(hitX, hitY, 1.4, false, pCol);
             }
         }
 
