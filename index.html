@@ -3477,182 +3477,6 @@
                   </svg>`;
               },
               get portrait() { return this.getPortrait(1); }
-            },
-            { id: 'pain', name: 'PAIN', tier: 'special', color: '#ff793f', p2Color: '#a55eea',
-              desc: '★ Thủ lĩnh Akatsuki & Lục Đạo Luân Hồi! Shinra Tensei đẩy lùi (CD 5s), phóng Hắc Côn, hất tung gọi Tu La Đạo đánh trên không 20% máu, Ultimate: Vạn Tượng Thiên Dẫn phối hợp Lục Đạo / Địa Bộc Thiên Tinh!',
-              stats: { atk: 5, def: 4, spd: 4, ult: 5 },
-              getPortrait(player) {
-                  return (player === 2) ? `<svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-    <!-- Ground Shadow & Repulsion Aura -->
-    <rect x="5" y="36" width="22" height="2" fill="#a55eea" opacity="0.3"/>
-    <rect x="2" y="14" width="2" height="12" fill="#a55eea" opacity="0.4"/>
-    <rect x="28" y="14" width="2" height="12" fill="#a55eea" opacity="0.4"/>
-
-    <!-- Spiky Orange Yahiko Hair (Wild Upward & Backward Peaks) -->
-    <rect x="10" y="2" width="12" height="4" fill="#090b10"/>
-    <rect x="11" y="3" width="10" height="3" fill="#d63031"/>
-    <rect x="8" y="1" width="4" height="3" fill="#090b10"/>
-    <rect x="9" y="2" width="3" height="2" fill="#a55eea"/>
-    <rect x="14" y="0" width="4" height="3" fill="#090b10"/>
-    <rect x="15" y="1" width="3" height="2" fill="#7d5fff"/>
-    <rect x="19" y="1" width="4" height="3" fill="#090b10"/>
-    <rect x="20" y="2" width="3" height="2" fill="#a55eea"/>
-    <rect x="23" y="3" width="3" height="3" fill="#090b10"/>
-    <rect x="23" y="4" width="2" height="2" fill="#d63031"/>
-
-    <!-- Hidden Rain Village Headband (Slate cloth + Metal Plate with Scratched Slash) -->
-    <rect x="9" y="5" width="14" height="3" fill="#090b10"/>
-    <rect x="9" y="5" width="14" height="2" fill="#2f3542"/>
-    <rect x="12" y="5" width="8" height="2" fill="#95a5a6"/>
-    <rect x="13" y="5" width="6" height="1" fill="#bdc3c7"/>
-    <!-- Scratched Rogue Slash through Rain Crest -->
-    <rect x="15" y="5" width="3" height="1" fill="#090b10"/>
-    <rect x="17" y="6" width="2" height="1" fill="#090b10"/>
-
-    <!-- Pale Face & Ears -->
-    <rect x="10" y="7" width="12" height="6" fill="#090b10"/>
-    <rect x="11" y="7" width="10" height="5" fill="#f5c69c"/>
-    <rect x="11" y="7" width="2" height="5" fill="#c98d63"/>
-    <!-- Ear Chakra Receiver Studs (3 studs on each ear) -->
-    <rect x="9" y="8" width="1" height="1" fill="#090b10"/>
-    <rect x="9" y="10" width="1" height="1" fill="#090b10"/>
-    <rect x="22" y="8" width="1" height="1" fill="#090b10"/>
-    <rect x="22" y="10" width="1" height="1" fill="#090b10"/>
-
-    <!-- Iconic Concentric Ring Rinnegan Eyes -->
-    <rect x="12" y="8" width="3" height="2" fill="#574b90"/>
-    <rect x="13" y="8" width="1" height="2" fill="#a55eea"/>
-    <rect x="13" y="9" width="1" height="1" fill="#090b10"/>
-    <rect x="17" y="8" width="3" height="2" fill="#574b90"/>
-    <rect x="18" y="8" width="1" height="2" fill="#a55eea"/>
-    <rect x="18" y="9" width="1" height="1" fill="#090b10"/>
-
-    <!-- Nose Bridge Chakra Receiver Studs & Chin Piercing -->
-    <rect x="15" y="8" width="2" height="1" fill="#090b10"/>
-    <rect x="15" y="10" width="2" height="1" fill="#090b10"/>
-    <rect x="15" y="12" width="2" height="1" fill="#090b10"/>
-
-    <!-- High Akatsuki Flared Collar (Deep Black with Crimson Inner Lining) -->
-    <rect x="8" y="12" width="16" height="5" fill="#090b10"/>
-    <rect x="9" y="13" width="14" height="3" fill="#160d21"/>
-    <rect x="11" y="13" width="10" height="2" fill="#c0392b"/>
-
-    <!-- Akatsuki Cloak Body & Signature Red Cloud with White Border -->
-    <rect x="7" y="16" width="18" height="14" fill="#090b10"/>
-    <rect x="8" y="16" width="16" height="13" fill="#160d21"/>
-    <rect x="8" y="16" width="3" height="13" fill="#090d17"/>
-    <!-- Akatsuki Red Cloud Motif -->
-    <rect x="12" y="18" width="8" height="6" fill="#ffffff"/>
-    <rect x="13" y="19" width="6" height="4" fill="#e74c3c"/>
-    <rect x="11" y="20" width="10" height="3" fill="#ffffff"/>
-    <rect x="12" y="21" width="8" height="2" fill="#e74c3c"/>
-
-    <!-- Hands: Right Hand with Chakra Black Receiver Rod & Akatsuki Ring -->
-    <rect x="5" y="22" width="3" height="6" fill="#090b10"/>
-    <rect x="5" y="23" width="2" height="4" fill="#f5c69c"/>
-    <rect x="24" y="20" width="4" height="6" fill="#090b10"/>
-    <rect x="24" y="21" width="3" height="4" fill="#f5c69c"/>
-    <rect x="26" y="21" width="1" height="2" fill="#a55eea"/>
-    <!-- Black Receiver Rod in Right Hand -->
-    <rect x="25" y="15" width="2" height="16" fill="#090b10"/>
-    <rect x="25" y="16" width="1" height="14" fill="#2f3542"/>
-    <rect x="26" y="14" width="1" height="2" fill="#a55eea"/>
-
-    <!-- Cloak Hem, Shinobi Shin Wraps & Sandals -->
-    <rect x="8" y="29" width="16" height="2" fill="#090b10"/>
-    <rect x="10" y="31" width="4" height="4" fill="#ecf0f1"/>
-    <rect x="10" y="33" width="4" height="1" fill="#bdc3c7"/>
-    <rect x="18" y="31" width="4" height="4" fill="#ecf0f1"/>
-    <rect x="18" y="33" width="4" height="1" fill="#bdc3c7"/>
-    <rect x="9" y="35" width="5" height="2" fill="#090b10"/>
-    <rect x="18" y="35" width="5" height="2" fill="#090b10"/>
-</svg>` : `<svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-    <!-- Ground Shadow & Repulsion Aura -->
-    <rect x="5" y="36" width="22" height="2" fill="#ff793f" opacity="0.3"/>
-    <rect x="2" y="14" width="2" height="12" fill="#a55eea" opacity="0.4"/>
-    <rect x="28" y="14" width="2" height="12" fill="#a55eea" opacity="0.4"/>
-
-    <!-- Spiky Orange Yahiko Hair (Wild Upward & Backward Peaks) -->
-    <rect x="10" y="2" width="12" height="4" fill="#090b10"/>
-    <rect x="11" y="3" width="10" height="3" fill="#ff6348"/>
-    <rect x="8" y="1" width="4" height="3" fill="#090b10"/>
-    <rect x="9" y="2" width="3" height="2" fill="#ff793f"/>
-    <rect x="14" y="0" width="4" height="3" fill="#090b10"/>
-    <rect x="15" y="1" width="3" height="2" fill="#ff9f43"/>
-    <rect x="19" y="1" width="4" height="3" fill="#090b10"/>
-    <rect x="20" y="2" width="3" height="2" fill="#ff793f"/>
-    <rect x="23" y="3" width="3" height="3" fill="#090b10"/>
-    <rect x="23" y="4" width="2" height="2" fill="#ff6348"/>
-
-    <!-- Hidden Rain Village Headband (Slate cloth + Metal Plate with Scratched Slash) -->
-    <rect x="9" y="5" width="14" height="3" fill="#090b10"/>
-    <rect x="9" y="5" width="14" height="2" fill="#2f3542"/>
-    <rect x="12" y="5" width="8" height="2" fill="#95a5a6"/>
-    <rect x="13" y="5" width="6" height="1" fill="#bdc3c7"/>
-    <!-- Scratched Rogue Slash through Rain Crest -->
-    <rect x="15" y="5" width="3" height="1" fill="#090b10"/>
-    <rect x="17" y="6" width="2" height="1" fill="#090b10"/>
-
-    <!-- Pale Face & Ears -->
-    <rect x="10" y="7" width="12" height="6" fill="#090b10"/>
-    <rect x="11" y="7" width="10" height="5" fill="#f5c69c"/>
-    <rect x="11" y="7" width="2" height="5" fill="#c98d63"/>
-    <!-- Ear Chakra Receiver Studs (3 studs on each ear) -->
-    <rect x="9" y="8" width="1" height="1" fill="#090b10"/>
-    <rect x="9" y="10" width="1" height="1" fill="#090b10"/>
-    <rect x="22" y="8" width="1" height="1" fill="#090b10"/>
-    <rect x="22" y="10" width="1" height="1" fill="#090b10"/>
-
-    <!-- Iconic Concentric Ring Rinnegan Eyes -->
-    <rect x="12" y="8" width="3" height="2" fill="#574b90"/>
-    <rect x="13" y="8" width="1" height="2" fill="#a55eea"/>
-    <rect x="13" y="9" width="1" height="1" fill="#090b10"/>
-    <rect x="17" y="8" width="3" height="2" fill="#574b90"/>
-    <rect x="18" y="8" width="1" height="2" fill="#a55eea"/>
-    <rect x="18" y="9" width="1" height="1" fill="#090b10"/>
-
-    <!-- Nose Bridge Chakra Receiver Studs & Chin Piercing -->
-    <rect x="15" y="8" width="2" height="1" fill="#090b10"/>
-    <rect x="15" y="10" width="2" height="1" fill="#090b10"/>
-    <rect x="15" y="12" width="2" height="1" fill="#090b10"/>
-
-    <!-- High Akatsuki Flared Collar (Deep Black with Crimson Inner Lining) -->
-    <rect x="8" y="12" width="16" height="5" fill="#090b10"/>
-    <rect x="9" y="13" width="14" height="3" fill="#111625"/>
-    <rect x="11" y="13" width="10" height="2" fill="#c0392b"/>
-
-    <!-- Akatsuki Cloak Body & Signature Red Cloud with White Border -->
-    <rect x="7" y="16" width="18" height="14" fill="#090b10"/>
-    <rect x="8" y="16" width="16" height="13" fill="#111625"/>
-    <rect x="8" y="16" width="3" height="13" fill="#090d17"/>
-    <!-- Akatsuki Red Cloud Motif -->
-    <rect x="12" y="18" width="8" height="6" fill="#ffffff"/>
-    <rect x="13" y="19" width="6" height="4" fill="#e74c3c"/>
-    <rect x="11" y="20" width="10" height="3" fill="#ffffff"/>
-    <rect x="12" y="21" width="8" height="2" fill="#e74c3c"/>
-
-    <!-- Hands: Right Hand with Chakra Black Receiver Rod & Akatsuki Ring -->
-    <rect x="5" y="22" width="3" height="6" fill="#090b10"/>
-    <rect x="5" y="23" width="2" height="4" fill="#f5c69c"/>
-    <rect x="24" y="20" width="4" height="6" fill="#090b10"/>
-    <rect x="24" y="21" width="3" height="4" fill="#f5c69c"/>
-    <rect x="26" y="21" width="1" height="2" fill="#a55eea"/>
-    <!-- Black Receiver Rod in Right Hand -->
-    <rect x="25" y="15" width="2" height="16" fill="#090b10"/>
-    <rect x="25" y="16" width="1" height="14" fill="#2f3542"/>
-    <rect x="26" y="14" width="1" height="2" fill="#a55eea"/>
-
-    <!-- Cloak Hem, Shinobi Shin Wraps & Sandals -->
-    <rect x="8" y="29" width="16" height="2" fill="#090b10"/>
-    <rect x="10" y="31" width="4" height="4" fill="#ecf0f1"/>
-    <rect x="10" y="33" width="4" height="1" fill="#bdc3c7"/>
-    <rect x="18" y="31" width="4" height="4" fill="#ecf0f1"/>
-    <rect x="18" y="33" width="4" height="1" fill="#bdc3c7"/>
-    <rect x="9" y="35" width="5" height="2" fill="#090b10"/>
-    <rect x="18" y="35" width="5" height="2" fill="#090b10"/>
-</svg>`;
-              },
-              get portrait() { return this.getPortrait(1); }
             }
         ];
 
@@ -3807,14 +3631,7 @@
             hooperCutsceneTimer: 0,
             hooperCutsceneDuration: 115,
             hooperCutsceneCaster: null,
-            hooperBalls: [],
-            painCutsceneActive: false,
-            painCutsceneTimer: 0,
-            painCutsceneDuration: 160,
-            painCutsceneType: 'six_paths',
-            painCutsceneCaster: null,
-            painCutsceneTarget: null,
-            painBlackRods: []
+            hooperBalls: []
         };
 
         function announceText(text, color) {
@@ -3934,11 +3751,6 @@
             gameState.hooperCutsceneTimer = 0;
             gameState.hooperCutsceneCaster = null;
             gameState.hooperBalls = [];
-            gameState.painCutsceneActive = false;
-            gameState.painCutsceneTimer = 0;
-            gameState.painCutsceneCaster = null;
-            gameState.painCutsceneTarget = null;
-            gameState.painBlackRods = [];
             canvas.classList.remove('shake');
         }
 
@@ -3947,29 +3759,24 @@
             canvas.style.display = 'block';
             ui.style.display = 'flex';
             
-            const classNames = {martial: 'BRAWLER', sword: 'SWORDSMAN', scythe: 'REAPER', lancer: 'LANCER', swapper: 'SWAPPER', mage: 'MAGE', taichi: 'TAI CHI', shinobi: 'SHINOBI', gunslinger: 'DUELIST', werewolf: 'WEREWOLF', fisherman: 'FISHERMAN', zookeeper: 'ZOOKEEPER', phantom: 'PHANTOM', sixeye: 'SIX EYES', saiyan: 'SAIYAN', dio: 'DIO', raijin: 'INVENTOR', slasher: 'SLASHER', miner: 'MINER', deidara: 'DEIDARA', hooper: 'HOOPER', pain: 'PAIN'};
+            const classNames = {martial: 'BRAWLER', sword: 'SWORDSMAN', scythe: 'REAPER', lancer: 'LANCER', swapper: 'SWAPPER', mage: 'MAGE', taichi: 'TAI CHI', shinobi: 'SHINOBI', gunslinger: 'DUELIST', werewolf: 'WEREWOLF', fisherman: 'FISHERMAN', zookeeper: 'ZOOKEEPER', phantom: 'PHANTOM', sixeye: 'SIX EYES', saiyan: 'SAIYAN', dio: 'DIO', raijin: 'INVENTOR', slasher: 'SLASHER', miner: 'MINER', deidara: 'DEIDARA', hooper: 'HOOPER'};
             document.getElementById('p1-name').innerText = `P1: ${classNames[p1Class]}${isP1CPU ? ' (CPU)' : ''}`;
             document.getElementById('p2-name').innerText = `P2: ${classNames[p2Class]}${isCPUMode ? ' (CPU)' : ''}`;
 
-            p1 = new Stickman(200, p1Class === 'mage' ? '#9c27b0' : (p1Class === 'taichi' ? '#ffffff' : (p1Class === 'sixeye' ? '#bf55ec' : (p1Class === 'saiyan' ? '#00d2ff' : (p1Class === 'dio' ? '#ffd700' : (p1Class === 'phantom' ? '#0d47a1' : (p1Class === 'slasher' ? '#ff4757' : (p1Class === 'deidara' ? '#f39c12' : (p1Class === 'hooper' ? '#ff6b00' : (p1Class === 'pain' ? '#ff793f' : '#2ecc71'))))))))), 1, p1Class);
-            p2 = new Stickman(650, p2Class === 'mage' ? '#00b4d8' : (p2Class === 'taichi' ? '#000000' : (p2Class === 'sixeye' ? '#3498db' : (p2Class === 'saiyan' ? '#ff2e4c' : (p2Class === 'dio' ? '#8b0000' : (p2Class === 'phantom' ? '#a82452' : (p2Class === 'slasher' ? '#5352ed' : (p2Class === 'deidara' ? '#e67e22' : (p2Class === 'hooper' ? '#00d2ff' : (p2Class === 'pain' ? '#a55eea' : '#e74c3c'))))))))), 2, p2Class);
+            p1 = new Stickman(200, p1Class === 'mage' ? '#9c27b0' : (p1Class === 'taichi' ? '#ffffff' : (p1Class === 'sixeye' ? '#bf55ec' : (p1Class === 'saiyan' ? '#00d2ff' : (p1Class === 'dio' ? '#ffd700' : (p1Class === 'phantom' ? '#0d47a1' : (p1Class === 'slasher' ? '#ff4757' : (p1Class === 'deidara' ? '#f39c12' : (p1Class === 'hooper' ? '#ff6b00' : '#2ecc71')))))))), 1, p1Class);
+            p2 = new Stickman(650, p2Class === 'mage' ? '#00b4d8' : (p2Class === 'taichi' ? '#000000' : (p2Class === 'sixeye' ? '#3498db' : (p2Class === 'saiyan' ? '#ff2e4c' : (p2Class === 'dio' ? '#8b0000' : (p2Class === 'phantom' ? '#a82452' : (p2Class === 'slasher' ? '#5352ed' : (p2Class === 'deidara' ? '#e67e22' : (p2Class === 'hooper' ? '#00d2ff' : '#e74c3c')))))))), 2, p2Class);
             
             // Inventor color adjustment based on player id
             if (p1Class === 'raijin') p1.color = '#2ecc71';
             if (p2Class === 'raijin') p2.color = '#e74c3c';
             if (p1Class === 'taichi') p1.color = '#ffffff';
             if (p2Class === 'taichi') p2.color = '#000000';
-            document.getElementById('p1-v-cooldown-bar').style.display = (p1Class === 'miner' || p1Class === 'deidara' || p1Class === 'hooper' || p1Class === 'pain') ? 'block' : 'none';
+            document.getElementById('p1-v-cooldown-bar').style.display = (p1Class === 'miner' || p1Class === 'deidara' || p1Class === 'hooper') ? 'block' : 'none';
             document.getElementById('p2-v-cooldown-bar').style.display = (p2Class === 'miner' || p2Class === 'deidara' || p2Class === 'hooper') ? 'block' : 'none';
             gameState.hooperCutsceneActive = false;
             gameState.hooperCutsceneTimer = 0;
             gameState.hooperCutsceneCaster = null;
             gameState.hooperBalls = [];
-            gameState.painCutsceneActive = false;
-            gameState.painCutsceneTimer = 0;
-            gameState.painCutsceneCaster = null;
-            gameState.painCutsceneTarget = null;
-            gameState.painBlackRods = [];
             // Slasher energy bars
             document.getElementById('p1-energy-bar').style.display = (p1Class === 'slasher') ? 'block' : 'none';
             document.getElementById('p2-energy-bar').style.display = (p2Class === 'slasher') ? 'block' : 'none';
@@ -13047,83 +12854,6 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
 
         // ============== HOOPER: REBOUND BASKETBALL & ZONE ANKLE-BREAKER PASS ==============
-                // ================= PAIN: CHAKRA BLACK RECEIVER ROD PROJECTILE =================
-        class PainBlackRod {
-            constructor(owner, target) {
-                this.owner = owner;
-                this.target = target;
-                this.facing = owner.facing || 1;
-                this.x = owner.x + this.facing * 30;
-                this.y = owner.y - 45;
-                this.speed = 22;
-                this.velX = this.facing * this.speed;
-                this.active = true;
-                this.age = 0;
-            }
-            update() {
-                if (!this.active) return;
-                if (gameState.timestopActive && this.owner !== gameState.timestopCaster) return;
-                if (gameState.hooperCutsceneActive || gameState.painCutsceneActive) return;
-
-                this.x += this.velX * config.timeScale;
-                this.age += 1 * config.timeScale;
-
-                if (Math.floor(this.age) % 3 === 0) {
-                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y, this.facing, '#a55eea'));
-                }
-
-                if (this.target && !this.target.isDead) {
-                    const hitDist = Math.abs(this.target.x - this.x);
-                    const hitYDist = Math.abs((this.target.y - 45) - this.y);
-                    if (hitDist < 28 && hitYDist < 36) {
-                        this.active = false;
-                        const dmg = this.target.isBlocking ? 4 : 12;
-                        this.target.health = Math.max(0, this.target.health - dmg);
-                        this.target.isStunned = true;
-                        this.target.stunTimer = 24; // 0.4s chakra disruption
-                        this.target.velX = this.facing * 7;
-                        gameState.shake = 16;
-                        gameState.flashAlpha = 0.3;
-                        gameState.flashColor = '#ff793f';
-                        announceText('BLACK ROD IMPALE!', '#ff793f');
-                        gameState.pixelEffects.push(new PixelVFX('impact_burst', this.target.x, this.target.y - 45, this.facing, '#a55eea', { maxFrames: 18 }));
-                        gameState.slashes.push(new SlashEffect(this.target.x - 22 * this.facing, this.target.y - 45, this.target.x + 22 * this.facing, this.target.y - 45, '#0a0a10', 6, true, true));
-                        if (this.target.health <= 0) {
-                            this.target.health = 0;
-                            triggerWin(this.owner);
-                        }
-                    }
-                }
-                if (this.x < -100 || this.x > canvas.width + 100 || this.age > 120) {
-                    this.active = false;
-                }
-            }
-            draw(ctx) {
-                if (!this.active) return;
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.scale(this.facing, 1);
-                // Glowing purple chakra sheath
-                ctx.fillStyle = '#a55eea';
-                ctx.fillRect(-22, -3, 44, 6);
-                // Pitch black metallic chakra rod body
-                ctx.fillStyle = '#0a0a10';
-                ctx.fillRect(-20, -2, 40, 4);
-                // Sharp metal specular highlight
-                ctx.fillStyle = '#2f3542';
-                ctx.fillRect(-18, -1, 36, 1);
-                // Sharp conical tip
-                ctx.fillStyle = '#0a0a10';
-                ctx.beginPath();
-                ctx.moveTo(20, -3);
-                ctx.lineTo(27, 0);
-                ctx.lineTo(20, 3);
-                ctx.closePath();
-                ctx.fill();
-                ctx.restore();
-            }
-        }
-
         class HooperBall {
             constructor(owner, target, isZoneAnkle = false) {
                 this.owner = owner;
@@ -13368,12 +13098,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 else if (type === 'slasher') mCd = 200;
                 else if (type === 'miner') mCd = 540;  // 9s cooldown for the dig-up special (B)
                 else if (type === 'deidara') mCd = 900; // 15s cooldown for the clay dragon ult (B)
-                else if (type === 'hooper') mCd = 840;
-                else if (type === 'pain') mCd = 720; // 12s cooldown for Chibaku Tensei / Six Paths Ultimate  // 14s cooldown for Zone Awakening + 9s Virtual Court
+                else if (type === 'hooper') mCd = 840;  // 14s cooldown for Zone Awakening + 9s Virtual Court
                 this.maxCooldown = mCd;
                 
                 this.isDead = false; this.isDashing = false;
-                this.jumpCount = 0; this.maxJumps = (type === 'martial' || type === 'shinobi' || type === 'sixeye' || type === 'saiyan' || type === 'dio' || type === 'raijin' || type === 'phantom' || type === 'slasher' || type === 'deidara' || type === 'hooper' || type === 'pain') ? 2 : 1;
+                this.jumpCount = 0; this.maxJumps = (type === 'martial' || type === 'shinobi' || type === 'sixeye' || type === 'saiyan' || type === 'dio' || type === 'raijin' || type === 'phantom' || type === 'slasher' || type === 'deidara' || type === 'hooper') ? 2 : 1;
                 this.projectiles = []; this.hitOnce = false;
                 this.internalCooldown = 0; this.walkCycle = 0;
                 this.chargingTimer = 0; this.isCharging = false;
@@ -13478,18 +13207,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.brawlerAirStep = 0;                // 1..4 distinct air animation step for Brawler
                 this.lastAirHitKnockedAway = false;     // Whether the last air combo hit triggered knock-away
                 this.airComboTotalDmg = 0;              // Total air combo damage accumulator (capped at 35% max HP)
-                this.hasLaunchedOpponent = false;
-                if (type === 'pain') {
-                    this.painShinraCooldown = 0;   // 5.0s cooldown (300 frames) for Shinra Tensei
-                    this.painShinraMax = 300;
-                    this.painRodCooldown = 0;      // 1.25s cooldown (75 frames) for Black Rod throw
-                    this.painRodMax = 75;
-                    this.painLaunchedTimer = 0;    // Active window after Pain's Block+V launcher kick
-                    this.painPathAssistActive = false;
-                    this.painPathAssistTimer = 0;
-                    this.painPathAssistX = 0;
-                    this.painPathAssistY = 0;
-                }       // Only true when THIS fighter personally kicked opponent up with launcher_kick
+                this.hasLaunchedOpponent = false;       // Only true when THIS fighter personally kicked opponent up with launcher_kick
 
                             }
 
@@ -13612,11 +13330,6 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 if (this.type === 'hooper') {
                     const frozenInDraw = gameState.timestopActive && this !== gameState.timestopCaster;
                     drawPixelHooper(this, frozenInDraw);
-                    return;
-                }
-                if (this.type === 'pain') {
-                    const frozenInDraw = gameState.timestopActive && this !== gameState.timestopCaster;
-                    drawPixelPain(this, frozenInDraw);
                     return;
                 }
 
@@ -14621,7 +14334,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             }
 
             update(opponent) {
-                if (gameState.domainClashActive || gameState.hooperCutsceneActive || gameState.painCutsceneActive) return; // frozen during cutscenes
+                if (gameState.domainClashActive || gameState.hooperCutsceneActive) return; // frozen during cutscenes
 
                 
                 if (this.hooperAnkleFallTimer > 0) {
@@ -14860,50 +14573,6 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             }
                         }
                         return;
-                    }
-                }
-
-                // ============== PAIN per-frame tick ==============
-                if (this.type === 'pain') {
-                    if (this.painShinraCooldown > 0) this.painShinraCooldown -= 1 * config.timeScale;
-                    if (this.painRodCooldown > 0) this.painRodCooldown -= 1 * config.timeScale;
-                    if (this.painLaunchedTimer > 0) {
-                        this.painLaunchedTimer -= 1 * config.timeScale;
-                        if (opponent && (opponent.y >= config.groundY - 5 || opponent.isDead)) {
-                            this.painLaunchedTimer = 0;
-                        }
-                    }
-
-                    // Path Assist Striker (Asura Path / Tu La Đạo)
-                    if (this.painPathAssistActive) {
-                        this.painPathAssistTimer -= 1 * config.timeScale;
-                        if (opponent && !opponent.isDead) {
-                            opponent.velY = 0;
-                            opponent.velX = 0;
-                            opponent.isStunned = true;
-                            opponent.stunTimer = Math.max(opponent.stunTimer || 0, 18);
-                        }
-                        if (Math.floor(this.painPathAssistTimer) === 16 && opponent && !opponent.isDead) {
-                            const assistDmg = 20; // Exactly 20% max HP
-                            opponent.health = Math.max(0, opponent.health - assistDmg);
-                            opponent.velY = 14; // Slam downward to earth
-                            opponent.velX = this.facing * 8;
-                            opponent.isStunned = true;
-                            opponent.stunTimer = 35;
-                            gameState.shake = 28;
-                            gameState.flashAlpha = 0.45;
-                            gameState.flashColor = '#ff793f';
-                            announceText('TU LA ĐẠO LIÊN HOÀN (-20%)!', '#ff793f');
-                            gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 45, this.facing, '#a55eea', { maxFrames: 24, P: 4 }));
-                            gameState.slashes.push(new SlashEffect(opponent.x - 30 * this.facing, opponent.y - 65, opponent.x + 30 * this.facing, opponent.y - 15, '#ff793f', 7, true, true));
-                            if (opponent.health <= 0) {
-                                opponent.health = 0;
-                                triggerWin(this);
-                            }
-                        }
-                        if (this.painPathAssistTimer <= 0) {
-                            this.painPathAssistActive = false;
-                        }
                     }
                 }
 
@@ -16390,11 +16059,6 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         this.velX = 0;
                         this.velY = 0;
                         gameState.hooperBalls = [];
-            gameState.painCutsceneActive = false;
-            gameState.painCutsceneTimer = 0;
-            gameState.painCutsceneCaster = null;
-            gameState.painCutsceneTarget = null;
-            gameState.painBlackRods = [];
                         gameState.hooperCutsceneActive = true;
                         gameState.hooperCutsceneDuration = 115; // ~1.9s cinematic
                         gameState.hooperCutsceneTimer = 115;
@@ -16502,30 +16166,6 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 38, this.facing, this.color));
                         gameState.shake = 5;
                     }
-                    return;
-                }
-
-                if ((type === 'kick' || type === 'pain_throw_rod') && this.type === 'pain') {
-                    if (type === 'kick' && this.isBlocking) {
-                        this.attackType = 'launcher_kick';
-                        this.attackMax = 15;
-                        this.attackTimer = 15;
-                        this.internalCooldown = 28;
-                        this.attacking = true;
-                        this.hitOnce = false;
-                        return;
-                    }
-                    if (this.painRodCooldown > 0) return;
-                    this.painRodCooldown = 75; // 1.25s cooldown
-                    this.attacking = true;
-                    this.attackType = 'pain_throw_rod';
-                    this.attackMax = 14;
-                    this.attackTimer = 14;
-                    this.internalCooldown = 26;
-                    this.hitOnce = false;
-                    gameState.painBlackRods.push(new PainBlackRod(this, opponent));
-                    announceText('HẮC CÔN!', '#ff793f');
-                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 28 * this.facing, this.y - 45, this.facing, '#a55eea'));
                     return;
                 }
 
@@ -16696,31 +16336,6 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             gameState.flashAlpha = 0.95;
                             gameState.flashColor = '#000000'; 
                             gameState.shake = 45;
-                        }
-                        return;
-                    }
-
-                    if (this.type === 'pain') {
-                        this.cooldown = this.maxCooldown;
-                        const isOpponentAirborne = (this.painLaunchedTimer > 0) || (opponent && opponent.y < config.groundY - 20 && (this.hasLaunchedOpponent || opponent.isStunned));
-                        if (isOpponentAirborne) {
-                            // Airborne Juggle Variant: CHIBAKU TENSEI!
-                            gameState.painCutsceneActive = true;
-                            gameState.painCutsceneDuration = 160;
-                            gameState.painCutsceneTimer = 160;
-                            gameState.painCutsceneType = 'chibaku_tensei';
-                            gameState.painCutsceneCaster = this;
-                            gameState.painCutsceneTarget = opponent;
-                            announceText('ĐỊA BỘC THIÊN TINH!', '#ff793f');
-                        } else {
-                            // Ground Default Variant: BANSHŌ TEN'IN & SIX PATHS OF PAIN!
-                            gameState.painCutsceneActive = true;
-                            gameState.painCutsceneDuration = 175;
-                            gameState.painCutsceneTimer = 175;
-                            gameState.painCutsceneType = 'six_paths';
-                            gameState.painCutsceneCaster = this;
-                            gameState.painCutsceneTarget = opponent;
-                            announceText('VẠN TƯỢNG THIÊN DẪN - LỤC ĐẠO!', '#ff793f');
                         }
                         return;
                     }
@@ -17010,48 +16625,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.pixelEffects.push(new PixelVFX('zookeeper_whip_crack', this.x + 85 * this.facing, this.y - 42, this.facing, this.color));
                     } else {
                         this.attackMax = 12; this.attackTimer = 12; this.internalCooldown = (this.type === 'werewolf') ? (this.isWerewolf ? 28 : 75) : ((this.type === 'sixeye') ? 16 : (this.type === 'saiyan' ? 14 : (this.type === 'dio' ? 16 : (this.type === 'raijin' ? 52 : 32)))); 
-                        if (this.type === 'pain') {
-                            // 1) Airborne Follow-up: summon Asura Path while staying grounded!
-                            if (this.painLaunchedTimer > 0 && opponent && !opponent.isDead && opponent.y < config.groundY - 15) {
-                                this.painLaunchedTimer = 0;
-                                this.painPathAssistActive = true;
-                                this.painPathAssistTimer = 35;
-                                this.painPathAssistX = opponent.x - this.facing * 45;
-                                this.painPathAssistY = opponent.y - 15;
-                                this.attackMax = 16;
-                                this.attackTimer = 16;
-                                this.internalCooldown = 28;
-                                this.attackType = 'pain_summon_assist';
-                                gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 35, this.facing, '#a55eea'));
-                                gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, this.facing, '#ff793f'));
-                                announceText('TU LA ĐẠO XUẤT KÍCH!', '#ff793f');
-                                return;
-                            }
-
-                            // 2) Shinra Tensei (5.0s Cooldown)
-                            if (this.painShinraCooldown <= 0) {
-                                this.painShinraCooldown = 300; // 5.0 seconds
-                                this.attackMax = 20;
-                                this.attackTimer = 20;
-                                this.internalCooldown = 28;
-                                this.attackType = 'shinra_tensei';
-                                announceText('SHINRA TENSEI!', '#ff793f');
-                                gameState.shake = 30;
-                                gameState.flashAlpha = 0.4;
-                                gameState.flashColor = '#a55eea';
-                                gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 20 * this.facing, this.y - 45, this.facing, '#a55eea'));
-                                gameState.pixelEffects.push(new PixelVFX('air_ring', this.x - 20 * this.facing, this.y - 45, -this.facing, '#a55eea'));
-                                gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x - 20, config.groundY, -this.facing, '#ff793f'));
-                                gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x + 20, config.groundY, this.facing, '#ff793f'));
-                            } else {
-                                // 3) Black Rod Melee Strike during Shinra CD
-                                this.attackMax = 12;
-                                this.attackTimer = 12;
-                                this.internalCooldown = 18;
-                                this.attackType = 'pain_rod_strike';
-                                gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 28 * this.facing, this.y - 42, this.facing, '#0a0a10'));
-                            }
-                        } else if (this.type === 'taichi') {
+                        if (this.type === 'taichi') {
                             this.attackMax = 14; this.attackTimer = 14; this.internalCooldown = 32;
                             this.taichiComboStep = ((this.taichiComboStep === undefined ? -1 : this.taichiComboStep) + 1) % 2;
                             const isP1 = (this.id === 1 || this === window.p1 || this.color === '#ffffff');
@@ -17203,8 +16777,6 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     range = 0;
                 } else if (this.type === 'deidara') {
                     range = this.attackType === 'deidara_punch' ? 95 : 80;
-                } else if (this.type === 'pain') {
-                    range = (this.attackType === 'shinra_tensei' ? 140 : 90);
                 }
 
                 if (opponent.type === 'sixeye' && opponent.isInfinityShieldActive) {
@@ -17451,44 +17023,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             }
                         }
                     }
-else if (Math.floor(this.attackTimer) === 7 && this.attackType === 'deidara_punch') {
+                    else if (Math.floor(this.attackTimer) === 7 && this.attackType === 'deidara_punch') {
                         this.hitOnce = true;
                         dmg = opponent.isBlocking ? 4 : 14;
                         // 100% 16-BIT PIXEL ART EXPLOSION ON HIT
                         createDeidaraPixelExplosion(opponent.x, opponent.y - 45, 1.15, false);
-                    }
-                    else if (this.attackType === 'shinra_tensei' && !this.hitOnce && this.attackTimer <= this.attackMax - 2) {
-                        this.hitOnce = true;
-                        dmg = opponent.isBlocking ? 5 : 18;
-                        opponent.health -= dmg;
-                        opponent.velX = this.facing * 26; // Massive repulsive knockback!
-                        opponent.velY = -6;
-                        opponent.isStunned = true;
-                        opponent.stunTimer = 30;
-                        gameState.shake = 32;
-                        gameState.flashAlpha = 0.45;
-                        gameState.flashColor = '#ff793f';
-                        gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 45, this.facing, '#ff793f', { maxFrames: 24, P: 4 }));
-                        gameState.slashes.push(new SlashEffect(this.x, this.y - 45, opponent.x, opponent.y - 45, '#a55eea', 8, true, true));
-                        if (opponent.health <= 0) {
-                            opponent.health = 0;
-                            triggerWin(this);
-                        }
-                        return;
-                    }
-                    else if (this.attackType === 'pain_rod_strike' && !this.hitOnce && this.attackTimer <= this.attackMax - 2) {
-                        this.hitOnce = true;
-                        dmg = opponent.isBlocking ? 2 : 7;
-                        opponent.health -= dmg;
-                        opponent.velX = this.facing * 6;
-                        opponent.isStunned = true;
-                        opponent.stunTimer = 14;
-                        gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 45, this.facing, '#a55eea', { maxFrames: 14 }));
-                        if (opponent.health <= 0) {
-                            opponent.health = 0;
-                            triggerWin(this);
-                        }
-                        return;
                     }
                     else if (Math.floor(this.attackTimer) === 9 && this.attackType === 'launcher_kick') {
                         this.hitOnce = true;
@@ -17512,9 +17051,6 @@ else if (Math.floor(this.attackTimer) === 7 && this.attackType === 'deidara_punc
 
                             // Flag that this fighter personally launched the opponent into the air
                             this.hasLaunchedOpponent = true;
-                            if (this.type === 'pain') {
-                                this.painLaunchedTimer = 90; // ~1.5s window
-                            }
                             this.airComboEnded = false;
                             this.airComboCount = 0;
                             this.brawlerAirStep = 0;
@@ -19494,577 +19030,6 @@ function drawPixelDeidara(fighter, frozenInDraw) {
     ctx.restore();
     fighter.projectiles.forEach(p => p.draw());
 }
-
-        
-// ============================================================================
-//                              PAIN RENDER SYSTEM
-// ============================================================================
-function drawPixelPain(fighter, frozenInDraw) {
-    const P = 3;
-    let drawX = fighter.x;
-    let drawY = fighter.y;
-    const baseX = Math.round(drawX / P) * P;
-    const baseY = Math.round(drawY / P) * P;
-    const f = fighter.facing || 1;
-    const timeMs = frozenInDraw ? 0 : Date.now();
-    const isP1 = (fighter.id === 1 || fighter.color === '#ff793f');
-
-    // --- PALETTES ---
-    const out          = '#090b10';
-    const hair         = isP1 ? '#ff793f' : '#ff6348';
-    const hairHi       = isP1 ? '#ffb86c' : '#ff9f43';
-    const hairShade    = isP1 ? '#d35400' : '#b33939';
-    const skin         = '#f5c69c';
-    const skinShade    = '#c98d63';
-    const rinneganBg   = '#574b90';
-    const rinneganIris = isP1 ? '#a55eea' : '#7d5fff';
-    const plateMetal   = '#bdc3c7';
-    const plateCloth   = '#2f3542';
-    const headbandSlash = '#090b10';
-    const piercing      = '#1e272e';
-    const rinneganCenter = '#090b10';
-    const cloakMain    = isP1 ? '#111625' : '#181226';
-    const cloakShade   = '#090d17';
-    const collarLining = isP1 ? '#c0392b' : '#88102a';
-    const cloudRed     = isP1 ? '#e74c3c' : '#a55eea';
-    const cloudWhite   = '#ffffff';
-    const rodCol       = '#0a0a12';
-    const rodGlow      = '#a55eea';
-    const wrapCol      = '#ecf0f1';
-    const sandalCol    = '#090b10';
-
-    ctx.save();
-    const prevSmooth = ctx.imageSmoothingEnabled;
-    ctx.imageSmoothingEnabled = false;
-
-    // Repulsion / Chakra Aura
-    if (!frozenInDraw) {
-        const auraAlpha = 0.15 + 0.08 * Math.sin(timeMs * 0.008);
-        ctx.fillStyle = `rgba(165, 94, 234, ${auraAlpha})`;
-        ctx.beginPath();
-        ctx.arc(baseX, baseY - 35, 38, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    ctx.translate(baseX, baseY);
-    ctx.scale(f, 1);
-
-    const px = (gx, gy, col) => {
-        ctx.fillStyle = col;
-        ctx.fillRect(gx * P, gy * P, P, P);
-    };
-
-    const rect = (gx, gy, w, h, col) => {
-        ctx.fillStyle = col;
-        ctx.fillRect(gx * P, gy * P, w * P, h * P);
-    };
-
-    // Stance / animation offsets
-    const isShinra = (fighter.attacking && fighter.attackType === 'shinra_tensei');
-    const isRodStrike = (fighter.attacking && fighter.attackType === 'pain_rod_strike');
-    const isRodThrow = (fighter.attacking && fighter.attackType === 'pain_throw_rod');
-    const isLauncher = (fighter.attacking && fighter.attackType === 'launcher_kick');
-    const isSummon = (fighter.attacking && fighter.attackType === 'pain_summon_assist');
-    const isWalking = (fighter.velX !== 0 && !fighter.attacking);
-    const walkBob = (isWalking && !frozenInDraw) ? Math.sin(timeMs * 0.015) * 1.5 : 0;
-    const by = Math.round(walkBob);
-
-    // --- LEGS & NINJA BOOTS ---
-    rect(-3, -4 + by, 3, 4, cloakShade);
-    rect(1, -4 + by, 3, 4, cloakShade);
-    // Bandages & Shinobi Sandals
-    rect(-3, -2 + by, 3, 2, wrapCol);
-    rect(1, -2 + by, 3, 2, wrapCol);
-    rect(-4, 0, 4, 1, sandalCol);
-    rect(1, 0, 4, 1, sandalCol);
-
-    // --- AKATSUKI CLOAK LOWER BODY ---
-    rect(-6, -17 + by, 12, 13, cloakMain);
-    rect(-6, -17 + by, 2, 13, cloakShade);
-    rect(-6, -4 + by, 12, 1, out);
-
-    // Red Cloud Motif on Cloak
-    rect(-2, -14 + by, 6, 4, cloudWhite);
-    rect(-1, -13 + by, 4, 2, cloudRed);
-    rect(-3, -12 + by, 7, 2, cloudWhite);
-    rect(-2, -12 + by, 5, 1, cloudRed);
-
-    // --- HIGH COLLAR & CHEST ---
-    rect(-7, -22 + by, 14, 6, cloakMain);
-    rect(-6, -21 + by, 12, 2, collarLining); // Red interior lining
-    rect(-1, -22 + by, 2, 6, cloakShade); // Zipper seam
-
-    // --- HEAD & FACE ---
-    rect(-4, -28 + by, 9, 6, skin);
-    rect(-4, -28 + by, 2, 6, skinShade); // Jaw shading
-
-    // Rain Village Forehead Protector (Crossed Out Rogue Slash)
-    rect(-5, -29 + by, 10, 3, plateCloth);
-    rect(-3, -29 + by, 7, 2, plateMetal);
-    px(0, -29 + by, plateCloth);
-    // Renegade horizontal slash
-    rect(-3, -28 + by, 7, 1, headbandSlash);
-
-    // Ear Piercings (3 studs per ear)
-    px(-5, -27 + by, piercing);
-    px(-5, -25 + by, piercing);
-    px(5, -27 + by, piercing);
-    px(5, -25 + by, piercing);
-
-    // Nose Bridge Piercings & Chin Stud
-    px(1, -26 + by, piercing);
-    px(2, -26 + by, piercing);
-    px(1, -23 + by, piercing);
-
-    // Concentric Rinnegan Eyes
-    rect(-2, -26 + by, 3, 2, rinneganBg);
-    px(-1, -26 + by, rinneganIris);
-    px(-1, -25 + by, rinneganCenter);
-
-    rect(2, -26 + by, 3, 2, rinneganBg);
-    px(3, -26 + by, rinneganIris);
-    px(3, -25 + by, rinneganCenter);
-
-    // Yahiko Spiky Orange Hair
-    rect(-5, -34 + by, 11, 5, hair);
-    rect(-3, -33 + by, 7, 3, hairHi);
-    px(-6, -32 + by, hair);
-    px(-5, -33 + by, hairShade);
-    px(6, -32 + by, hair);
-    px(5, -33 + by, hairHi);
-    px(-3, -35 + by, hair);
-    px(0, -36 + by, hairHi);
-    px(3, -35 + by, hair);
-    px(5, -34 + by, hair);
-
-    // --- ACTION-SPECIFIC ARMS, WEAPONS & SPECIAL EFFECTS ---
-    if (isShinra) {
-        // Shinra Tensei: Both arms thrust open palms forward!
-        rect(5, -21 + by, 7, 3, cloakMain);
-        rect(12, -22 + by, 3, 4, skin);
-        rect(-9, -21 + by, 4, 3, cloakMain);
-
-        // Repulsive Expanding Shockwaves
-        const waveRadius = (20 - fighter.attackTimer) * 7.5;
-        ctx.strokeStyle = 'rgba(165, 94, 234, 0.85)';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(6 * P, -20 * P, waveRadius, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(6 * P, -20 * P, waveRadius * 0.7, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.strokeStyle = 'rgba(255, 121, 63, 0.7)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(6 * P, -20 * P, waveRadius * 1.3, 0, Math.PI * 2);
-        ctx.stroke();
-    } else if (isRodThrow || isRodStrike) {
-        // Black Rod Thrust
-        rect(5, -20 + by, 8, 3, cloakMain);
-        rect(13, -21 + by, 3, 4, skin);
-        // Long Chakra Receiver Rod
-        rect(11, -21 + by, 22, 2, rodCol);
-        rect(11, -22 + by, 22, 1, rodGlow);
-        px(33, -21 + by, '#ffffff'); // Tip sparkle
-    } else if (isLauncher) {
-        // Launcher Kick: Rising high leg upward
-        rect(2, -18, 5, 18, cloakMain);
-        rect(3, -22, 4, 6, wrapCol);
-        rect(3, -24, 4, 2, sandalCol);
-        // Upward purple gravity trail
-        ctx.fillStyle = 'rgba(165, 94, 234, 0.6)';
-        ctx.fillRect(2 * P, -35 * P, 6 * P, 30 * P);
-    } else if (isSummon) {
-        // Hand in seal
-        rect(5, -22 + by, 4, 3, cloakMain);
-        rect(7, -24 + by, 3, 5, skin);
-        px(8, -25 + by, rodGlow);
-    } else {
-        // Default Arms at side
-        rect(5, -20 + by, 3, 9, cloakMain);
-        rect(5, -11 + by, 3, 2, skin);
-        px(6, -11 + by, rinneganIris); // Akatsuki Ring
-    }
-
-    ctx.imageSmoothingEnabled = prevSmooth;
-    ctx.restore();
-
-    // --- ASURA PATH AERIAL ASSIST STRIKER RENDERING ---
-    if (fighter.painPathAssistActive && !frozenInDraw) {
-        ctx.save();
-        ctx.imageSmoothingEnabled = false;
-        const opponent = (fighter.id === 1 ? window.p2 : window.p1);
-        const timer = fighter.painPathAssistTimer || 0;
-        // Asura rockets from behind caster towards opponent
-        const startX = fighter.x;
-        const startY = fighter.y - 40;
-        const targetX = opponent ? opponent.x - fighter.facing * 35 : fighter.x + 80;
-        const targetY = opponent ? opponent.y - 15 : fighter.y - 70;
-        const t = Math.max(0, Math.min(1, 1 - (timer / 35)));
-        const ax = startX + (targetX - startX) * t;
-        const ay = startY + (targetY - startY) * t;
-
-        ctx.translate(Math.round(ax), Math.round(ay));
-        ctx.scale(fighter.facing, 1);
-
-        // Rocket Thruster Flames
-        ctx.fillStyle = '#ff793f';
-        ctx.fillRect(-18 * P, -12 * P, 8 * P, 4 * P);
-        ctx.fillStyle = '#00d2ff';
-        ctx.fillRect(-14 * P, -11 * P, 5 * P, 2 * P);
-
-        // Asura Body (Akatsuki Cloak + Mechanical Head)
-        ctx.fillStyle = '#111625';
-        ctx.fillRect(-8 * P, -18 * P, 16 * P, 14 * P);
-        ctx.fillStyle = '#e74c3c';
-        ctx.fillRect(-2 * P, -14 * P, 6 * P, 3 * P);
-
-        // Bald Head with Metal Plate
-        ctx.fillStyle = '#f5c69c';
-        ctx.fillRect(-4 * P, -26 * P, 8 * P, 8 * P);
-        ctx.fillStyle = '#bdc3c7';
-        ctx.fillRect(-5 * P, -27 * P, 10 * P, 3 * P);
-        ctx.fillStyle = '#574b90';
-        ctx.fillRect(0 * P, -24 * P, 3 * P, 2 * P); // Rinnegan
-
-        // Mechanical Blade Arm Thrusting Forward!
-        ctx.fillStyle = '#bdc3c7';
-        ctx.fillRect(8 * P, -15 * P, 18 * P, 4 * P);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(24 * P, -16 * P, 4 * P, 2 * P);
-        ctx.fillStyle = '#ff793f';
-        ctx.fillRect(26 * P, -15 * P, 2 * P, 2 * P);
-
-        ctx.restore();
-    }
-}
-
-// ============================================================================
-//                          PAIN ULTIMATE CUTSCENES
-// ============================================================================
-function drawPainCutscene(progress, caster, target, type) {
-    const W = config.canvasWidth || 1280;
-    const H = config.canvasHeight || 720;
-
-    ctx.save();
-
-    if (type === 'chibaku_tensei') {
-        // ====================================================================
-        //              CHIBAKU TENSEI (ĐỊA BỘC THIÊN TINH)
-        // ====================================================================
-        // Phase 1: 0.0 - 0.25 -> Singularity ignition & dark sky
-        // Phase 2: 0.25 - 0.75 -> Giant planetary sphere forms & crushes target
-        // Phase 3: 0.75 - 1.0  -> Colossal supernova planetary explosion!
-
-        const coreX = W * 0.5;
-        const coreY = H * 0.32;
-
-        // Dark atmospheric twilight vignette
-        ctx.fillStyle = 'rgba(8, 6, 18, 0.88)';
-        ctx.fillRect(0, 0, W, H);
-
-        if (progress < 0.25) {
-            const p1 = progress / 0.25;
-            // Banner text
-            ctx.font = 'bold 36px "Segoe UI", sans-serif';
-            ctx.fillStyle = '#ff793f';
-            ctx.textAlign = 'center';
-            ctx.shadowColor = '#a55eea';
-            ctx.shadowBlur = 18;
-            ctx.fillText('CHIBAKU TENSEI (ĐỊA BỘC THIÊN TINH)', W * 0.5, H * 0.16);
-            ctx.shadowBlur = 0;
-
-            // Singularity glowing black core with purple arcs
-            const r = 6 + p1 * 26;
-            ctx.fillStyle = '#0a0a10';
-            ctx.beginPath();
-            ctx.arc(coreX, coreY, r, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.strokeStyle = '#a55eea';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-
-            // Crackling lightning arcs
-            for (let i = 0; i < 6; i++) {
-                const ang = Math.random() * Math.PI * 2;
-                const len = r + 15 + Math.random() * 45;
-                ctx.strokeStyle = (i % 2 === 0) ? '#ff793f' : '#ffffff';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(coreX, coreY);
-                ctx.lineTo(coreX + Math.cos(ang) * len, coreY + Math.sin(ang) * len);
-                ctx.stroke();
-            }
-        } else if (progress < 0.75) {
-            const p2 = (progress - 0.25) / 0.5; // 0 to 1
-            // Target fighter sucked upward toward core
-            if (target) {
-                target.x = coreX + (Math.sin(progress * 30) * 12);
-                target.y = coreY + (1 - p2) * 180 + (Math.cos(progress * 25) * 8);
-                target.velX = 0;
-                target.velY = 0;
-            }
-
-            // Growing boulder sphere
-            const maxRadius = 40 + p2 * 85;
-            // Gravitational suction rays
-            ctx.strokeStyle = 'rgba(165, 94, 234, 0.35)';
-            ctx.lineWidth = 2;
-            for (let a = 0; a < 14; a++) {
-                const ang = (a / 14) * Math.PI * 2 + progress * 4;
-                ctx.beginPath();
-                ctx.moveTo(coreX + Math.cos(ang) * (maxRadius + 180), coreY + Math.sin(ang) * (maxRadius + 180));
-                ctx.lineTo(coreX + Math.cos(ang) * maxRadius, coreY + Math.sin(ang) * maxRadius);
-                ctx.stroke();
-            }
-
-            // Orbiting / collapsing rock boulders
-            for (let i = 0; i < 36; i++) {
-                const dist = maxRadius * (0.8 + 0.6 * ((i * 17) % 10) / 10);
-                const rot = progress * 6 + (i * 0.3);
-                const rx = coreX + Math.cos(rot) * dist;
-                const ry = coreY + Math.sin(rot) * (dist * 0.75);
-                const rSize = 8 + (i % 6) * 4;
-                ctx.fillStyle = (i % 3 === 0) ? '#4b4b4b' : ((i % 3 === 1) ? '#2f3542' : '#747d8c');
-                ctx.fillRect(rx - rSize * 0.5, ry - rSize * 0.5, rSize, rSize);
-            }
-
-            // Main Core Planetary Body
-            const grad = ctx.createRadialGradient(coreX, coreY, maxRadius * 0.2, coreX, coreY, maxRadius);
-            grad.addColorStop(0, '#0a0a10');
-            grad.addColorStop(0.65, '#2f3542');
-            grad.addColorStop(0.9, '#57606f');
-            grad.addColorStop(1.0, '#a55eea');
-            ctx.fillStyle = grad;
-            ctx.beginPath();
-            ctx.arc(coreX, coreY, maxRadius, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Craggy surface fissures with purple glow
-            ctx.strokeStyle = '#a55eea';
-            ctx.lineWidth = 2.5;
-            for (let k = 0; k < 8; k++) {
-                const kang = (k / 8) * Math.PI * 2;
-                ctx.beginPath();
-                ctx.moveTo(coreX + Math.cos(kang) * (maxRadius * 0.3), coreY + Math.sin(kang) * (maxRadius * 0.3));
-                ctx.lineTo(coreX + Math.cos(kang + 0.3) * maxRadius, coreY + Math.sin(kang + 0.3) * maxRadius);
-                ctx.stroke();
-            }
-
-            // Title Callout
-            ctx.font = 'bold 32px "Segoe UI", sans-serif';
-            ctx.fillStyle = '#ffffff';
-            ctx.textAlign = 'center';
-            ctx.fillText('ĐỊA BỘC THIÊN TINH - GOM TỤ!', W * 0.5, H * 0.88);
-        } else {
-            // DETONATION SUPERNOVA!
-            const p3 = (progress - 0.75) / 0.25; // 0 to 1
-            const boomRadius = 90 + p3 * 650;
-
-            // Flash overlay
-            ctx.fillStyle = `rgba(255, 121, 63, ${Math.max(0, 0.7 - p3 * 0.6)})`;
-            ctx.fillRect(0, 0, W, H);
-
-            // Expanding Shockwaves
-            ctx.strokeStyle = `rgba(255, 255, 255, ${Math.max(0, 1 - p3)})`;
-            ctx.lineWidth = 6;
-            ctx.beginPath();
-            ctx.arc(coreX, coreY, boomRadius, 0, Math.PI * 2);
-            ctx.stroke();
-
-            ctx.strokeStyle = `rgba(165, 94, 234, ${Math.max(0, 0.9 - p3)})`;
-            ctx.lineWidth = 12;
-            ctx.beginPath();
-            ctx.arc(coreX, coreY, boomRadius * 0.8, 0, Math.PI * 2);
-            ctx.stroke();
-
-            // Exploding fiery rock debris raining down
-            for (let j = 0; j < 45; j++) {
-                const jAng = (j / 45) * Math.PI * 2;
-                const jDist = boomRadius * (0.4 + (j % 5) * 0.15);
-                const jx = coreX + Math.cos(jAng) * jDist;
-                const jy = coreY + Math.sin(jAng) * jDist + p3 * 180;
-                ctx.fillStyle = (j % 2 === 0) ? '#ff793f' : '#ff4757';
-                ctx.fillRect(jx, jy, 12, 12);
-            }
-
-            // Target crashes down
-            if (target) {
-                target.y = Math.min(config.groundY, coreY + p3 * 400);
-            }
-
-            // Final Title Callout
-            ctx.font = 'bold 44px "Segoe UI", sans-serif';
-            ctx.fillStyle = '#ff793f';
-            ctx.textAlign = 'center';
-            ctx.shadowColor = '#000000';
-            ctx.shadowBlur = 12;
-            ctx.fillText('CHIBAKU TENSEI BỘC PHÁ!', W * 0.5, H * 0.5);
-            ctx.shadowBlur = 0;
-        }
-    } else {
-        // ====================================================================
-        //     SIX PATHS OF PAIN & BANSHŌ TEN'IN (VẠN TƯỢNG THIÊN DẪN - LỤC ĐẠO)
-        // ====================================================================
-        // Phase 1: 0.0 - 0.28 -> Banshō Ten'in: Suction pull & fling to the sky
-        // Phase 2: 0.28 - 0.72 -> Aerial beatdown by other 5 Paths of Pain!
-        // Phase 3: 0.72 - 1.0  -> Tendō dive slam with Giant Black Receiver Rod!
-
-        ctx.fillStyle = 'rgba(8, 8, 16, 0.86)';
-        ctx.fillRect(0, 0, W, H);
-
-        if (progress < 0.28) {
-            const p1 = progress / 0.28;
-            ctx.font = 'bold 36px "Segoe UI", sans-serif';
-            ctx.fillStyle = '#ff793f';
-            ctx.textAlign = 'center';
-            ctx.shadowColor = '#a55eea';
-            ctx.shadowBlur = 18;
-            ctx.fillText("BANSHŌ TEN'IN (VẠN TƯỢNG THIÊN DẪN)", W * 0.5, H * 0.15);
-            ctx.shadowBlur = 0;
-
-            // Gravitational suction beam from caster to target
-            if (caster && target) {
-                const pullX = caster.x + (target.x - caster.x) * (1 - p1 * 0.85);
-                target.x = pullX;
-                target.y = caster.y - 45 - p1 * 120;
-                target.velX = 0;
-                target.velY = 0;
-
-                ctx.strokeStyle = 'rgba(165, 94, 234, 0.75)';
-                ctx.lineWidth = 4;
-                ctx.beginPath();
-                ctx.moveTo(caster.x + caster.facing * 30, caster.y - 45);
-                ctx.lineTo(target.x, target.y);
-                ctx.stroke();
-
-                for (let k = 0; k < 5; k++) {
-                    const sparkT = (p1 * 3 + k * 0.2) % 1;
-                    const sx = target.x + (caster.x - target.x) * sparkT;
-                    const sy = target.y + (caster.y - 45 - target.y) * sparkT;
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(sx - 3, sy - 3, 6, 6);
-                }
-            }
-        } else if (progress < 0.72) {
-            // Aerial Blitz by 5 Paths of Pain
-            const p2 = (progress - 0.28) / 0.44; // 0 to 1
-            const midX = W * 0.5;
-            const midY = H * 0.35;
-            if (target) {
-                target.x = midX;
-                target.y = midY + Math.sin(p2 * 25) * 10;
-                target.velX = 0;
-                target.velY = 0;
-            }
-
-            // Path Sub-phases (5 Paths take turns blitzing across screen)
-            let pathName = '';
-            let pathCol = '#ff793f';
-            let slashStartX = 0, slashStartY = 0, slashEndX = 0, slashEndY = 0;
-
-            if (p2 < 0.2) {
-                pathName = 'TU LA ĐẠO: PHÁO HOẢ TIỄN!';
-                pathCol = '#ff793f';
-                slashStartX = midX - 250; slashStartY = midY - 60;
-                slashEndX = midX + 250; slashEndY = midY + 40;
-            } else if (p2 < 0.4) {
-                pathName = 'SÚC SANH ĐẠO: QUÁI THÚ TẬP KÍCH!';
-                pathCol = '#2ed573';
-                slashStartX = midX + 220; slashStartY = midY - 140;
-                slashEndX = midX - 220; slashEndY = midY + 60;
-            } else if (p2 < 0.6) {
-                pathName = 'NGẠ QUỶ ĐẠO: PHONG ẤN HÚT CHAKRA!';
-                pathCol = '#1e90ff';
-                slashStartX = midX - 180; slashStartY = midY + 120;
-                slashEndX = midX + 180; slashEndY = midY - 80;
-            } else if (p2 < 0.8) {
-                pathName = 'NHÂN GIAN ĐẠO: LINH HỒN ĐOẠT MỆNH!';
-                pathCol = '#a55eea';
-                slashStartX = midX - 240; slashStartY = midY;
-                slashEndX = midX + 240; slashEndY = midY;
-            } else {
-                pathName = 'ĐỊA NGỤC ĐẠO: MINH VƯƠNG PHÁN QUYẾT!';
-                pathCol = '#ff4757';
-                slashStartX = midX; slashStartY = midY - 200;
-                slashEndX = midX; slashEndY = midY + 100;
-            }
-
-            // Slash line through target
-            ctx.strokeStyle = pathCol;
-            ctx.lineWidth = 8;
-            ctx.beginPath();
-            ctx.moveTo(slashStartX, slashStartY);
-            ctx.lineTo(slashEndX, slashEndY);
-            ctx.stroke();
-
-            // Impact sparkle
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.arc(midX, midY, 28, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Subtitle banner
-            ctx.font = 'bold 34px "Segoe UI", sans-serif';
-            ctx.fillStyle = pathCol;
-            ctx.textAlign = 'center';
-            ctx.shadowColor = '#000000';
-            ctx.shadowBlur = 10;
-            ctx.fillText(pathName, W * 0.5, H * 0.85);
-            ctx.shadowBlur = 0;
-        } else {
-            // Tendō dive slam with Giant Black Rod!
-            const p3 = (progress - 0.72) / 0.28; // 0 to 1
-            const slamX = W * 0.5;
-            const groundY = config.groundY || 560;
-            const rodY = (H * 0.1) + p3 * (groundY - H * 0.1);
-
-            if (target) {
-                target.x = slamX;
-                target.y = rodY;
-            }
-
-            // Giant Black Chakra Receiver Rod
-            ctx.fillStyle = '#0a0a10';
-            ctx.fillRect(slamX - 6, rodY - 140, 12, 160);
-            ctx.strokeStyle = '#a55eea';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(slamX - 6, rodY - 140, 12, 160);
-
-            // Ground impact explosion on finish
-            if (p3 > 0.6) {
-                const blastR = (p3 - 0.6) * 450;
-                ctx.fillStyle = `rgba(255, 121, 63, ${1 - p3})`;
-                ctx.beginPath();
-                ctx.arc(slamX, groundY, blastR, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                ctx.arc(slamX, groundY, blastR * 0.7, 0, Math.PI * 2);
-                ctx.stroke();
-            }
-
-            ctx.font = 'bold 42px "Segoe UI", sans-serif';
-            ctx.fillStyle = '#ff793f';
-            ctx.textAlign = 'center';
-            ctx.shadowColor = '#a55eea';
-            ctx.shadowBlur = 20;
-            ctx.fillText('LỤC ĐẠO LUÂN HỒI ĐOẠT MỆNH!', W * 0.5, H * 0.5);
-            ctx.shadowBlur = 0;
-        }
-    }
-
-    ctx.restore();
-}
-
 
         function drawPixelArenaStage(anyWolfActive, wolfColor) {
             const P = 4; // 4x4 screen pixels per background block for authentic 16-bit stage look
@@ -23941,32 +22906,6 @@ function drawPixelMage(fighter, frozenInDraw) {
                     } else {
                         me.attack('slash'); // pickaxe swing
                     }
-                } else if (me.type === 'pain') {
-                    const shinraReady = (me.painShinraCooldown || 0) <= 0;
-                    const rodReady = (me.painRodCooldown || 0) <= 0;
-                    const ultReady = (me.cooldown || 0) <= 0;
-                    const oppLaunched = (me.painLaunchedTimer || 0) > 0;
-
-                    if (oppLaunched) {
-                        if (ultReady && Math.random() < 0.7) {
-                            me.attack('special'); // Chibaku Tensei!
-                        } else {
-                            me.attack('punch');   // Asura Path Aerial Assist (-20%)!
-                        }
-                    } else if (ultReady && dist < 170 && Math.random() < 0.35) {
-                        me.attack('special'); // Banshō Ten'in & Six Paths of Pain!
-                    } else if (dist < 110) {
-                        if (shinraReady && Math.random() < 0.75) {
-                            me.attack('punch'); // Shinra Tensei!
-                        } else if (Math.random() < 0.4) {
-                            me.isBlocking = true;
-                            me.attack('kick'); // Launcher Kick!
-                        } else {
-                            me.attack('punch'); // Black Rod Melee Strike
-                        }
-                    } else if (rodReady && dist > 110 && Math.random() < 0.45) {
-                        me.attack('pain_throw_rod'); // Throw Black Rod
-                    }
                 } else if (me.type === 'deidara') {
                     // Dragon ult when off-cooldown is the headliner. Bug at mid-range. Punch up close.
                     const bugReady = (me.deidaraBugCooldown || 0) === 0;
@@ -24045,7 +22984,7 @@ function drawPixelMage(fighter, frozenInDraw) {
 
         function handleInput() {
             if (!gameState.isStarted) return;
-            if (gameState.domainClashActive || gameState.hooperCutsceneActive || gameState.painCutsceneActive) return; // input locked during cutscenes
+            if (gameState.domainClashActive || gameState.hooperCutsceneActive) return; // input locked during cutscenes
 
             // ── CPU-vs-CPU SYNC: Six Eyes vs Slasher → once-per-match domain clash.
             // Runs BEFORE the timescale guard so the counter keeps ticking even during slow-mo hits.
@@ -24114,7 +23053,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                         if (keys['KeyB']) p1.attack('hooper_ult');
                     } else {
                     if (keys['KeyC']) p1.attack(p1.type === 'gunslinger' ? 'slash' : ((p1.type === 'martial' || p1.type === 'taichi' || p1.type === 'werewolf' || p1.type === 'sixeye' || p1.type === 'saiyan' || p1.type === 'dio' || p1.type === 'raijin' || p1.type === 'phantom' || p1.type === 'zookeeper') ? 'punch' : 'slash'));
-                    if (keys['KeyV']) p1.attack(p1.type === 'phantom' ? 'phantom_speed_boost' : (p1.type === 'miner' ? 'miner_flash' : (p1.type === 'pain' && !keys['KeyS'] ? 'pain_throw_rod' : 'kick')));
+                    if (keys['KeyV']) p1.attack(p1.type === 'phantom' ? 'phantom_speed_boost' : (p1.type === 'miner' ? 'miner_flash' : 'kick'));
                     if (p1.type === 'phantom') {
                         if (keys['KeyB']) {
                             // Hold B to charge phantom blast
@@ -24173,7 +23112,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                         if (keys['KeyL']) p2.attack('hooper_ult');
                     } else {
                     if (keys['KeyJ']) p2.attack(p2.type === 'gunslinger' ? 'slash' : ((p2.type === 'martial' || p2.type === 'taichi' || p2.type === 'werewolf' || p2.type === 'sixeye' || p2.type === 'saiyan' || p2.type === 'raijin' || p2.type === 'dio' || p2.type === 'phantom' || p2.type === 'zookeeper') ? 'punch' : 'slash'));
-                    if (keys['KeyK']) p2.attack(p2.type === 'phantom' ? 'phantom_speed_boost' : (p2.type === 'miner' ? 'miner_flash' : (p2.type === 'pain' && !keys['KeyDown'] ? 'pain_throw_rod' : 'kick')));
+                    if (keys['KeyK']) p2.attack(p2.type === 'phantom' ? 'phantom_speed_boost' : (p2.type === 'miner' ? 'miner_flash' : 'kick'));
                     if (p2.type === 'phantom') {
                         if (keys['KeyL']) {
                             p2.attack('phantom_blast');
@@ -24478,13 +23417,6 @@ function drawPixelMage(fighter, frozenInDraw) {
                         hb.update(); hb.draw();
                         if (!hb.active) gameState.hooperBalls.splice(i, 1);
                     }
-                    if (gameState.painBlackRods) {
-                        for (let i = gameState.painBlackRods.length - 1; i >= 0; i--) {
-                            const rod = gameState.painBlackRods[i];
-                            rod.update(); rod.draw(ctx);
-                            if (!rod.active) gameState.painBlackRods.splice(i, 1);
-                        }
-                    }
                     for (let i = gameState.particles.length - 1; i >= 0; i--) {
                         const p = gameState.particles[i];
                         if (p.color !== '#ffd700' && p.color !== '#bdc3c7') {
@@ -24603,13 +23535,6 @@ function drawPixelMage(fighter, frozenInDraw) {
                         hb.update(); hb.draw();
                         if (!hb.active) gameState.hooperBalls.splice(i, 1);
                     }
-                    if (gameState.painBlackRods) {
-                        for (let i = gameState.painBlackRods.length - 1; i >= 0; i--) {
-                            const rod = gameState.painBlackRods[i];
-                            rod.update(); rod.draw(ctx);
-                            if (!rod.active) gameState.painBlackRods.splice(i, 1);
-                        }
-                    }
                     for (let i = gameState.particles.length - 1; i >= 0; i--) {
                         const p = gameState.particles[i];
                         p.update(); p.draw();
@@ -24685,31 +23610,6 @@ function drawPixelMage(fighter, frozenInDraw) {
                     }
                 }
 
-                // Pain Cutscene (Chibaku Tensei or Six Paths)
-                if (gameState.painCutsceneActive) {
-                    gameState.painCutsceneTimer -= 1;
-                    const progress = 1 - (gameState.painCutsceneTimer / gameState.painCutsceneDuration);
-                    drawPainCutscene(Math.max(0, Math.min(1, progress)), gameState.painCutsceneCaster, gameState.painCutsceneTarget, gameState.painCutsceneType);
-                    if (gameState.painCutsceneTimer <= 0) {
-                        gameState.painCutsceneActive = false;
-                        const caster = gameState.painCutsceneCaster;
-                        const target = gameState.painCutsceneTarget;
-                        if (target && !target.isDead) {
-                            target.health = Math.max(0, target.health - 50); // 50% HP damage
-                            target.isStunned = true;
-                            target.stunTimer = 45;
-                            target.velY = 12;
-                            gameState.shake = 55;
-                            gameState.flashAlpha = 0.7;
-                            gameState.flashColor = '#ff793f';
-                            if (target.health <= 0) {
-                                target.health = 0;
-                                if (caster) triggerWin(caster);
-                            }
-                        }
-                    }
-                }
-
 
 
                 document.getElementById('p1-health').style.width = `${Math.max(0, p1.health)}%`;
@@ -24746,14 +23646,6 @@ function drawPixelMage(fighter, frozenInDraw) {
                 }
                 if (p2.type === 'hooper') {
                     const pct = (p2.hooperVCooldown / p2.hooperVMax) * 100;
-                    document.getElementById('p2-v-cooldown-fill').style.width = `${Math.max(0, Math.min(100, 100 - pct))}%`;
-                }
-                if (p1.type === 'pain') {
-                    const pct = (p1.painShinraCooldown / p1.painShinraMax) * 100;
-                    document.getElementById('p1-v-cooldown-fill').style.width = `${Math.max(0, Math.min(100, 100 - pct))}%`;
-                }
-                if (p2.type === 'pain') {
-                    const pct = (p2.painShinraCooldown / p2.painShinraMax) * 100;
                     document.getElementById('p2-v-cooldown-fill').style.width = `${Math.max(0, Math.min(100, 100 - pct))}%`;
                 }
 
