@@ -5303,6 +5303,80 @@
                 armB = [-3, -16,  2, -14,  4, -18, 1];
                 armF = [ 3, -16,  6, -14,  6, -19, 1];
             }
+            else if (drawAttacking && drawAttackType === 'punch' && isAirborne) {
+                // ── NARUTO STORM 4 STYLE 4-HIT AERIAL COMBO ANIMATIONS (DISTINCT FROM GROUND) ──
+                const airStep = Math.min(4, Math.max(1, fighter.brawlerAirStep || fighter.airComboCount || 1));
+                expr = 'shout';
+                if (airStep === 1) {
+                    // AIR HIT 1: FLYING TIGER KNEE DRIVE (Đòn 1: Lên Gối Bay Trên Không - 0% Hất)
+                    if (progress < 0.25) {
+                        bodyX = -1; bodyY = -1; torsoLean = 0;
+                        headX = 0; headY = -25;
+                        legB = [-3, -11, -7, -7, -9, -3];
+                        legF = [ 2, -11,  5, -13,  3, -8];
+                        armB = [-3, -19, -6, -15, -4, -14, 1];
+                        armF = [ 2, -19,  4, -15,  5, -16, 1];
+                    } else {
+                        bodyX = 3; bodyY = -3; torsoLean = 2;
+                        headX = 3; headY = -26;
+                        legB = [-3, -12, -9, -8, -13, -3];
+                        legF = [ 4, -13, 14, -19,  7, -12]; // Sharp flying knee thrust!
+                        armB = [-3, -20, -8, -16, -6, -14, 1];
+                        armF = [ 2, -20, -2, -15,  1, -13, 1];
+                    }
+                } else if (airStep === 2) {
+                    // AIR HIT 2: INVERTED WHIP / BICYCLE KICK (Đòn 2: Đá Xoay Ngược Trên Không - 20% Hất)
+                    if (progress < 0.25) {
+                        bodyX = 0; bodyY = -2; torsoLean = -1;
+                        headX = -1; headY = -25;
+                        legB = [-2, -11, -4, -7, -3, -3];
+                        legF = [ 2, -12,  7, -17,  5, -13];
+                        armB = [-3, -19, -6, -16, -7, -15, 1];
+                        armF = [ 2, -19,  5, -16,  7, -15, 1];
+                    } else {
+                        bodyX = -2; bodyY = -4; torsoLean = -3;
+                        headX = -3; headY = -26;
+                        legB = [-2, -13, -6, -9, -4, -4];
+                        legF = [ 2, -14, 11, -22, 19, -27]; // High inverted bicycle whip kick!
+                        armB = [-4, -19, -9, -18, -12, -15, 1];
+                        armF = [ 1, -19,  6, -16,  9, -14, 1];
+                    }
+                } else if (airStep === 3) {
+                    // AIR HIT 3: AERIAL TWIN-DRAGON DOUBLE PALM/GAUNTLET BLAST (Đòn 3: Song Chưởng Xung Kích - 60% Hất)
+                    if (progress < 0.25) {
+                        bodyX = -2; bodyY = -2; torsoLean = -1;
+                        headX = -1; headY = -25;
+                        legB = [-3, -11, -6, -7, -7, -3];
+                        legF = [ 2, -11, -1, -7, -3, -3];
+                        armB = [-4, -19, -7, -16, -5, -16, 1];
+                        armF = [ 1, -18, -3, -15, -2, -15, 1];
+                    } else {
+                        bodyX = 4; bodyY = -2; torsoLean = 3;
+                        headX = 4; headY = -24;
+                        legB = [-3, -11, -9, -7, -12, -4];
+                        legF = [ 1, -11, -4, -6, -7, -2];
+                        armB = [ 4, -20, 11, -21, 17, -21, 2]; // Upper oversized twin gauntlet!
+                        armF = [ 5, -16, 12, -15, 18, -15, 2]; // Lower oversized twin gauntlet!
+                    }
+                } else {
+                    // AIR HIT 4: STORM 4 METEOR AXE HEEL DROP / SLEDGEHAMMER FINISHER (Đòn 4: Bổ Gót Trời Giáng)
+                    if (progress < 0.30) {
+                        bodyX = -1; bodyY = -5; torsoLean = -2;
+                        headX = -2; headY = -28;
+                        legB = [-3, -13, -6, -9, -5, -4];
+                        legF = [ 2, -14,  7, -24, 10, -33]; // Leg raised high overhead!
+                        armB = [-3, -21,  2, -26,  4, -31, 2];
+                        armF = [ 3, -21,  6, -27,  8, -32, 2];
+                    } else {
+                        bodyX = 4; bodyY = 1; torsoLean = 3;
+                        headX = 4; headY = -21;
+                        legB = [-3, -9, -8, -5, -11, -2];
+                        legF = [ 4, -10, 12, -12, 19, -6]; // Crushing downward axe heel drop!
+                        armB = [ 3, -17,  9, -14, 14, -10, 2];
+                        armF = [ 5, -17, 11, -13, 16, -9, 2];
+                    }
+                }
+            }
             else if (drawAttacking && drawAttackType === 'punch') {
                 const comboStep = (fighter.brawlerComboStep || 0) % 3;
                 expr = 'shout';
@@ -5537,7 +5611,7 @@
 
             // ── 1) BACK ARM & BACK LEG ──
             drawLeg(legB, true);
-            const crossPunchActive = drawAttacking && drawAttackType === 'punch' && ((fighter.brawlerComboStep || 0) % 3 === 2);
+            const crossPunchActive = drawAttacking && drawAttackType === 'punch' && !isAirborne && ((fighter.brawlerComboStep || 0) % 3 === 2);
             if (!crossPunchActive) {
                 drawArm(armB, true);
             }
@@ -5620,6 +5694,30 @@
                 drawArm(armB, false);
             } else {
                 drawArm(armF, false);
+            }
+
+            // 16-Bit Pixel Martial Energy Arcs for Storm 4 4-Hit Air Combo
+            if (drawAttacking && drawAttackType === 'punch' && isAirborne && progress >= 0.25) {
+                const airStep = Math.min(4, Math.max(1, fighter.brawlerAirStep || fighter.airComboCount || 1));
+                if (airStep === 1) {
+                    // Flying Knee Impact Arrowhead
+                    px(14, -21, 3, 5, accMain);
+                    px(16, -20, 2, 3, '#ffffff');
+                } else if (airStep === 2) {
+                    // Inverted Whip Kick Crescent Trail
+                    px(17, -29, 4, 6, accMain);
+                    px(19, -28, 2, 4, '#ffffff');
+                    px(14, -24, 3, 2, accLight);
+                } else if (airStep === 3) {
+                    // Twin-Dragon Double Gauntlet Shockwave Rings
+                    px(20, -23, 2, 11, accLight);
+                    px(22, -21, 2, 7, '#ffffff');
+                } else {
+                    // Meteor Axe Heel Drop Golden-Emerald Slash Arc
+                    px(18, -28, 3, 22, '#f1c40f');
+                    px(20, -24, 2, 16, '#ffffff');
+                    px(16, -12, 3, 7, accMain);
+                }
             }
 
             // ── 5) STATE-SPECIFIC PIXEL OVERLAYS (Aura, Block Shield, Black Flash Sparks) ──
@@ -13090,6 +13188,10 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     this.stunTimer = 0;
                 }
                 this.hooperAnkleFallTimer = 0;          // Visual knockdown timer when ankle-broken by Hooper
+                this.airComboCount = 0;                 // Storm 4 Air Combo hit count (max 4 per jump)
+                this.airComboEnded = false;             // True if air combo ended early due to knock-away or 4th hit
+                this.brawlerAirStep = 0;                // 1..4 distinct air animation step for Brawler
+                this.lastAirHitKnockedAway = false;     // Whether the last air combo hit triggered knock-away
 
                             }
 
@@ -14615,7 +14717,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 if (this.isStunned) {
                     this.stunTimer -= (1 * config.timeScale);
-                    this.velX = 0;
+                    this.x += this.velX * config.timeScale;
+                    this.velX *= 0.88;
+                    this.x = Math.max(30, Math.min(canvas.width - 30, this.x));
                     if (this.stunTimer <= 0) {
                         this.isStunned = false;
                     }
@@ -14834,6 +14938,15 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
 
                 const wasAirborne = this.y < config.groundY - 1;
+                // Storm 4 Air Combo Hover: during active Brawler air combo, maintain airborne suspension
+                if (this.type === 'martial' && (this.airComboCount || 0) > 0 && !this.airComboEnded && this.y < config.groundY - 15) {
+                    if (this.attacking && this.attackType === 'punch') {
+                        this.velY = Math.min(this.velY, 0.2);
+                        if (opponent && !opponent.isDead && opponent.isStunned && opponent.stunTimer > 0) {
+                            opponent.velY = Math.min(opponent.velY, 0.2);
+                        }
+                    }
+                }
                 this.y += this.velY * config.timeScale;
                 if (this.y < config.groundY) this.velY += config.gravity * config.timeScale;
                 else {
@@ -14844,6 +14957,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x + 10, config.groundY, -1, dustCol));
                     }
                     this.y = config.groundY; this.velY = 0; this.jumpCount = 0;
+                    this.airComboCount = 0;
+                    this.airComboEnded = false;
+                    this.brawlerAirStep = 0;
                 }
 
                 if (this.type === 'sixeye') {
@@ -15504,9 +15620,24 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             }
 
             jump() {
+                // Allow jump-canceling launcher_kick recovery after hitting opponent (Storm 4 style air chase!)
+                if (this.attacking && this.attackType === 'launcher_kick' && this.hitOnce) {
+                    this.attacking = false;
+                    this.attackTimer = 0;
+                    this.internalCooldown = 0;
+                }
                 if (this.isDead || this.isBlocking || this.attacking || this.isCharging || this.isParrying || this.isTransforming || this.isBeingPulled || this.isStunned || this.isSaiyanDodging) return;
                 if (this.jumpCount < this.maxJumps) {
-                    this.velY = config.jumpPower;
+                    const opponent = (typeof p1 !== 'undefined' && this.id === p1.id) ? (typeof p2 !== 'undefined' ? p2 : null) : (typeof p1 !== 'undefined' ? p1 : null);
+                    const chasingLaunched = opponent && !opponent.isDead && opponent.y < config.groundY - 20 && Math.abs(opponent.x - this.x) < 180;
+                    this.velY = chasingLaunched ? -14.5 : config.jumpPower;
+                    if (chasingLaunched) {
+                        this.facing = opponent.x >= this.x ? 1 : -1;
+                        const gap = Math.abs(opponent.x - this.x);
+                        if (gap > 38) {
+                            this.x += this.facing * Math.min(gap - 35, 35);
+                        }
+                    }
                     this.jumpCount++;
                     const isP1Taichi = (this.type === 'taichi') && (this.id === 1 || this === window.p1 || this.color === '#ffffff');
                     const jumpCol = (this.type === 'taichi') ? (isP1Taichi ? '#ffffff' : '#1e2433') : this.color;
@@ -16384,6 +16515,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     return;
                 }
 
+                // Storm 4 Air Combo Cap: Max 4 normal attacks in mid-air (or stops early if opponent was knocked away)
+                if (this.type === 'martial' && type === 'punch' && this.y < config.groundY - 10) {
+                    if ((this.airComboCount || 0) >= 4 || this.airComboEnded) {
+                        return;
+                    }
+                }
                 this.attacking = true; this.attackType = type; this.hitOnce = false;
                 if (type === 'slash') {
                     if(this.type === 'scythe') {
@@ -16447,15 +16584,52 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             const tCol = isP1 ? '#ffffff' : '#050505';
                             gameState.pixelEffects.push(new PixelVFX('taichi_palm_wave', this.x + 32 * this.facing, this.y - 48, this.facing, tCol, { isP1, comboStep: this.taichiComboStep }));
                         } else if (this.type === 'martial') {
-                            this.brawlerComboStep = ((this.brawlerComboStep === undefined ? -1 : this.brawlerComboStep) + 1) % 3;
-                            // Step forward into striking range to stay locked on target
-                            const gap = Math.abs(opponent.x - this.x);
-                            if (gap > 45) {
-                                this.x += this.facing * Math.min(gap - 38, 22);
+                            const isAirborneAttack = this.y < config.groundY - 10;
+                            if (isAirborneAttack) {
+                                this.airComboCount = (this.airComboCount || 0) + 1;
+                                this.brawlerAirStep = this.airComboCount; // 1, 2, 3, or 4 (distinct air animations!)
+                                this.attackMax = 11;
+                                this.attackTimer = 11;
+                                this.internalCooldown = 13; // Fast Storm-4 aerial combo cadence
+                                // Storm 4 Magnetic Air Lock-on: keep attacker & opponent aligned in mid-air
+                                if (opponent && !opponent.isDead && !this.airComboEnded) {
+                                    this.facing = opponent.x >= this.x ? 1 : -1;
+                                    const gap = Math.abs(opponent.x - this.x);
+                                    if (gap > 38) {
+                                        this.x = opponent.x - this.facing * 35;
+                                    }
+                                    if (opponent.y < config.groundY - 10) {
+                                        this.y = opponent.y;
+                                    }
+                                    this.velY = -1.5;
+                                    opponent.velY = -1.5;
+                                } else {
+                                    this.velY = -1.5;
+                                }
+                                const aStep = this.brawlerAirStep;
+                                if (aStep === 1) {
+                                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 24 * this.facing, this.y - 38, this.facing, this.color));
+                                } else if (aStep === 2) {
+                                    gameState.pixelEffects.push(new PixelVFX('gale_kick', this.x + 28 * this.facing, this.y - 48, this.facing, this.color));
+                                } else if (aStep === 3) {
+                                    gameState.pixelEffects.push(new PixelVFX('fist_smear', this.x + 36 * this.facing, this.y - 46, this.facing, this.color, { comboStep: 2 }));
+                                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 30 * this.facing, this.y - 46, this.facing, '#ffffff'));
+                                } else {
+                                    gameState.pixelEffects.push(new PixelVFX('gale_kick', this.x + 32 * this.facing, this.y - 52, this.facing, '#f1c40f'));
+                                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 28 * this.facing, this.y - 44, this.facing, this.color));
+                                }
+                            } else {
+                                this.brawlerAirStep = 0;
+                                this.brawlerComboStep = ((this.brawlerComboStep === undefined ? -1 : this.brawlerComboStep) + 1) % 3;
+                                // Step forward into striking range to stay locked on target
+                                const gap = Math.abs(opponent.x - this.x);
+                                if (gap > 45) {
+                                    this.x += this.facing * Math.min(gap - 38, 22);
+                                }
+                                const cStep = this.brawlerComboStep;
+                                const smearY = cStep === 1 ? (this.y - 54) : (this.y - 50);
+                                gameState.pixelEffects.push(new PixelVFX('fist_smear', this.x + 36 * this.facing, smearY, this.facing, this.color, { comboStep: cStep }));
                             }
-                            const cStep = this.brawlerComboStep;
-                            const smearY = cStep === 1 ? (this.y - 54) : (this.y - 50);
-                            gameState.pixelEffects.push(new PixelVFX('fist_smear', this.x + 36 * this.facing, smearY, this.facing, this.color, { comboStep: cStep }));
                         } else if (this.type === 'phantom') {
                             this.phantomComboStep = ((this.phantomComboStep === undefined ? -1 : this.phantomComboStep) + 1) % 3;
                             gameState.pixelEffects.push(new PixelVFX('phantom_claw_slash', this.x + 34 * this.facing, this.y - 48, this.facing, this.color, { comboStep: this.phantomComboStep }));
@@ -16826,22 +17000,73 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         const isNormalAirAttack = (this.attackType === 'punch' || this.attackType === 'slash' || this.attackType === 'multithrust' || this.attackType === 'deidara_punch');
 
                         if (isAirHit && isNormalAirAttack && this.attackType !== 'launcher_kick') {
-                            // Aerial Normal Attack landed!
-                            // Stun 0.2s (12 frames @ 60fps)
-                            opponent.isStunned = true;
-                            opponent.stunTimer = 12;
+                            if (this.type === 'martial' && this.attackType === 'punch' && this.y < config.groundY - 10) {
+                                // ── NARUTO STORM 4 AIR COMBO MECHANIC (BRAWLER 4-HIT AIR CHAIN) ──
+                                const hitNum = Math.min(4, Math.max(1, this.brawlerAirStep || this.airComboCount || 1));
+                                // Knock-away probabilities:
+                                // Hit 1: 0% (chắc chắn không hất)
+                                // Hit 2: 20%
+                                // Hit 3: 60%
+                                // Hit 4: 100% (4th and final hit finishes the 4-hit air combo and blasts opponent away)
+                                let knockChance = 0;
+                                if (hitNum === 1) knockChance = 0.0;
+                                else if (hitNum === 2) knockChance = 0.20;
+                                else if (hitNum === 3) knockChance = 0.60;
+                                else knockChance = 1.00;
 
-                            // Aerial juggle float suspension & spacing
-                            opponent.velY = Math.min(opponent.velY, -2.2);
-                            opponent.velX = this.facing * 1.5;
-                            if (this.velY > 0) this.velY = 0.5;
+                                const roll = (typeof window._testAirKnockRoll === 'number') ? window._testAirKnockRoll : Math.random();
+                                const knockedAway = (hitNum === 1) ? false : (roll < knockChance);
+                                this.lastAirHitKnockedAway = knockedAway;
 
-                            // Thay đổi hiệu ứng đánh thường: Crisp glowing air slash cross + air ring + impact burst
-                            gameState.pixelEffects.push(new PixelVFX('air_ring', opponent.x, opponent.y - 35, this.facing, '#ffffff'));
-                            gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 35, this.facing, this.color, { maxFrames: 14, P: 3 }));
-                            gameState.slashes.push(new SlashEffect(opponent.x - 22 * this.facing, opponent.y - 50, opponent.x + 22 * this.facing, opponent.y - 18, '#ffffff', 4, true, false));
-                            gameState.slashes.push(new SlashEffect(opponent.x - 22 * this.facing, opponent.y - 18, opponent.x + 22 * this.facing, opponent.y - 50, this.color, 4, true, false));
-                            gameState.shake = Math.max(gameState.shake || 0, 8);
+                                if (knockedAway) {
+                                    // Hất văng đối thủ đi và kết thúc chuỗi đánh trên không!
+                                    this.airComboEnded = true;
+                                    opponent.isStunned = true;
+                                    opponent.stunTimer = 26;
+                                    opponent.velX = this.facing * (hitNum === 4 ? 22 : 19);
+                                    opponent.velY = (hitNum === 4) ? 7 : -5.5;
+                                    this.velY = -2.5;
+
+                                    gameState.pixelEffects.push(new PixelVFX('air_ring', opponent.x, opponent.y - 35, this.facing, '#f1c40f'));
+                                    gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 35, this.facing, this.color, { maxFrames: 20, P: 4 }));
+                                    gameState.slashes.push(new SlashEffect(opponent.x - 28 * this.facing, opponent.y - 56, opponent.x + 28 * this.facing, opponent.y - 14, '#ffffff', 5, true, true));
+                                    gameState.slashes.push(new SlashEffect(opponent.x - 28 * this.facing, opponent.y - 14, opponent.x + 28 * this.facing, opponent.y - 56, '#f1c40f', 5, true, true));
+                                    gameState.shake = Math.max(gameState.shake || 0, hitNum === 4 ? 22 : 16);
+                                    announceText(hitNum === 4 ? 'AIR FINISHER (4/4)!' : `AIR KNOCKBACK (${hitNum}/4)!`, '#f1c40f');
+                                } else {
+                                    // Giữ đối thủ trên không trước mặt để nối tiếp đòn tiếp theo (Naruto Storm 4 air hover)!
+                                    opponent.isStunned = true;
+                                    opponent.stunTimer = 24;
+                                    // Lock elevations together in mid-air
+                                    opponent.y = this.y;
+                                    opponent.velY = -1.5;
+                                    opponent.velX = this.facing * 0.5;
+                                    this.velY = -1.5;
+
+                                    gameState.pixelEffects.push(new PixelVFX('air_ring', opponent.x, opponent.y - 35, this.facing, '#ffffff'));
+                                    gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 35, this.facing, this.color, { maxFrames: 14, P: 3 }));
+                                    gameState.slashes.push(new SlashEffect(opponent.x - 22 * this.facing, opponent.y - 50, opponent.x + 22 * this.facing, opponent.y - 18, '#ffffff', 4, true, false));
+                                    gameState.slashes.push(new SlashEffect(opponent.x - 22 * this.facing, opponent.y - 18, opponent.x + 22 * this.facing, opponent.y - 50, this.color, 4, true, false));
+                                    gameState.shake = Math.max(gameState.shake || 0, 9);
+                                    announceText(`AIR COMBO ${hitNum}/4!`, this.color);
+                                }
+                            } else {
+                                // Aerial Normal Attack landed for other characters: Stun 0.2s (12 frames @ 60fps)
+                                opponent.isStunned = true;
+                                opponent.stunTimer = 12;
+
+                                // Aerial juggle float suspension & spacing
+                                opponent.velY = Math.min(opponent.velY, -2.2);
+                                opponent.velX = this.facing * 1.5;
+                                if (this.velY > 0) this.velY = 0.5;
+
+                                // Thay đổi hiệu ứng đánh thường: Crisp glowing air slash cross + air ring + impact burst
+                                gameState.pixelEffects.push(new PixelVFX('air_ring', opponent.x, opponent.y - 35, this.facing, '#ffffff'));
+                                gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 35, this.facing, this.color, { maxFrames: 14, P: 3 }));
+                                gameState.slashes.push(new SlashEffect(opponent.x - 22 * this.facing, opponent.y - 50, opponent.x + 22 * this.facing, opponent.y - 18, '#ffffff', 4, true, false));
+                                gameState.slashes.push(new SlashEffect(opponent.x - 22 * this.facing, opponent.y - 18, opponent.x + 22 * this.facing, opponent.y - 50, this.color, 4, true, false));
+                                gameState.shake = Math.max(gameState.shake || 0, 8);
+                            }
                         } else if (this.attackType !== 'launcher_kick') {
                         let kb = this.facing * (opponent.isBlocking ? 5 : 14);
                         if (this.attackType === 'multithrust') {
