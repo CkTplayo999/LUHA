@@ -11316,6 +11316,20 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         this.x += this.speed * this.facing * config.timeScale;
                         this.y += this.angleY * config.timeScale;
                     }
+                } else if (this.isFishingHook && this.isTargetedHook && this.targetOpponent && !this.targetOpponent.isDead) {
+                    // Rushes straight to opponent's exact center-chest/face location
+                    const tx = this.targetOpponent.x;
+                    const ty = this.targetOpponent.y - 45;
+                    const dx = tx - this.x;
+                    const dy = ty - this.y;
+                    const dist = Math.hypot(dx, dy) || 1;
+                    this.facing = dx >= 0 ? 1 : -1;
+                    const step = Math.min(dist, (this.hookSpeed || 32) * config.timeScale);
+                    this.x += (dx / dist) * step;
+                    this.y += (dy / dist) * step;
+                    if (Math.floor(this.age) % 2 === 0) {
+                        gameState.pixelEffects.push(new PixelVFX('water_ripple', this.x, config.groundY, this.facing, '#00cec9'));
+                    }
                 } else {
                     this.x += this.speed * this.facing * config.timeScale;
                     this.y += this.angleY * config.timeScale;
@@ -16390,7 +16404,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 }
 
-                if (this.attacking || this.isDead || (this.isBlocking && type !== 'launcher_kick') || this.internalCooldown > 0 || this.isCharging || this.isParrying || this.isTransforming || this.isBeingPulled || this.isStunned || this.isSaiyanDodging || this.phantomChargingB || this.slasherUltActive) return;
+                if (this.attacking || this.isDead || (this.isBlocking && type !== 'launcher_kick' && !(this.type === 'fisherman' && type === 'special')) || this.internalCooldown > 0 || this.isCharging || this.isParrying || this.isTransforming || this.isBeingPulled || this.isStunned || this.isSaiyanDodging || this.phantomChargingB || this.slasherUltActive) return;
                 if ((type === 'dash' || type === 'special' || type === 'saiyan_beam') && this.cooldown > 0) return;
                 if (gameState.timestopActive && this !== gameState.timestopCaster) return;
                 
@@ -16815,9 +16829,29 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                     if (this.type === 'fisherman') {
                         this.cooldown = this.maxCooldown;
-                        this.projectiles.push(new Projectile(this.x + 40*this.facing, this.y-60, this.facing, '#00cec9', this, false, false, false, false, false, false, true));
-                        gameState.pixelEffects.push(new PixelVFX('water_splash_burst', this.x + 40 * this.facing, this.y - 60, this.facing, '#00cec9'));
-                        gameState.pixelEffects.push(new PixelVFX('water_ripple', this.x, config.groundY, this.facing, '#00cec9'));
+                        const isTargeted = this.isBlocking || (typeof keys !== 'undefined' && (this.id === 1 ? !!keys['KeyS'] : !!keys['KeyDown']));
+                        this.isBlocking = false;
+
+                        const startX = this.x + 40 * this.facing;
+                        const startY = this.y - 60;
+                        const hookProj = new Projectile(startX, startY, this.facing, '#00cec9', this, false, false, false, false, false, false, true);
+
+                        if (isTargeted && opponent && !opponent.isDead) {
+                            hookProj.isTargetedHook = true;
+                            hookProj.targetOpponent = opponent;
+                            hookProj.hookSpeed = 32; // Rushes directly to opponent location
+                            announceText('TARGETED HOOK!', '#00cec9');
+                            gameState.shake = 16;
+                            gameState.flashAlpha = 0.35;
+                            gameState.flashColor = '#00cec9';
+                            gameState.pixelEffects.push(new PixelVFX('water_splash_burst', startX, startY, this.facing, '#00cec9', { maxFrames: 24, P: 4 }));
+                        } else {
+                            announceText('HOOK CAST!', '#00cec9');
+                            gameState.pixelEffects.push(new PixelVFX('water_splash_burst', startX, startY, this.facing, '#00cec9'));
+                        }
+
+                        this.projectiles.push(hookProj);
+                        gameState.pixelEffects.push(new PixelVFX('water_ripple', startX, config.groundY, this.facing, '#00cec9'));
                         return;
                     }
                     if (this.type === 'swapper') {
@@ -19486,6 +19520,9 @@ function drawPixelPain(fighter, frozenInDraw) {
     const rinneganIris = isP1 ? '#a55eea' : '#7d5fff';
     const plateMetal   = '#bdc3c7';
     const plateCloth   = '#2f3542';
+    const headbandSlash = '#090b10';
+    const piercing      = '#1e272e';
+    const rinneganCenter = '#090b10';
     const cloakMain    = isP1 ? '#111625' : '#181226';
     const cloakShade   = '#090d17';
     const collarLining = isP1 ? '#c0392b' : '#88102a';
