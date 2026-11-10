@@ -5303,7 +5303,7 @@
                 armB = [-3, -16,  2, -14,  4, -18, 1];
                 armF = [ 3, -16,  6, -14,  6, -19, 1];
             }
-            else if (drawAttacking && drawAttackType === 'punch' && isAirborne) {
+            else if (drawAttacking && drawAttackType === 'punch' && isAirborne && fighter.brawlerAirStep > 0) {
                 // ── NARUTO STORM 4 STYLE 4-HIT AERIAL COMBO ANIMATIONS (DISTINCT FROM GROUND) ──
                 const airStep = Math.min(4, Math.max(1, fighter.brawlerAirStep || fighter.airComboCount || 1));
                 expr = 'shout';
@@ -5697,7 +5697,7 @@
             }
 
             // 16-Bit Pixel Martial Energy Arcs for Storm 4 4-Hit Air Combo
-            if (drawAttacking && drawAttackType === 'punch' && isAirborne && progress >= 0.25) {
+            if (drawAttacking && drawAttackType === 'punch' && isAirborne && fighter.brawlerAirStep > 0 && progress >= 0.25) {
                 const airStep = Math.min(4, Math.max(1, fighter.brawlerAirStep || fighter.airComboCount || 1));
                 if (airStep === 1) {
                     // Flying Knee Impact Arrowhead
@@ -13193,6 +13193,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.brawlerAirStep = 0;                // 1..4 distinct air animation step for Brawler
                 this.lastAirHitKnockedAway = false;     // Whether the last air combo hit triggered knock-away
                 this.airComboTotalDmg = 0;              // Total air combo damage accumulator (capped at 35% max HP)
+                this.hasLaunchedOpponent = false;       // Only true when THIS fighter personally kicked opponent up with launcher_kick
 
                             }
 
@@ -14939,14 +14940,21 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
 
                 const wasAirborne = this.y < config.groundY - 1;
-                // Storm 4 Air Combo Hover: during active Brawler air combo, maintain airborne suspension
-                if (this.type === 'martial' && (this.airComboCount || 0) > 0 && !this.airComboEnded && this.y < config.groundY - 15) {
+                // Storm 4 Air Combo Hover: during active Brawler air combo, maintain airborne suspension ONLY if opponent was kicked up
+                if (this.type === 'martial' && this.hasLaunchedOpponent && (this.airComboCount || 0) > 0 && !this.airComboEnded && this.y < config.groundY - 15) {
                     if (this.attacking && this.attackType === 'punch') {
                         this.velY = Math.min(this.velY, 0.2);
                         if (opponent && !opponent.isDead && opponent.isStunned && opponent.stunTimer > 0) {
                             opponent.velY = Math.min(opponent.velY, 0.2);
                         }
                     }
+                }
+                if (this.hasLaunchedOpponent && opponent && (((opponent.y >= config.groundY - 1) && opponent.velY >= 0) || opponent.isDead)) {
+                    this.hasLaunchedOpponent = false;
+                    this.airComboEnded = true;
+                }
+                if (this.isStunned || this.isDead) {
+                    this.hasLaunchedOpponent = false;
                 }
                 this.y += this.velY * config.timeScale;
                 if (this.y < config.groundY) this.velY += config.gravity * config.timeScale;
@@ -14958,10 +14966,13 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x + 10, config.groundY, -1, dustCol));
                     }
                     this.y = config.groundY; this.velY = 0; this.jumpCount = 0;
-                    this.airComboCount = 0;
-                    this.airComboEnded = false;
-                    this.brawlerAirStep = 0;
-                    this.airComboTotalDmg = 0;
+                    if (wasAirborne) {
+                        this.airComboCount = 0;
+                        this.airComboEnded = false;
+                        this.brawlerAirStep = 0;
+                        this.airComboTotalDmg = 0;
+                        this.hasLaunchedOpponent = false;
+                    }
                 }
 
                 if (this.type === 'sixeye') {
@@ -15622,16 +15633,17 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             }
 
             jump() {
-                // Allow jump-canceling launcher_kick recovery after hitting opponent (Storm 4 style air chase!)
-                if (this.attacking && this.attackType === 'launcher_kick' && this.hitOnce) {
+                // Allow jump-canceling launcher_kick recovery ONLY after successfully hitting opponent with launcher_kick!
+                if (this.attacking && this.attackType === 'launcher_kick' && this.hitOnce && this.hasLaunchedOpponent) {
                     this.attacking = false;
                     this.attackTimer = 0;
                     this.internalCooldown = 0;
+                    this.isBlocking = false;
                 }
                 if (this.isDead || this.isBlocking || this.attacking || this.isCharging || this.isParrying || this.isTransforming || this.isBeingPulled || this.isStunned || this.isSaiyanDodging) return;
                 if (this.jumpCount < this.maxJumps) {
                     const opponent = (typeof p1 !== 'undefined' && this.id === p1.id) ? (typeof p2 !== 'undefined' ? p2 : null) : (typeof p1 !== 'undefined' ? p1 : null);
-                    const chasingLaunched = opponent && !opponent.isDead && opponent.y < config.groundY - 20 && Math.abs(opponent.x - this.x) < 180;
+                    const chasingLaunched = this.hasLaunchedOpponent && opponent && !opponent.isDead && opponent.y < config.groundY - 20 && Math.abs(opponent.x - this.x) < 220;
                     this.velY = chasingLaunched ? -14.5 : config.jumpPower;
                     if (chasingLaunched) {
                         this.facing = opponent.x >= this.x ? 1 : -1;
@@ -16587,7 +16599,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             gameState.pixelEffects.push(new PixelVFX('taichi_palm_wave', this.x + 32 * this.facing, this.y - 48, this.facing, tCol, { isP1, comboStep: this.taichiComboStep }));
                         } else if (this.type === 'martial') {
                             const isAirborneAttack = this.y < config.groundY - 10;
-                            if (isAirborneAttack) {
+                            // Storm 4 Air Combo ONLY triggers if THIS fighter personally kicked opponent up with launcher_kick!
+                            const canDoStormAirCombo = isAirborneAttack && this.hasLaunchedOpponent && opponent && !opponent.isDead && opponent.y < config.groundY - 10 && !this.airComboEnded;
+                            if (canDoStormAirCombo) {
                                 this.airComboCount = (this.airComboCount || 0) + 1;
                                 if (this.airComboCount === 1) {
                                     this.airComboTotalDmg = 0;
@@ -16624,12 +16638,15 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                                     gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 28 * this.facing, this.y - 44, this.facing, this.color));
                                 }
                             } else {
+                                // Normal ground punch OR standard jump punch (when jumping without kicking opponent up)
                                 this.brawlerAirStep = 0;
                                 this.brawlerComboStep = ((this.brawlerComboStep === undefined ? -1 : this.brawlerComboStep) + 1) % 3;
-                                // Step forward into striking range to stay locked on target
-                                const gap = Math.abs(opponent.x - this.x);
-                                if (gap > 45) {
-                                    this.x += this.facing * Math.min(gap - 38, 22);
+                                if (!isAirborneAttack) {
+                                    // Step forward into striking range ONLY on the ground
+                                    const gap = Math.abs(opponent.x - this.x);
+                                    if (gap > 45) {
+                                        this.x += this.facing * Math.min(gap - 38, 22);
+                                    }
                                 }
                                 const cStep = this.brawlerComboStep;
                                 const smearY = cStep === 1 ? (this.y - 54) : (this.y - 50);
@@ -16927,7 +16944,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         } else {
                             let baseDmg = opponent.isBlocking ? 2 : 8;
                             if (this.type === 'martial') {
-                                const isAirCombo = (this.y < config.groundY - 10 && this.attackType === 'punch');
+                                const isAirCombo = (this.y < config.groundY - 10 && this.attackType === 'punch' && this.hasLaunchedOpponent && this.brawlerAirStep > 0);
                                 if (isAirCombo) {
                                     const hitNum = Math.min(4, Math.max(1, this.brawlerAirStep || this.airComboCount || 1));
                                     // Brawler Storm 4 Air Combo damage scaling:
@@ -16998,6 +17015,13 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             opponent.isStunned = true;
                             opponent.stunTimer = 42; // ~0.7s stun so player can jump and juggle
 
+                            // Flag that this fighter personally launched the opponent into the air
+                            this.hasLaunchedOpponent = true;
+                            this.airComboEnded = false;
+                            this.airComboCount = 0;
+                            this.brawlerAirStep = 0;
+                            this.airComboTotalDmg = 0;
+
                             gameState.shake = 18;
                             gameState.flashAlpha = 0.35;
                             gameState.flashColor = this.color;
@@ -17035,7 +17059,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         const isNormalAirAttack = (this.attackType === 'punch' || this.attackType === 'slash' || this.attackType === 'multithrust' || this.attackType === 'deidara_punch');
 
                         if (isAirHit && isNormalAirAttack && this.attackType !== 'launcher_kick') {
-                            if (this.type === 'martial' && this.attackType === 'punch' && this.y < config.groundY - 10) {
+                            if (this.type === 'martial' && this.attackType === 'punch' && this.y < config.groundY - 10 && this.hasLaunchedOpponent && this.brawlerAirStep > 0) {
                                 // ── NARUTO STORM 4 AIR COMBO MECHANIC (BRAWLER 4-HIT AIR CHAIN) ──
                                 const hitNum = Math.min(4, Math.max(1, this.brawlerAirStep || this.airComboCount || 1));
                                 // Knock-away probabilities:
@@ -17056,6 +17080,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                                 if (knockedAway) {
                                     // Hất văng đối thủ đi và kết thúc chuỗi đánh trên không!
                                     this.airComboEnded = true;
+                                    this.hasLaunchedOpponent = false;
                                     opponent.isStunned = true;
                                     opponent.stunTimer = 26;
                                     opponent.velX = this.facing * (hitNum === 4 ? 22 : 19);
