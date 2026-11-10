@@ -3477,6 +3477,85 @@
                   </svg>`;
               },
               get portrait() { return this.getPortrait(1); }
+            },
+            { id: 'pain', name: 'PAIN', tier: 'special', color: '#ff793f', p2Color: '#a55eea',
+              desc: '★ Lục Đạo Luân Hồi - Tendō Pain! Đôi mắt Rinnegan, phong thái thần linh & cử động pixel 16-bit 60fps mượt mà.',
+              stats: { atk: 5, def: 4, spd: 4, ult: 5 },
+              getPortrait(player) {
+                  return `<svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <!-- Ground Shadow & Repulsion Aura -->
+    <rect x="5" y="36" width="22" height="2" fill="#a55eea" opacity="0.3"/>
+    <rect x="2" y="14" width="2" height="12" fill="#a55eea" opacity="0.4"/>
+    <rect x="28" y="14" width="2" height="12" fill="#a55eea" opacity="0.4"/>
+
+    <!-- Spiky Orange Yahiko Hair (Wild Upward & Backward Peaks) -->
+    <rect x="10" y="2" width="12" height="4" fill="#090b10"/>
+    <rect x="11" y="3" width="10" height="3" fill="#ff793f"/>
+    <rect x="8" y="1" width="4" height="3" fill="#090b10"/>
+    <rect x="9" y="2" width="3" height="2" fill="#ffa86b"/>
+    <rect x="14" y="0" width="4" height="3" fill="#090b10"/>
+    <rect x="15" y="1" width="3" height="2" fill="#ffa86b"/>
+    <rect x="19" y="1" width="4" height="3" fill="#090b10"/>
+    <rect x="20" y="2" width="3" height="2" fill="#ffa86b"/>
+    <rect x="23" y="3" width="3" height="3" fill="#090b10"/>
+    <rect x="23" y="4" width="2" height="2" fill="#d63031"/>
+
+    <!-- Hidden Rain Village Headband (Slate cloth + Metal Plate with Scratched Slash) -->
+    <rect x="9" y="5" width="14" height="3" fill="#090b10"/>
+    <rect x="9" y="5" width="14" height="2" fill="#2f3542"/>
+    <rect x="12" y="5" width="8" height="2" fill="#95a5a6"/>
+    <rect x="13" y="5" width="6" height="1" fill="#bdc3c7"/>
+    <!-- Scratched Rogue Slash through Rain Crest -->
+    <rect x="12" y="6" width="8" height="1" fill="#090b10"/>
+
+    <!-- Pale Face & Ears -->
+    <rect x="10" y="7" width="12" height="6" fill="#090b10"/>
+    <rect x="11" y="7" width="10" height="5" fill="#f5c69c"/>
+    <rect x="11" y="7" width="2" height="5" fill="#c98d63"/>
+    <!-- Ear Chakra Receiver Studs -->
+    <rect x="9" y="8" width="1" height="1" fill="#1e272e"/>
+    <rect x="9" y="10" width="1" height="1" fill="#1e272e"/>
+    <rect x="22" y="8" width="1" height="1" fill="#1e272e"/>
+    <rect x="22" y="10" width="1" height="1" fill="#1e272e"/>
+
+    <!-- Iconic Concentric Ring Rinnegan Eyes -->
+    <rect x="12" y="8" width="3" height="2" fill="#574b90"/>
+    <rect x="13" y="8" width="1" height="2" fill="#a55eea"/>
+    <rect x="13" y="9" width="1" height="1" fill="#090b10"/>
+    <rect x="17" y="8" width="3" height="2" fill="#574b90"/>
+    <rect x="18" y="8" width="1" height="2" fill="#a55eea"/>
+    <rect x="18" y="9" width="1" height="1" fill="#090b10"/>
+
+    <!-- Nose Bridge Chakra Receiver Studs & Chin Piercing -->
+    <rect x="15" y="8" width="2" height="1" fill="#1e272e"/>
+    <rect x="15" y="10" width="2" height="1" fill="#1e272e"/>
+    <rect x="15" y="12" width="2" height="1" fill="#1e272e"/>
+
+    <!-- High Akatsuki Flared Collar (Deep Black with Crimson Inner Lining) -->
+    <rect x="8" y="12" width="16" height="5" fill="#090b10"/>
+    <rect x="9" y="13" width="14" height="3" fill="#111625"/>
+    <rect x="11" y="13" width="10" height="2" fill="#c0392b"/>
+
+    <!-- Akatsuki Cloak Body & Signature Red Cloud with White Border -->
+    <rect x="7" y="16" width="18" height="14" fill="#090b10"/>
+    <rect x="8" y="16" width="16" height="13" fill="#111625"/>
+    <rect x="8" y="16" width="3" height="13" fill="#090d17"/>
+    <!-- Akatsuki Red Cloud Motif -->
+    <rect x="12" y="18" width="8" height="6" fill="#ffffff"/>
+    <rect x="13" y="19" width="6" height="4" fill="#e74c3c"/>
+    <rect x="11" y="20" width="10" height="3" fill="#ffffff"/>
+    <rect x="12" y="20" width="8" height="2" fill="#e74c3c"/>
+
+    <!-- Shinobi Pants & Sandals -->
+    <rect x="10" y="29" width="12" height="6" fill="#090b10"/>
+    <rect x="11" y="29" width="10" height="5" fill="#192030"/>
+    <rect x="11" y="34" width="4" height="3" fill="#ecf0f1"/>
+    <rect x="17" y="34" width="4" height="3" fill="#ecf0f1"/>
+    <rect x="10" y="37" width="5" height="2" fill="#090b10"/>
+    <rect x="17" y="37" width="5" height="2" fill="#090b10"/>
+</svg>`;
+              },
+              get portrait() { return this.getPortrait(1); }
             }
         ];
 
@@ -3519,7 +3598,8 @@
         // Synchronizes portrait art, facing, and team palette for both PLAYER 1 and PLAYER 2.
         function previewCharacter(player, idx) {
             const c = CHARACTERS[idx];
-            const accentCol = (player === 2 && c.p2Color) ? c.p2Color : c.color;
+            // Synchronized with Player 1 (bên xanh): preview accent uses character's iconic color
+            const accentCol = c.color;
             const root = document.getElementById(`p${player}-select`);
             root.style.setProperty('--accent', accentCol);
             root.style.setProperty('--accent-soft', hexToRgba(accentCol, 0.18));
@@ -3559,7 +3639,8 @@
             specialHost.innerHTML = '';
 
             CHARACTERS.forEach((c, i) => {
-                const btnCol = (player === 2 && c.p2Color) ? c.p2Color : c.color;
+                // Synchronized with Player 1 (bên xanh): each character maintains their iconic color on both sides!
+                const btnCol = c.color;
                 const btn = document.createElement('button');
                 btn.className = 'class-btn';
                 btn.dataset.idx = i;
@@ -3759,7 +3840,7 @@
             canvas.style.display = 'block';
             ui.style.display = 'flex';
             
-            const classNames = {martial: 'BRAWLER', sword: 'SWORDSMAN', scythe: 'REAPER', lancer: 'LANCER', swapper: 'SWAPPER', mage: 'MAGE', taichi: 'TAI CHI', shinobi: 'SHINOBI', gunslinger: 'DUELIST', werewolf: 'WEREWOLF', fisherman: 'FISHERMAN', zookeeper: 'ZOOKEEPER', phantom: 'PHANTOM', sixeye: 'SIX EYES', saiyan: 'SAIYAN', dio: 'DIO', raijin: 'INVENTOR', slasher: 'SLASHER', miner: 'MINER', deidara: 'DEIDARA', hooper: 'HOOPER'};
+            const classNames = {martial: 'BRAWLER', sword: 'SWORDSMAN', scythe: 'REAPER', lancer: 'LANCER', swapper: 'SWAPPER', mage: 'MAGE', taichi: 'TAI CHI', shinobi: 'SHINOBI', gunslinger: 'DUELIST', werewolf: 'WEREWOLF', fisherman: 'FISHERMAN', zookeeper: 'ZOOKEEPER', phantom: 'PHANTOM', sixeye: 'SIX EYES', saiyan: 'SAIYAN', dio: 'DIO', raijin: 'INVENTOR', slasher: 'SLASHER', miner: 'MINER', deidara: 'DEIDARA', hooper: 'HOOPER', pain: 'PAIN'};
             document.getElementById('p1-name').innerText = `P1: ${classNames[p1Class]}${isP1CPU ? ' (CPU)' : ''}`;
             document.getElementById('p2-name').innerText = `P2: ${classNames[p2Class]}${isCPUMode ? ' (CPU)' : ''}`;
 
@@ -13287,6 +13368,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     drawPixelTaichi(this, frozenInDraw);
                     return;
                 }
+                if (this.type === 'pain') {
+                    const frozenInDraw = gameState.timestopActive && this !== gameState.timestopCaster;
+                    drawPixelPain(this, frozenInDraw);
+                    return;
+                }
                 if (this.type === 'deidara') {
                     const frozenInDraw = gameState.timestopActive && this !== gameState.timestopCaster;
                     drawPixelDeidara(this, frozenInDraw);
@@ -16469,6 +16555,30 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.pixelEffects.push(new PixelVFX('water_ripple', startX, config.groundY, this.facing, '#00cec9'));
                         return;
                     }
+                    if (this.type === 'pain') {
+                        this.cooldown = this.maxCooldown;
+                        this.attacking = true;
+                        this.attackType = 'punch';
+                        this.attackTimer = 16;
+                        this.attackMax = 16;
+                        announceText('SHINRA TENSEI!', '#a55eea');
+                        gameState.shake = 18;
+                        gameState.flashAlpha = 0.35;
+                        gameState.flashColor = '#a55eea';
+                        // Repel opponent with divine shockwave
+                        if (opponent && !opponent.isDead) {
+                            const dist = Math.hypot(opponent.x - this.x, opponent.y - this.y);
+                            if (dist < 260) {
+                                const pushDir = opponent.x >= this.x ? 1 : -1;
+                                opponent.velX = pushDir * 16;
+                                opponent.velY = -8;
+                                opponent.health = Math.max(0, opponent.health - 18);
+                                opponent.isStunned = true;
+                                opponent.stunTimer = 25;
+                            }
+                        }
+                        return;
+                    }
                     if (this.type === 'swapper') {
                         let tempX = this.x;
                         let tempY = this.y;
@@ -18586,6 +18696,416 @@ function drawHooperCutscene(progress, caster) {
 
 
 // ============ BRAWLER AIR COMBO: SAITAMA-STYLE OMNIDIRECTIONAL BOUNCE CUTSCENE ============
+
+function drawPixelPain(fighter, frozenInDraw) {
+    const P = 3; // 1 logical pixel = 3x3 screen pixels (authentic 16-bit arcade scale)
+    let drawX = fighter.x;
+    let drawY = fighter.y;
+    const baseX = Math.round(drawX / P) * P;
+    const baseY = Math.round(drawY / P) * P;
+    const f = fighter.facing || 1;
+    const timeMs = frozenInDraw ? 0 : Date.now();
+
+    // Player 1 (Yahiko Orange Hair / Obsidian Akatsuki) vs Player 2 (Crimson Void Akatsuki / Amethyst Iris)
+    const isP1 = (fighter.id === 1 || fighter.color === '#ff793f');
+
+    // --- PALETTES ---
+    const out         = '#090b10'; // Deep ink black outline
+    const skin        = '#f5c69c'; // Pale Yahiko skin
+    const skinDark    = '#c98d63'; // Facial shadow
+    const skinLight   = '#ffe3c4'; // Highlight
+
+    // Spiky Hair: Yahiko iconic bright orange
+    const hairMain    = isP1 ? '#ff793f' : '#ff6b4a';
+    const hairDark    = isP1 ? '#d63031' : '#b71540';
+    const hairLight   = isP1 ? '#ffa86b' : '#ff9f43';
+
+    // Rinnegan & Chakra Piercings
+    const rinneIris   = isP1 ? '#a55eea' : '#8854d0';
+    const rinneDark   = '#574b90';
+    const piercing    = '#1e272e'; // Chakra receiver studs (black iron)
+
+    // Hidden Rain Rogue Headband
+    const bandCloth   = '#2f3542';
+    const bandMetal   = '#bdc3c7';
+    const bandMetalShade = '#7f8c8d';
+
+    // Akatsuki Full-Length Cloak
+    const cloakMain   = isP1 ? '#111625' : '#181226';
+    const cloakShade  = isP1 ? '#090d17' : '#0e0b17';
+    const cloakHighlight = isP1 ? '#222b40' : '#281e3d';
+    const collarIn    = '#c0392b'; // Crimson inner lining
+    const cloudRed    = '#e74c3c'; // Akatsuki cloud interior
+    const cloudWhite  = '#ffffff'; // Cloud perimeter border
+
+    // Trousers & Footwear
+    const pantsMain   = '#192030';
+    const wrapMain    = '#ecf0f1';
+    const wrapShade   = '#bdc3c7';
+    const sandalCol   = '#090b10';
+
+    // Aura & Details
+    const nailPolish  = '#e74c3c';
+    const ringCol     = '#8e44ad';
+
+    ctx.save();
+    const prevSmooth = ctx.imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = false;
+
+    const px = (gx, gy, gw, gh, col) => {
+        if (!col || gw <= 0 || gh <= 0) return;
+        ctx.fillStyle = col;
+        if (f === 1) {
+            ctx.fillRect(baseX + Math.round(gx) * P, baseY + Math.round(gy) * P, Math.round(gw) * P, Math.round(gh) * P);
+        } else {
+            ctx.fillRect(baseX - Math.round(gx + gw) * P, baseY + Math.round(gy) * P, Math.round(gw) * P, Math.round(gh) * P);
+        }
+    };
+
+    const drawLimb = (x0, y0, x1, y1, thick, colMain, colShade) => {
+        const steps = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0)));
+        for (let s = 0; s <= steps; s++) {
+            const t = s / steps;
+            const gx = Math.round(x0 + (x1 - x0) * t);
+            const gy = Math.round(y0 + (y1 - y0) * t);
+            px(gx - 1, gy - 1, thick + 2, thick + 2, out);
+        }
+        for (let s = 0; s <= steps; s++) {
+            const t = s / steps;
+            const gx = Math.round(x0 + (x1 - x0) * t);
+            const gy = Math.round(y0 + (y1 - y0) * t);
+            px(gx, gy, thick, thick, colMain);
+            if (colShade && thick >= 2) px(gx, gy, 1, thick, colShade);
+        }
+    };
+
+    // 1) Ground Pixel Shadow
+    if (!fighter.isDead) {
+        const groundBaseY = Math.round(config.groundY / P) * P;
+        const airDist = config.groundY - fighter.y;
+        const airShrink = Math.max(3, 8 - Math.floor(airDist / 22));
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
+        ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
+    }
+
+    // 2) Dead / KO State
+    if (fighter.isDead) {
+        px(-13, -4, 26, 4, out);
+        px(-12, -6, 7, 5, hairMain);
+        px(-11, -5, 5, 2, hairLight);
+        px(-6, -5, 14, 5, cloakMain);
+        px(-6, -3, 14, 2, cloakShade);
+        px(7, -5, 6, 4, pantsMain);
+        px(12, -5, 4, 3, wrapMain);
+        ctx.imageSmoothingEnabled = prevSmooth;
+        ctx.restore();
+        return;
+    }
+
+    // 3) Kinematics & Animation State Machine
+    const drawAttacking = frozenInDraw ? false : fighter.attacking;
+    const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+    const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
+    const isAirborne = fighter.y < config.groundY - 2;
+    const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
+    const isHit = (fighter.hitstun > 0) || fighter.isStunned;
+
+    const idlePhase = Math.sin(timeMs * 0.004);
+    const idleBob = (!isAirborne && !drawAttacking && !isHit && !isRunning) ? Math.round(idlePhase) : 0;
+    const cloakSway = Math.sin(timeMs * 0.006 + (isRunning ? 2.5 : 0.8));
+
+    let bodyY = idleBob;
+    let torsoLean = 0;
+    let headX = 0, headY = -24 + idleBob;
+    let expr = 'normal';
+
+    // Legs: [hipX, hipY, kneeX, kneeY, footX, footY]
+    let legB = [-3, -10, -4, -5, -5, 0];
+    let legF = [ 2, -10,  3, -5,  4, 0];
+
+    // Arms: [shX, shY, elbX, elbY, handX, handY]
+    let armB = [-4, -18, -6, -15, -4, -13];
+    let armF = [ 3, -18,  5, -15,  7, -13];
+
+    let cloakHemOffset = 0;
+    let cloakSpread = 0; // For airborne wing spread
+
+    if (isHit) {
+        torsoLean = -3;
+        headX = -3; headY = -25;
+        bodyY = -1;
+        expr = 'hurt';
+        legB = [-5, -10, -7, -5, -8, 0];
+        legF = [ 1, -10,  1, -5,  2, 0];
+        armB = [-6, -18, -8, -13, -9, -9];
+        armF = [ 1, -18,  3, -13,  4, -10];
+        cloakHemOffset = -3;
+    } else if (fighter.isBlocking) {
+        torsoLean = -1;
+        headX = -1; headY = -24;
+        expr = 'block';
+        legB = [-4, -10, -5, -5, -6, 0];
+        legF = [ 2, -10,  3, -5,  4, 0];
+        // Both palms raised forward in repulsion stance
+        armB = [-3, -18,  0, -17,  4, -17];
+        armF = [ 2, -18,  5, -17,  8, -17];
+        cloakHemOffset = -1;
+    } else if (drawAttacking && drawAttackType === 'punch') {
+        // Divine Palm Thrust (Shinra Tensei stance)
+        expr = 'focus';
+        if (progress < 0.3) {
+            torsoLean = -2;
+            headX = -2; headY = -24;
+            armB = [-4, -18, -6, -15, -7, -13];
+            armF = [ 1, -18, -1, -16,  0, -14];
+            legB = [-4, -10, -5, -5, -6, 0];
+            legF = [ 2, -10,  3, -5,  4, 0];
+        } else if (progress < 0.7) {
+            torsoLean = 3;
+            headX = 2; headY = -23;
+            armB = [-5, -18, -7, -14, -8, -12];
+            armF = [ 4, -18,  9, -17, 15, -17]; // Full divine palm thrust forward!
+            legB = [-5, -10, -7, -5, -8, 0];
+            legF = [ 3, -10,  5, -5,  6, 0];
+            cloakHemOffset = -3;
+        } else {
+            torsoLean = 1;
+            headX = 1; headY = -24;
+            armF = [ 3, -18,  7, -16, 11, -15];
+            armB = [-4, -18, -6, -14, -6, -12];
+        }
+    } else if (drawAttacking && (drawAttackType === 'kick' || drawAttackType === 'launcher_kick')) {
+        // Akatsuki snap kick
+        expr = 'focus';
+        if (progress < 0.35) {
+            torsoLean = -2;
+            headX = -2; headY = -24;
+            legB = [-2, -10, -3, -5, -4, 0];
+            legF = [ 2, -10,  3, -10, 2, -14]; // chambering knee
+            armB = [-4, -18, -6, -15, -6, -13];
+            armF = [ 2, -18,  4, -16,  5, -15];
+        } else if (progress < 0.7) {
+            torsoLean = -3;
+            headX = -3; headY = -24;
+            legB = [-3, -10, -4, -5, -5, 0];
+            legF = [ 2, -10,  7, -13, 14, -16]; // High snap kick!
+            armB = [-5, -18, -8, -14, -9, -11];
+            armF = [ 1, -18, -2, -16, -3, -15];
+            cloakHemOffset = -4;
+        } else {
+            torsoLean = -1;
+            headX = -1; headY = -24;
+            legF = [ 2, -10,  5, -8, 7, -4];
+        }
+    } else if (isAirborne) {
+        // Godly descent / hover pose
+        const vy = fighter.velY || 0;
+        if (vy < -1) {
+            // Ascending: wind presses cloak down
+            torsoLean = 1;
+            headX = 1; headY = -25;
+            legB = [-3, -10, -4, -5, -4, -2];
+            legF = [ 2, -10,  3, -4,  3, -1];
+            armB = [-4, -18, -6, -14, -5, -11];
+            armF = [ 3, -18,  5, -14,  6, -11];
+            cloakHemOffset = -2;
+        } else {
+            // Descending / Floating: arms outstretched regal pose, cloak billows wide
+            torsoLean = 0;
+            headX = 0; headY = -24;
+            legB = [-3, -10, -4, -5, -4, -2];
+            legF = [ 2, -10,  3, -5,  3, -2];
+            armB = [-4, -18, -8, -16, -10, -15];
+            armF = [ 3, -18,  7, -16,   9, -15];
+            cloakSpread = 3;
+        }
+    } else if (isRunning) {
+        // 6-frame dynamic running stride with billowing cloak
+        const runCycle = Math.floor((timeMs / 85) % 6);
+        torsoLean = 2;
+        headX = 2; headY = -24 + (runCycle % 2 === 0 ? 1 : 0);
+        cloakHemOffset = -3 + Math.round(cloakSway * 2);
+
+        switch (runCycle) {
+            case 0:
+                legB = [-2, -10, -5, -5, -7, 0];
+                legF = [ 3, -10,  5, -7,  8, -2];
+                armB = [-3, -18,  0, -15,  4, -13];
+                armF = [ 3, -18, -1, -15, -4, -13];
+                break;
+            case 1:
+                legB = [-2, -10, -4, -5, -5, 0];
+                legF = [ 3, -10,  6, -5,  7, 0];
+                armB = [-3, -18, -2, -15,  1, -13];
+                armF = [ 3, -18,  1, -15, -1, -13];
+                break;
+            case 2:
+                legB = [-2, -10,  0, -6,  3, -2];
+                legF = [ 3, -10,  2, -5,  1, 0];
+                armB = [-3, -18, -4, -15, -6, -13];
+                armF = [ 3, -18,  3, -15,  6, -13];
+                break;
+            case 3:
+                legB = [-2, -10,  4, -7,  7, -2];
+                legF = [ 3, -10, -2, -5, -4, 0];
+                armB = [-3, -18, -3, -15, -5, -13];
+                armF = [ 3, -18,  2, -15,  5, -13];
+                break;
+            case 4:
+                legB = [-2, -10,  5, -5,  6, 0];
+                legF = [ 3, -10, -4, -5, -6, 0];
+                armB = [-3, -18,  1, -15, -1, -13];
+                armF = [ 3, -18, -2, -15,  1, -13];
+                break;
+            case 5:
+                legB = [-2, -10,  2, -5,  1, 0];
+                legF = [ 3, -10, -1, -6,  2, -2];
+                armB = [-3, -18,  3, -15,  5, -13];
+                armF = [ 3, -18, -4, -15, -5, -13];
+                break;
+        }
+    } else {
+        // Idle breathing & gentle cloak ripple
+        torsoLean = 0;
+        cloakHemOffset = Math.round(cloakSway * 1.5);
+    }
+
+    const tx = torsoLean;
+    const ty = bodyY;
+    const hx = headX + torsoLean;
+    const hy = headY;
+
+    // 4) Back Leg & Back Arm
+    drawLimb(legB[0] + tx, legB[1] + ty, legB[2] + tx, legB[3] + ty, 2, pantsMain, out);
+    drawLimb(legB[2] + tx, legB[3] + ty, legB[4] + tx, legB[5], 2, wrapMain, wrapShade);
+    px(legB[4] + tx - 1, legB[5] - 1, 3, 2, sandalCol);
+
+    // Back Sleeve & Hand
+    drawLimb(armB[0] + tx, armB[1] + ty, armB[2] + tx, armB[3] + ty, 3, cloakMain, cloakShade);
+    drawLimb(armB[2] + tx, armB[3] + ty, armB[4] + tx, armB[5] + ty, 2, skin, skinDark);
+    px(armB[4] + tx, armB[5] + ty, 1, 1, nailPolish);
+
+    // 5) Akatsuki Cloak Body & Dynamic Flowing Hem
+    // Upper Torso Cloak
+    px(tx - 5, ty - 19, 10, 10, out);
+    px(tx - 4, ty - 18, 8, 9, cloakMain);
+    px(tx - 4, ty - 18, 3, 9, cloakShade);
+    px(tx + 1, ty - 18, 3, 2, cloakHighlight);
+
+    // Iconic Akatsuki Red Cloud Motif with Crisp White Border
+    px(tx - 2, ty - 15, 6, 4, cloudWhite);
+    px(tx - 3, ty - 14, 2, 2, cloudWhite);
+    px(tx + 3, ty - 14, 2, 2, cloudWhite);
+    px(tx - 1, ty - 14, 4, 2, cloudRed);
+    px(tx, ty - 15, 2, 1, cloudRed);
+
+    // High Standing Collar framing neck and chin (Crimson inner lining)
+    px(tx - 4, ty - 22, 8, 4, out);
+    px(tx - 3, ty - 21, 6, 3, cloakMain);
+    px(tx - 1, ty - 21, 4, 2, collarIn); // Crimson interior
+    px(tx - 4, ty - 22, 2, 3, collarIn); // Flared collar edge
+
+    // Lower Cloak / Flowing Coat Tails (drapes gracefully around legs without obscuring them)
+    const hemX = tx - 4 + cloakHemOffset;
+    if (isRunning) {
+        // Billowing backward coat tails
+        px(hemX - 2, ty - 9, 8, 5, out);
+        px(hemX - 1, ty - 8, 6, 4, cloakMain);
+        px(hemX - 4, ty - 6, 6, 5, out);
+        px(hemX - 3, ty - 5, 4, 4, cloakShade);
+    } else if (cloakSpread > 0) {
+        // Airborne wing flare
+        px(tx - 6, ty - 9, 13, 7, out);
+        px(tx - 5, ty - 8, 11, 6, cloakMain);
+        px(tx - 5, ty - 8, 4, 6, cloakShade);
+        px(tx + 2, ty - 8, 4, 6, cloakMain);
+    } else {
+        // Natural vertical coat drape with central split so legs step through
+        px(tx - 4, ty - 9, 8, 5, out);
+        px(tx - 3, ty - 8, 6, 4, cloakMain);
+        px(tx - 3, ty - 8, 3, 4, cloakShade);
+        // Hem tabs
+        px(tx - 4 + cloakHemOffset, ty - 4, 3, 3, out);
+        px(tx - 3 + cloakHemOffset, ty - 4, 2, 2, cloakShade);
+    }
+
+    // 6) Front Leg
+    drawLimb(legF[0] + tx, legF[1] + ty, legF[2] + tx, legF[3] + ty, 2, pantsMain, out);
+    drawLimb(legF[2] + tx, legF[3] + ty, legF[4] + tx, legF[5], 2, wrapMain, wrapShade);
+    px(legF[4] + tx - 1, legF[5] - 1, 3, 2, sandalCol);
+
+    // 7) Head, Yahiko Spiky Orange Hair, Headband, Rinnegan & Piercings
+    // Head base & skin
+    px(hx - 4, hy - 2, 9, 8, out);
+    px(hx - 3, hy - 1, 7, 6, skin);
+    px(hx - 3, hy - 1, 2, 6, skinDark); // Shadow on rear face
+    px(hx + 1, hy, 3, 2, skinLight);    // Highlight
+
+    // Ear Chakra Receiver Studs (3 black studs along ear)
+    px(hx - 4, hy, 1, 1, piercing);
+    px(hx - 4, hy + 2, 1, 1, piercing);
+    px(hx - 4, hy + 4, 1, 1, piercing);
+
+    // Amegakure (Hidden Rain) Rogue Slashed Headband
+    px(hx - 4, hy - 1, 9, 2, bandCloth);
+    px(hx - 1, hy - 1, 5, 2, bandMetal);
+    px(hx, hy - 1, 3, 1, '#ffffff'); // Polished metal glint
+    px(hx - 1, hy - 1, 5, 1, out);      // Deep horizontal rogue scratch slash!
+
+    // Yahiko's Spiky Vibrant Orange Hair (sharp peaks rising up and back)
+    px(hx - 5, hy - 4, 11, 4, out);
+    px(hx - 4, hy - 3, 9, 3, hairMain);
+    px(hx - 5, hy - 6, 3, 4, hairDark);  // Rear spike tuft
+    px(hx - 2, hy - 7, 4, 5, hairMain);  // Center tall spike
+    px(hx - 1, hy - 8, 2, 3, hairLight); // Peak glint
+    px(hx + 2, hy - 6, 3, 4, hairLight); // Front spike tuft
+
+    // Concentric Rinnegan Eye (Divine purple concentric ripple rings)
+    px(hx, hy + 1, 3, 2, out);
+    px(hx + 1, hy + 1, 2, 2, rinneDark);
+    px(hx + 1, hy + 1, 2, 1, rinneIris); // Purple Rinnegan iris
+    px(hx + 2, hy + 1, 1, 1, out);       // Center pupil dot
+
+    // Nose Bridge Chakra Receiver Studs (distinctive row of piercings)
+    px(hx + 2, hy + 1, 1, 1, piercing);
+    px(hx + 3, hy + 2, 1, 1, piercing);
+
+    // Chin Chakra Receiver Spikes
+    px(hx + 2, hy + 4, 1, 1, piercing);
+    px(hx + 1, hy + 5, 1, 1, piercing);
+
+    // Resolute, emotionless mouth
+    px(hx + 1, hy + 3, 2, 1, skinDark);
+
+    // 8) Wide Front Sleeve & Hand with "Zero" Akatsuki Ring on Thumb & Red Nail Polish
+    drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 3, cloakMain, cloakShade);
+    drawLimb(armF[2] + tx, armF[3] + ty, armF[4] + tx, armF[5] + ty, 2, skin, skinDark);
+    // Red fingernails & thumb ring
+    px(armF[4] + tx, armF[5] + ty, 1, 1, nailPolish);
+    px(armF[4] + tx - 1, armF[5] + ty, 1, 1, ringCol); // "Zero" (Rei 零) purple ring
+
+    // Divine Repulsion Shockwave Ripple on Palm Thrust
+    if (drawAttacking && drawAttackType === 'punch' && progress >= 0.3 && progress <= 0.75) {
+        const hx_palm = armF[4] + tx + 4;
+        const hy_palm = armF[5] + ty;
+        ctx.strokeStyle = rinneIris;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(baseX + hx_palm * P * f, baseY + hy_palm * P, (progress * 28) * P, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(baseX + hx_palm * P * f, baseY + hy_palm * P, (progress * 16) * P, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    ctx.imageSmoothingEnabled = prevSmooth;
+    ctx.restore();
+}
+
+
 function drawPixelDeidara(fighter, frozenInDraw) {
     const P = 3; // 1 logical pixel = 3x3 screen pixels (authentic 16-bit arcade scale)
     let drawX = fighter.x;
