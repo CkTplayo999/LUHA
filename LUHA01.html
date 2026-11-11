@@ -11267,6 +11267,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.active = true; this.owner = owner;
                 this.startX = x; 
                 this.age = 0; 
+                if (this.isDioKnife || this.isFishingHook || (owner && (owner.type === 'gunslinger' || owner.type === 'shinobi'))) {
+                    this.isPhysical = true;
+                }
                 
                 if (this.isMageSpark) {
                     this.life = 45; 
@@ -13144,6 +13147,51 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         this.state = 'rebound';
                         this.velY = -5.5;
                     }
+                } else if (this.state === 'reflected_blast') {
+                    this.x += this.velX * config.timeScale;
+                    this.y += this.velY * config.timeScale;
+                    this.velY += 0.28 * config.timeScale;
+                    this.spin += 0.5 * this.facing * config.timeScale;
+
+                    if (Math.floor(this.age) % 2 === 0) {
+                        gameState.pixelEffects.push(new PixelVFX('ki_spark', this.x - this.facing * 10, this.y + (Math.random() - 0.5) * 8, this.facing, '#ffffff'));
+                    }
+
+                    // Check collision with Hooper (this.owner)
+                    const opp = this.owner;
+                    if (opp && !opp.isDead) {
+                        const dx = Math.abs(opp.x - this.x);
+                        const dy = Math.abs((opp.y - 50) - this.y);
+                        if (dx < 34 && dy < 52) {
+                            const dmg = opp.isBlocking ? 3 : 9;
+                            opp.health = Math.max(0, opp.health - dmg);
+                            opp.velX = this.facing * (opp.isBlocking ? 4 : 8);
+                            opp.velY = -3.5;
+                            gameState.shake = Math.max(gameState.shake || 0, 12);
+                            gameState.pixelEffects.push(new PixelVFX('impact_burst', this.x, this.y, this.facing, '#ff6b00', { maxFrames: 18, P: 4 }));
+                            if (opp.health <= 0) {
+                                opp.health = 0;
+                                triggerWin(this.reflectedCaster || (opp === p1 ? p2 : p1));
+                            }
+                            this.active = false;
+                            this.owner.hooperHasBall = true;
+                            return;
+                        }
+                    }
+
+                    // Floor bounce or bounds
+                    if (this.y >= config.groundY - 14) {
+                        this.y = config.groundY - 14;
+                        this.velY = -Math.abs(this.velY) * 0.55;
+                        if (Math.abs(this.velY) < 1.2) {
+                            this.active = false;
+                            this.owner.hooperHasBall = true;
+                        }
+                    }
+                    if (this.x < 10 || this.x > canvas.width - 10) {
+                        this.active = false;
+                        this.owner.hooperHasBall = true;
+                    }
                 } else if (this.state === 'rebound') {
                     // Home smoothly back into Hooper's hands in a crisp rebound arc
                     const handX = this.owner.x + this.owner.facing * 18;
@@ -13162,6 +13210,19 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     this.y += ((dy / dist) * returnSpd + this.velY * 0.35) * config.timeScale;
                     this.velY += 0.42 * config.timeScale;
                 }
+            }
+            triggerShinraReflect(painCaster, pushDir) {
+                if (!this.active) return;
+                this.isReflected = true;
+                this.reflectedCaster = painCaster;
+                this.facing = pushDir;
+                this.velX = pushDir * 24;
+                this.velY = -4.5;
+                this.state = 'reflected_blast';
+                this.age = 0;
+                gameState.pixelEffects.push(new PixelVFX('impact_burst', this.x, this.y, pushDir, '#ffffff', { maxFrames: 14, P: 3 }));
+                gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y, pushDir, '#ffffff'));
+                gameState.shake = Math.max(gameState.shake || 0, 10);
             }
             triggerZoneAnkleBreak() {
                 this.active = false;
@@ -15430,15 +15491,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         if (gameState.hooperBalls && gameState.hooperBalls.length > 0) {
                             for (let i = gameState.hooperBalls.length - 1; i >= 0; i--) {
                                 const hb = gameState.hooperBalls[i];
-                                if (hb.active && hb.owner === opponent) {
+                                if (hb.active && hb.owner === opponent && !hb.isReflected) {
                                     const dist = Math.hypot(hb.x - this.x, hb.y - originY);
                                     if (dist <= shockwaveRadius + 30 || dist <= 95) {
                                         const pushDir = hb.x >= this.x ? 1 : -1;
-                                        hb.state = 'rebound';
-                                        hb.facing = pushDir;
-                                        hb.velX = pushDir * 18;
-                                        hb.velY = -6;
-                                        gameState.pixelEffects.push(new PixelVFX('impact_burst', hb.x, hb.y, pushDir, '#ffffff'));
+                                        hb.triggerShinraReflect(this, pushDir);
                                     }
                                 }
                             }
@@ -16143,11 +16200,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         if (p.active && (distToPain <= shockwaveR + pRadius + 20 || distToPain <= pRadius + 65)) {
                             interactShinraWithProjectile(p, target);
                             this.projectiles.splice(index, 1);
+                            index--;
                             continue;
                         }
                     }
                     
-                    if (p.age > 12) {
+                    if (!p.isReflected && p.age > 12) {
                         const distToOwner = Math.sqrt(Math.pow(p.x - p.owner.x, 2) + Math.pow(p.y - (p.owner.y - 45), 2));
                         const ownerHitRange = p.isHollowPurple ? (p.radius + 15) : (p.isSaiyanUltWave ? 55 : (p.isScytheCut ? 60 : (p.isMageSpark ? 45 : (p.isMageBubble ? 50 : (p.isTaichiWheel ? 48 : (p.isLaser ? 35 : (p.isRailgun ? 40 : (p.isFishingHook ? 40 : (p.isRedSphere ? 45 : (p.isSaiyanBeam ? 40 : (p.isDioKnife ? 25 : 40)))))))))));
                         
@@ -16765,13 +16823,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                     if (gameState.hooperBalls) {
                         gameState.hooperBalls.forEach(hb => {
-                            if (hb.active && hb.owner === opponent) {
-                                hb.active = false;
-                                hb.owner.hooperHasBall = true;
-                                createShinraExplosion(hb.x, hb.y, '#ff6b00', (hb.x >= originX ? 1 : -1), false);
+                            if (hb.active && hb.owner === opponent && !hb.isReflected) {
+                                const pushDir = (hb.x >= originX ? 1 : -1);
+                                hb.triggerShinraReflect(this, pushDir);
                             }
                         });
-                        gameState.hooperBalls = [];
                     }
 
                     // Damage: EXACT 70% OF CURRENT HP IF FULL 4s, otherwise scaled!
@@ -17886,14 +17942,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         if (gameState.hooperBalls && gameState.hooperBalls.length > 0) {
                             for (let i = gameState.hooperBalls.length - 1; i >= 0; i--) {
                                 const hb = gameState.hooperBalls[i];
-                                if (hb.active && hb.owner === opponent) {
+                                if (hb.active && hb.owner === opponent && !hb.isReflected) {
                                     const dist = Math.hypot(hb.x - this.x, hb.y - (this.y - 45));
                                     if (dist <= 95) {
-                                        hb.active = false;
-                                        hb.owner.hooperHasBall = true;
                                         const pushDir = hb.x >= this.x ? 1 : -1;
-                                        createShinraExplosion(hb.x, hb.y, '#ff6b00', pushDir, false);
-                                        gameState.hooperBalls.splice(i, 1);
+                                        hb.triggerShinraReflect(this, pushDir);
                                     }
                                 }
                             }
@@ -19312,38 +19365,57 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
         function interactShinraWithProjectile(p, painCaster) {
             if (!p || !p.active) return;
+            if (p.isReflected) return;
+
             const pushDir = (p.x >= painCaster.x) ? 1 : -1;
             const hitX = p.x;
             const hitY = p.y;
             const pCol = p.color || '#ffffff';
 
             // Differentiate physical vs energy projectiles
-            const isPhysical = p.isDioKnife || p.isFishingHook || 
+            const isPhysical = p.isPhysical || p.isDioKnife || p.isFishingHook || 
                                (p.owner && (p.owner.type === 'gunslinger' || p.owner.type === 'shinobi' || p.owner.type === 'slasher'));
 
             if (isPhysical) {
                 // Physical projectiles BOUNCE BACK / REFLECT away with reversed velocity towards the original attacker!
-                p.facing = pushDir;
-                const reboundSpeed = Math.max(18, Math.abs(p.speed || p.vx || 14) * 1.4);
-                p.speed = reboundSpeed;
-                p.vx = pushDir * reboundSpeed;
-                p.vy = (p.vy || 0) * 0.3 - 2.5;
-                p.isReflected = true;
+                p.active = false;
 
-                // Reassign ownership to painCaster so it damages original thrower
-                if (p.owner && p.owner.projectiles) {
-                    const idx = p.owner.projectiles.indexOf(p);
-                    if (idx !== -1) p.owner.projectiles.splice(idx, 1);
-                }
-                p.owner = painCaster;
-                if (!painCaster.projectiles.includes(p)) {
-                    painCaster.projectiles.push(p);
+                const reboundSpeed = Math.max(24, Math.abs(p.speed || 16) * 1.45);
+                const spawnX = painCaster.x + pushDir * 55;
+                const spawnY = hitY;
+
+                const ref = new Projectile(
+                    spawnX, spawnY, pushDir, pCol, painCaster,
+                    p.isScytheCut, p.isMageSpark, p.isMageBubble, p.isTaichiWheel,
+                    p.isLaser, p.isRailgun, p.isFishingHook, false,
+                    false, false, false, false, p.isDioKnife,
+                    p.isPhantomBall, p.isPhantomWind, p.isPhantomChargedBall
+                );
+
+                ref.speed = reboundSpeed;
+                ref.isReflected = true;
+                ref.isPhysical = true;
+                ref.age = 0; // Starts at 0 so it won't hit Pain!
+
+                if (p.isDioKnife) {
+                    ref.angleY = -(p.angleY || 0); // Reverse angle trajectory
                 }
 
-                // Crisp metallic deflection spark
-                gameState.pixelEffects.push(new PixelVFX('impact_burst', hitX, hitY, pushDir, '#ffffff', { maxFrames: 12, P: 3 }));
+                if (p.isFishingHook) {
+                    ref.isTargetedHook = true;
+                    // Target the opponent who cast it!
+                    ref.targetOpponent = (painCaster === p1 ? p2 : p1);
+                    ref.hookSpeed = 32;
+                }
+
+                if (painCaster && painCaster.projectiles) {
+                    painCaster.projectiles.push(ref);
+                }
+
+                // Crisp metallic deflection spark & shockwave
+                gameState.pixelEffects.push(new PixelVFX('impact_burst', hitX, hitY, pushDir, '#ffffff', { maxFrames: 14, P: 3 }));
                 gameState.pixelEffects.push(new PixelVFX('air_ring', hitX, hitY, pushDir, '#ffffff'));
-                gameState.shake = Math.max(gameState.shake || 0, 8);
+                gameState.shake = Math.max(gameState.shake || 0, 10);
                 return;
             }
 
@@ -20204,37 +20276,40 @@ function drawPixelPain(fighter, frozenInDraw) {
         if (progress < 0.22) {
             // Phase 1: Knee chamber & plant standing foot firmly on the floor
             expr = 'focus';
-            torsoLean = -3;
+            torsoLean = -2;
             bodyY = 0;
             headX = 0; headY = -24;
-            legB = [-2 - torsoLean, -10, -1 - torsoLean, -5, 0 - torsoLean, 0];
-            legF = [ 2 - torsoLean, -10,  4 - torsoLean, -16, 3 - torsoLean, -20]; // Tucked high chamber
+            legB = [-1 - torsoLean, -11, 0 - torsoLean, -6, 0 - torsoLean, 0];
+            legF = [ 1 - torsoLean, -11, 3 - torsoLean, -15, 2 - torsoLean, -17]; // Tucked chamber
             armB = [-4, -18, -6, -15, -4, -13];
             armF = [ 2, -18,  4, -16,  5, -14];
             cloakHemOffset = -1;
         } else if (progress < 0.78) {
             // Phase 2: FULL EXTENSION - TAEKWONDO HIGH SIDE KICK (Yop Chagi)
             // - Standing leg: Straight vertical pillar flat on the mat (x = 0, y = 0).
-            // - Torso: Leans back diagonally at ~50° (torsoLean = -8).
+            // - Torso: Leans back diagonally at ~45-50° (torsoLean = -7).
             // - Head: Sits on tilted shoulders, looking along kicking line over shoulder at opponent.
             // - Guard arms: Rear fist tucked tight at hip/belt; lead fist guarding chest/chin.
-            // - Striking leg: Drives high heel straight up-forward at ~60° to apex (15, -33), well above head level!
+            // - Striking leg: Proportionate martial arts leg (~13.8 units total length, matching standing leg ~11.1 units):
+            //   Thigh: hip (1, -11) -> knee (5, -16) [len ~6.4 units]
+            //   Shin:  knee (5, -16) -> foot (10, -22) [len ~7.2 units]
+            //   Apex foot at head height (y = -22), matching reference image!
             expr = 'focus';
-            torsoLean = -8; // Deep martial torso counter-lean
+            torsoLean = -7;
             bodyY = 0;
-            headX = 2; headY = -23; // Resolute focus looking at opponent
+            headX = 2; headY = -23;
 
             // Standing leg: Planted firmly and vertically straight down at x = 0 on the mat!
             legB = [-1 - torsoLean, -11, 0 - torsoLean, -6, 0 - torsoLean, 0];
 
-            // Striking leg: High diagonal side kick extending to apex (15, -33) - above head height!
-            legF = [1 - torsoLean, -11, 8 - torsoLean, -22, 15 - torsoLean, -33];
+            // Striking leg: Proportionate martial side kick extending to apex (10, -22)
+            legF = [1 - torsoLean, -11, 5 - torsoLean, -16, 10 - torsoLean, -22];
 
             // Martial arts guard arms (Karate/Taekwondo chambered guard):
             armB = [-3, -18, -6, -15, -3, -13]; // Rear fist tucked at ribs/belt
             armF = [ 2, -18,  2, -14,  4, -13]; // Lead fist raised guarding chin/chest
 
-            cloakHemOffset = -4;
+            cloakHemOffset = -3;
             cloakSpread = 1;
         } else {
             // Phase 3: Rapid chamber retraction & return to battle stance
@@ -20242,8 +20317,8 @@ function drawPixelPain(fighter, frozenInDraw) {
             torsoLean = -1;
             bodyY = 0;
             headX = 0; headY = -24;
-            legB = [-3, -10, -4, -5, -5, 0];
-            legF = [ 2, -10,  4, -8,  5, -2];
+            legB = [-2 - torsoLean, -11, -1 - torsoLean, -6, 0 - torsoLean, 0];
+            legF = [ 2 - torsoLean, -11,  4 - torsoLean, -8,  5 - torsoLean, -2];
             armB = [-4, -17, -5, -14, -4, -12];
             armF = [ 2, -17,  4, -14,  6, -12];
             cloakHemOffset = -1;
@@ -20443,11 +20518,11 @@ function drawPixelPain(fighter, frozenInDraw) {
 
     // 6) Front Leg
     drawLimb(legF[0] + tx, legF[1] + ty, legF[2] + tx, legF[3] + ty, 2, pantsMain, out);
-    drawLimb(legF[2] + tx, legF[3] + ty, legF[4] + tx, legF[5], 2, wrapMain, wrapShade);
+    drawLimb(legF[2] + tx, legF[3] + ty, legF[4] + tx, legF[5] + ty, 2, wrapMain, wrapShade);
     // Sandal heel & blade of the foot pointing up-forward
-    px(legF[4] + tx - 1, legF[5] - 1, 4, 3, out);
-    px(legF[4] + tx, legF[5], 3, 2, sandalCol);
-    px(legF[4] + tx + 1, legF[5] - 1, 2, 2, skin);
+    px(legF[4] + tx - 1, legF[5] + ty - 1, 4, 3, out);
+    px(legF[4] + tx, legF[5] + ty, 3, 2, sandalCol);
+    px(legF[4] + tx + 1, legF[5] + ty - 1, 2, 2, skin);
 
     // 7) Head, Yahiko Spiky Orange Hair, Headband, Rinnegan & Piercings
     // Head base & skin
