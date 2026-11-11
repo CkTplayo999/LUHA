@@ -13422,48 +13422,70 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 const VORONOI_ROCK_CELLS = [[[0.571, 0.553], [0.443, 0.784], [0.384, 0.699], [0.414, 0.39], [0.443, 0.369]], [[-0.891, -0.268], [-0.855, -0.216], [-0.908, -0.005], [-1.2, -0.079], [-1.2, -0.33]], [[0.214, 0.321], [0.184, 0.185], [0.199, 0.13], [0.262, 0.047], [0.447, -0.003], [0.56, 0.062], [0.574, 0.265], [0.443, 0.369], [0.414, 0.39]], [[-0.671, -0.671], [-0.579, -0.592], [-0.514, -0.387], [-0.662, -0.397]], [[0.115, -0.848], [0.164, -0.876], [0.234, -0.817], [0.211, -0.719], [0.196, -0.7], [0.066, -0.684], [0.097, -0.796]], [[-0.005, -0.855], [-0.132, -0.71], [-0.172, -0.716], [-0.421, -1.2], [-0.32, -1.2]], [[0.022, -0.582], [-0.114, -0.695], [0.097, -0.796], [0.066, -0.684]], [[0.02, 0.702], [0.048, 0.671], [0.059, 0.664], [0.236, 1.2], [0.095, 1.2]], [[0.443, 0.784], [0.571, 0.553], [0.585, 0.531], [0.66, 0.518], [0.79, 0.543], [1.2, 0.781], [1.2, 1.2], [0.573, 1.2]], [[-0.881, 0.202], [-0.797, 0.162], [-0.7, 0.328], [-0.788, 0.671], [-0.844, 0.745]], [[-0.172, -0.716], [-0.264, -0.619], [-0.825, -1.2], [-0.421, -1.2]], [[0.231, 0.603], [0.097, 0.606], [-0.037, 0.473], [0.201, 0.352]], [[0.732, 0.013], [0.738, -0.006], [0.962, -0.201], [1.2, -0.304], [1.2, 0.208]], [[0.979, -1.128], [0.462, -0.748], [0.234, -0.817], [0.164, -0.876], [0.201, -1.2], [1.053, -1.2]], [[-0.354, 0.046], [-0.44, -0.178], [-0.371, -0.246], [-0.362, -0.25], [-0.276, -0.248], [-0.209, -0.067], [-0.212, -0.014]], [[-0.851, 0.756], [-0.844, 0.745], [-0.788, 0.671], [-0.324, 0.389], [-0.256, 0.373], [-0.293, 0.728]], [[-0.197, 0.82], [-0.293, 0.728], [-0.256, 0.373], [-0.238, 0.36], [-0.216, 0.367], [-0.111, 0.45], [-0.104, 0.623]], [[0.666, -0.538], [0.395, -0.545], [0.462, -0.748], [0.979, -1.128]], [[-0.264, -0.252], [0.012, -0.184], [-0.069, -0.018], [-0.209, -0.067], [-0.276, -0.248]], [[-0.142, -0.448], [-0.27, -0.605], [-0.264, -0.619], [-0.172, -0.716], [-0.132, -0.71], [-0.114, -0.695], [0.022, -0.582], [0.047, -0.515]], [[-0.4, 0.347], [-0.658, 0.296], [-0.651, 0.287], [-0.566, 0.209]], [[-0.7, -0.32], [-0.662, -0.397], [-0.514, -0.387], [-0.371, -0.246], [-0.44, -0.178], [-0.487, -0.163]], [[0.595, 0.29], [0.585, 0.531], [0.571, 0.553], [0.443, 0.369], [0.574, 0.265]], [[-0.114, -0.695], [-0.132, -0.71], [-0.005, -0.855], [0.115, -0.848], [0.097, -0.796]], [[-0.791, 0.043], [-0.87, 0.07], [-1.2, 0.002], [-1.2, -0.079], [-0.908, -0.005]], [[-0.065, 0.649], [-0.104, 0.623], [-0.111, 0.45], [-0.037, 0.473], [0.097, 0.606], [0.059, 0.664], [0.048, 0.671]], [[0.444, -0.162], [0.385, -0.382], [0.652, -0.411], [0.747, -0.341], [0.754, -0.322]], [[-0.079, 0.073], [-0.14, 0.115], [-0.212, -0.014], [-0.209, -0.067], [-0.069, -0.018]], [[0.201, 0.352], [-0.037, 0.473], [-0.111, 0.45], [-0.216, 0.367], [0.184, 0.185], [0.214, 0.321]], [[0.657, 0.324], [0.595, 0.29], [0.574, 0.265], [0.56, 0.062], [0.732, 0.013], [1.2, 0.208], [1.2, 0.404]], [[0.158, -0.427], [0.338, -0.436], [0.385, -0.382], [0.444, -0.162], [0.447, -0.003], [0.262, 0.047], [0.043, -0.191]], [[-0.373, -0.516], [-0.362, -0.25], [-0.371, -0.246], [-0.514, -0.387], [-0.579, -0.592]], [[-0.487, -0.163], [-0.44, -0.178], [-0.354, 0.046], [-0.344, 0.149], [-0.547, 0.125], [-0.647, -0.017]], [[0.344, -0.451], [0.395, -0.545], [0.666, -0.538], [0.652, -0.411], [0.385, -0.382], [0.338, -0.436]], [[-0.682, -0.012], [-0.647, -0.017], [-0.547, 0.125], [-0.566, 0.209], [-0.651, 0.287]], [[0.755, -0.322], [0.754, -0.322], [0.747, -0.341], [1.2, -1.157], [1.2, -0.337]], [[-0.837, -0.294], [-0.7, -0.32], [-0.487, -0.163], [-0.647, -0.017], [-0.682, -0.012], [-0.696, -0.011], [-0.855, -0.216], [-0.891, -0.268]], [[-0.373, -0.516], [-0.31, -0.582], [-0.27, -0.605], [-0.142, -0.448], [-0.264, -0.252], [-0.276, -0.248], [-0.362, -0.25]], [[0.344, -0.451], [0.338, -0.436], [0.158, -0.427], [0.101, -0.479], [0.196, -0.7], [0.211, -0.719]], [[-0.766, 0.047], [-0.797, 0.162], [-0.881, 0.202], [-1.153, 0.189], [-0.87, 0.07], [-0.791, 0.043]], [[-0.245, 0.278], [-0.238, 0.36], [-0.256, 0.373], [-0.324, 0.389], [-0.4, 0.347], [-0.566, 0.209], [-0.547, 0.125], [-0.344, 0.149]], [[-0.216, 0.367], [-0.238, 0.36], [-0.245, 0.278], [-0.14, 0.115], [-0.079, 0.073], [0.199, 0.13], [0.184, 0.185]], [[-0.687, -0.697], [-0.793, -0.951], [-0.31, -0.582], [-0.373, -0.516], [-0.579, -0.592], [-0.671, -0.671]], [[-0.696, -0.011], [-0.682, -0.012], [-0.651, 0.287], [-0.658, 0.296], [-0.7, 0.328], [-0.797, 0.162], [-0.766, 0.047]], [[-0.87, 0.07], [-1.153, 0.189], [-1.2, 0.193], [-1.2, 0.002]], [[-0.043, 0.739], [-0.065, 0.649], [0.048, 0.671], [0.02, 0.702]], [[-0.696, -0.011], [-0.766, 0.047], [-0.791, 0.043], [-0.908, -0.005], [-0.855, -0.216]], [[0.462, -0.748], [0.395, -0.545], [0.344, -0.451], [0.211, -0.719], [0.234, -0.817]], [[0.747, -0.341], [0.652, -0.411], [0.666, -0.538], [0.979, -1.128], [1.053, -1.2], [1.2, -1.2], [1.2, -1.157]], [[-1.2, 1.082], [-0.851, 0.756], [-0.293, 0.728], [-0.197, 0.82], [-0.173, 0.865], [-0.1, 1.2], [-1.2, 1.2]], [[0.657, 0.324], [0.695, 0.422], [0.66, 0.518], [0.585, 0.531], [0.595, 0.29]], [[0.101, -0.479], [0.047, -0.515], [0.022, -0.582], [0.066, -0.684], [0.196, -0.7]], [[-1.2, 1.082], [-1.2, 0.193], [-1.153, 0.189], [-0.881, 0.202], [-0.844, 0.745], [-0.851, 0.756]], [[0.766, -0.221], [0.962, -0.201], [0.738, -0.006]], [[-0.14, 0.115], [-0.245, 0.278], [-0.344, 0.149], [-0.354, 0.046], [-0.212, -0.014]], [[-0.173, 0.865], [-0.197, 0.82], [-0.104, 0.623], [-0.065, 0.649], [-0.043, 0.739]], [[0.79, 0.543], [0.66, 0.518], [0.695, 0.422]], [[-0.658, 0.296], [-0.4, 0.347], [-0.324, 0.389], [-0.788, 0.671], [-0.7, 0.328]], [[-0.079, 0.073], [-0.069, -0.018], [0.012, -0.184], [0.043, -0.191], [0.262, 0.047], [0.199, 0.13]], [[-0.793, -0.951], [-0.687, -0.697], [-0.837, -0.294], [-0.891, -0.268], [-1.2, -0.33], [-1.2, -1.2], [-0.918, -1.2]], [[0.79, 0.543], [0.695, 0.422], [0.657, 0.324], [1.2, 0.404], [1.2, 0.781]], [[-0.173, 0.865], [-0.043, 0.739], [0.02, 0.702], [0.095, 1.2], [-0.1, 1.2]], [[0.164, -0.876], [0.115, -0.848], [-0.005, -0.855], [-0.32, -1.2], [0.201, -1.2]], [[-0.264, -0.619], [-0.27, -0.605], [-0.31, -0.582], [-0.793, -0.951], [-0.918, -1.2], [-0.825, -1.2]], [[0.231, 0.603], [0.201, 0.352], [0.214, 0.321], [0.414, 0.39], [0.384, 0.699]], [[-0.687, -0.697], [-0.671, -0.671], [-0.662, -0.397], [-0.7, -0.32], [-0.837, -0.294]], [[0.444, -0.162], [0.754, -0.322], [0.755, -0.322], [0.766, -0.221], [0.738, -0.006], [0.732, 0.013], [0.56, 0.062], [0.447, -0.003]], [[-0.142, -0.448], [0.047, -0.515], [0.101, -0.479], [0.158, -0.427], [0.043, -0.191], [0.012, -0.184], [-0.264, -0.252]], [[0.059, 0.664], [0.097, 0.606], [0.231, 0.603], [0.384, 0.699], [0.443, 0.784], [0.573, 1.2], [0.236, 1.2]], [[0.962, -0.201], [0.766, -0.221], [0.755, -0.322], [1.2, -0.337], [1.2, -0.304]]];
 
+        let _chibakuOffscreen = null;
+        let _chibakuOffCtx = null;
+
         function drawAnimeChibakuPlanetoid(ctx, cx, cy, radius, age, isDetonating, pass) {
             const R = Math.round(radius);
             if (R <= 0) return;
 
-            ctx.save();
-            const prevSmooth = ctx.imageSmoothingEnabled;
-            ctx.imageSmoothingEnabled = false;
+            const P = 3; // 16-bit pixel size (matches Pain and game pixel engine)
+            const pad = 45; // Extra padding for gravitational rings and falling shards
+            const totalSize = (R + pad) * 2;
+            const logW = Math.ceil(totalSize / P);
+            const logH = Math.ceil(totalSize / P);
+
+            if (!_chibakuOffscreen) {
+                _chibakuOffscreen = document.createElement('canvas');
+                _chibakuOffCtx = _chibakuOffscreen.getContext('2d');
+            }
+            if (_chibakuOffscreen.width < logW || _chibakuOffscreen.height < logH) {
+                _chibakuOffscreen.width = Math.max(logW, 256);
+                _chibakuOffscreen.height = Math.max(logH, 256);
+            }
+
+            const octx = _chibakuOffCtx;
+            octx.clearRect(0, 0, _chibakuOffscreen.width, _chibakuOffscreen.height);
+            octx.imageSmoothingEnabled = false;
+
+            const logCX = logW / 2;
+            const logCY = logH / 2 - 10;
+            const logR = R / P;
 
             if (pass === 'back') {
-                // 1. Purple Gravitational Distortion Space-Time Rings
-                ctx.save();
-                ctx.globalAlpha = 0.35 + Math.sin(age * 0.15) * 0.15;
-                for (let r = 50; r <= R + 60; r += 28) {
-                    const ringR = (r + age * 2.2) % (R + 70);
-                    ctx.strokeStyle = '#a55eea';
-                    ctx.lineWidth = 2.5;
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
-                    ctx.stroke();
+                // 1. Purple Gravitational Distortion Space-Time Rings (Pixelated)
+                octx.save();
+                octx.globalAlpha = 0.35 + Math.sin(age * 0.15) * 0.15;
+                for (let r = 50 / P; r <= logR + 60 / P; r += 28 / P) {
+                    const ringR = (r + age * (2.2 / P)) % (logR + 70 / P);
+                    octx.strokeStyle = '#a55eea';
+                    octx.lineWidth = 1;
+                    octx.beginPath();
+                    octx.arc(logCX, logCY, ringR, 0, Math.PI * 2);
+                    octx.stroke();
                 }
-                ctx.restore();
+                octx.restore();
 
                 // 2. Base Solid Rock Foundation (Rear hemisphere behind trapped fighter)
-                ctx.fillStyle = '#181410';
-                ctx.beginPath();
-                ctx.arc(cx, cy, R + 3, 0, Math.PI * 2);
-                ctx.fill();
+                octx.fillStyle = '#181410';
+                octx.beginPath();
+                octx.arc(logCX, logCY, logR + 1, 0, Math.PI * 2);
+                octx.fill();
 
-                ctx.fillStyle = '#3a342c';
-                ctx.beginPath();
-                ctx.arc(cx, cy, R, 0, Math.PI * 2);
-                ctx.fill();
+                octx.fillStyle = '#3a342c';
+                octx.beginPath();
+                octx.arc(logCX, logCY, logR, 0, Math.PI * 2);
+                octx.fill();
             } else if (pass === 'front') {
-                // 3. Jigsaw Interlocking Voronoi Rock Slabs (Exact match to anime reference photo!)
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(cx, cy, R, 0, Math.PI * 2);
-                ctx.clip();
+                // 3. Jigsaw Interlocking Voronoi Rock Slabs (Authentic 16-bit pixel art!)
+                octx.save();
+                octx.beginPath();
+                octx.arc(logCX, logCY, logR, 0, Math.PI * 2);
+                octx.clip();
 
                 // Solid base earth underlayer
-                ctx.fillStyle = '#3a342c';
-                ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
+                octx.fillStyle = '#3a342c';
+                octx.fillRect(logCX - logR, logCY - logR, logR * 2, logR * 2);
 
                 const basePalette = [
                     '#6d6255', '#7d7263', '#5d5347', '#8e8271', 
@@ -13476,7 +13498,6 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     const poly = VORONOI_ROCK_CELLS[i];
                     if (poly.length < 3) continue;
 
-                    // Calculate polygon centroid for 3D lighting
                     let sumX = 0, sumY = 0;
                     for (let p of poly) {
                         sumX += p[0];
@@ -13505,90 +13526,100 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         cb = Math.max(19, cb - dark);
                     }
 
-                    ctx.beginPath();
-                    ctx.moveTo(cx + poly[0][0] * R, cy + poly[0][1] * R);
+                    octx.beginPath();
+                    octx.moveTo(logCX + poly[0][0] * logR, logCY + poly[0][1] * logR);
                     for (let p = 1; p < poly.length; p++) {
-                        ctx.lineTo(cx + poly[p][0] * R, cy + poly[p][1] * R);
+                        octx.lineTo(logCX + poly[p][0] * logR, logCY + poly[p][1] * logR);
                     }
-                    ctx.closePath();
+                    octx.closePath();
 
-                    ctx.fillStyle = 'rgb(' + Math.round(cr) + ',' + Math.round(cg) + ',' + Math.round(cb) + ')';
-                    ctx.fill();
+                    octx.fillStyle = 'rgb(' + Math.round(cr) + ',' + Math.round(cg) + ',' + Math.round(cb) + ')';
+                    octx.fill();
 
-                    // Dark deep rock crevice crack outline between plates
-                    ctx.strokeStyle = '#181410';
-                    ctx.lineWidth = 2.5;
-                    ctx.stroke();
+                    // Dark deep rock crevice crack outline between plates (1px on offscreen = 3px on screen)
+                    octx.strokeStyle = '#181410';
+                    octx.lineWidth = 1;
+                    octx.stroke();
 
                     // Subtle internal fracture line inside some slabs
                     if (i % 3 === 0) {
-                        ctx.strokeStyle = '#221c17';
-                        ctx.lineWidth = 1.2;
-                        ctx.beginPath();
-                        ctx.moveTo(cx + poly[0][0] * R, cy + poly[0][1] * R);
-                        ctx.lineTo(cx + midX * R, cy + midY * R);
-                        ctx.stroke();
+                        octx.strokeStyle = '#221c17';
+                        octx.lineWidth = 1;
+                        octx.beginPath();
+                        octx.moveTo(logCX + poly[0][0] * logR, logCY + poly[0][1] * logR);
+                        octx.lineTo(logCX + midX * logR, logCY + midY * logR);
+                        octx.stroke();
                     }
                 }
 
                 if (isDetonating) {
                     // Blinding white shatter cracks
-                    ctx.strokeStyle = '#ffffff';
-                    ctx.lineWidth = 4;
+                    octx.strokeStyle = '#ffffff';
+                    octx.lineWidth = 1.5;
                     for (let s = 0; s < 12; s++) {
                         const sAngle = (s / 12) * Math.PI * 2;
-                        ctx.beginPath();
-                        ctx.moveTo(cx, cy);
-                        ctx.lineTo(cx + Math.cos(sAngle) * R * 1.15, cy + Math.sin(sAngle) * R * 1.15);
-                        ctx.stroke();
+                        octx.beginPath();
+                        octx.moveTo(logCX, logCY);
+                        octx.lineTo(logCX + Math.cos(sAngle) * logR * 1.15, logCY + Math.sin(sAngle) * logR * 1.15);
+                        octx.stroke();
                     }
                 }
 
-                ctx.restore(); // end clip
+                octx.restore(); // end clip
 
                 // 4. Heavy rugged bedrock perimeter ring
-                ctx.strokeStyle = '#14100c';
-                ctx.lineWidth = 4;
-                ctx.beginPath();
-                ctx.arc(cx, cy, R, 0, Math.PI * 2);
-                ctx.stroke();
+                octx.strokeStyle = '#14100c';
+                octx.lineWidth = 1.5;
+                octx.beginPath();
+                octx.arc(logCX, logCY, logR, 0, Math.PI * 2);
+                octx.stroke();
 
                 // 5. Cloud deck removed as requested by user
 
-                // 6. Shower of Falling / Rising Rock Shards Beneath
-                ctx.save();
+                // 6. Shower of Falling / Rising Rock Shards Beneath (Chunky 16-bit pixel blocks)
+                octx.save();
                 const shards = [
-                    { dx: -R * 0.65, dy: R * 0.80, w: 7, h: 12, ang: 0.3 },
-                    { dx: -R * 0.52, dy: R * 1.02, w: 6, h: 10, ang: -0.4 },
-                    { dx: -R * 0.42, dy: R * 1.22, w: 8, h: 14, ang: 0.6 },
-                    { dx: -R * 0.32, dy: R * 0.86, w: 5, h: 9, ang: -0.2 },
-                    { dx: -R * 0.20, dy: R * 1.12, w: 7, h: 11, ang: 0.5 },
-                    { dx: -R * 0.10, dy: R * 1.32, w: 6, h: 10, ang: -0.3 },
-                    { dx: -R * 0.02, dy: R * 0.95, w: 8, h: 13, ang: 0.1 },
-                    { dx: R * 0.10, dy: R * 1.25, w: 7, h: 12, ang: -0.5 },
-                    { dx: R * 0.22, dy: R * 0.90, w: 6, h: 9, ang: 0.4 },
-                    { dx: R * 0.32, dy: R * 1.18, w: 8, h: 14, ang: -0.2 },
-                    { dx: R * 0.45, dy: R * 0.98, w: 5, h: 10, ang: 0.7 },
-                    { dx: R * 0.58, dy: R * 1.20, w: 7, h: 11, ang: -0.4 },
-                    { dx: R * 0.68, dy: R * 0.85, w: 6, h: 9, ang: 0.2 }
+                    { dx: -logR * 0.65, dy: logR * 0.80, w: 2.5, h: 4, ang: 0.3 },
+                    { dx: -logR * 0.52, dy: logR * 1.02, w: 2, h: 3.5, ang: -0.4 },
+                    { dx: -logR * 0.42, dy: logR * 1.22, w: 2.8, h: 4.8, ang: 0.6 },
+                    { dx: -logR * 0.32, dy: logR * 0.86, w: 2, h: 3, ang: -0.2 },
+                    { dx: -logR * 0.20, dy: logR * 1.12, w: 2.5, h: 4, ang: 0.5 },
+                    { dx: -logR * 0.10, dy: logR * 1.32, w: 2, h: 3.5, ang: -0.3 },
+                    { dx: -logR * 0.02, dy: logR * 0.95, w: 2.8, h: 4.5, ang: 0.1 },
+                    { dx: logR * 0.10, dy: logR * 1.25, w: 2.5, h: 4, ang: -0.5 },
+                    { dx: logR * 0.22, dy: logR * 0.90, w: 2, h: 3, ang: 0.4 },
+                    { dx: logR * 0.32, dy: logR * 1.18, w: 2.8, h: 4.8, ang: -0.2 },
+                    { dx: logR * 0.45, dy: logR * 0.98, w: 2, h: 3.5, ang: 0.7 },
+                    { dx: logR * 0.58, dy: logR * 1.20, w: 2.5, h: 4, ang: -0.4 },
+                    { dx: logR * 0.68, dy: logR * 0.85, w: 2, h: 3, ang: 0.2 }
                 ];
 
-                ctx.fillStyle = '#221c17';
+                octx.fillStyle = '#221c17';
                 for (let sh of shards) {
-                    const sx = cx + sh.dx;
-                    const sy = cy + sh.dy;
-                    ctx.save();
-                    ctx.translate(sx, sy);
-                    ctx.rotate(sh.ang);
-                    ctx.fillRect(-sh.w / 2, -sh.h / 2, sh.w, sh.h);
-                    ctx.strokeStyle = '#120f0c';
-                    ctx.lineWidth = 1.5;
-                    ctx.strokeRect(-sh.w / 2, -sh.h / 2, sh.w, sh.h);
-                    ctx.restore();
+                    const sx = logCX + sh.dx;
+                    const sy = logCY + sh.dy;
+                    octx.save();
+                    octx.translate(sx, sy);
+                    octx.rotate(sh.ang);
+                    octx.fillRect(-sh.w / 2, -sh.h / 2, sh.w, sh.h);
+                    octx.strokeStyle = '#120f0c';
+                    octx.lineWidth = 1;
+                    octx.strokeRect(-sh.w / 2, -sh.h / 2, sh.w, sh.h);
+                    octx.restore();
                 }
-                ctx.restore();
+                octx.restore();
             }
 
+            // Blit pixelated offscreen canvas to main canvas with nearest-neighbor scaling
+            ctx.save();
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(
+                _chibakuOffscreen,
+                0, 0, logW, logH,
+                Math.round(cx - logCX * P), Math.round(cy - logCY * P),
+                logW * P, logH * P
+            );
             ctx.imageSmoothingEnabled = prevSmooth;
             ctx.restore();
         }
@@ -17301,7 +17332,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 // Universal Launcher Kick: Block + Kick (for all characters with a leg kick)
                 if (type === 'launcher_kick') {
-                    const noLegKick = ['inventor', 'duelist', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                    const noLegKick = ['inventor', 'raijin', 'duelist', 'gunslinger', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                     if (noLegKick.includes(this.type)) return;
                     if (this.launcherKickCooldown > 0) {
                         announceText('LAUNCHER CD: ' + (this.launcherKickCooldown / 60).toFixed(1) + 's', '#ffffff');
@@ -24966,7 +24997,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                         me.attack('kick', opponent);
                     }
                 } else if (me.type === 'martial') {
-                    const noLegKick = ['inventor', 'duelist', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                    const noLegKick = ['inventor', 'raijin', 'duelist', 'gunslinger', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                     const oppInAir = opponent.y < config.groundY - 25;
                     if (oppInAir && dist < 120) {
                         if (me.y >= config.groundY - 1) me.jump();
@@ -25059,7 +25090,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                 cpu1Vel.v = runCPU(p1, p2, cpu1Counter, cpu1Vel);
                 applyVelocity(p1, cpu1Vel.v);
             } else {
-                const noLegKick = ['inventor', 'duelist', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                const noLegKick = ['inventor', 'raijin', 'duelist', 'gunslinger', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                 const p1HoldingBlock = !!keys['KeyS'];
                 const p1PressKick = !!keys['KeyV'];
 
@@ -25129,7 +25160,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                 cpu2Vel.v = runCPU(p2, p1, cpu2Counter, cpu2Vel);
                 applyVelocity(p2, cpu2Vel.v);
             } else {
-                const noLegKick = ['inventor', 'duelist', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                const noLegKick = ['inventor', 'raijin', 'duelist', 'gunslinger', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                 const p2HoldingBlock = !!keys['ArrowDown'];
                 const p2PressKick = !!keys['KeyK'];
 
