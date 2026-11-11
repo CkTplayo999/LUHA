@@ -3479,7 +3479,7 @@
               get portrait() { return this.getPortrait(1); }
             },
             { id: 'pain', name: 'PAIN', tier: 'special', color: '#ff793f', p2Color: '#a55eea',
-              desc: '★ Lục Đạo Luân Hồi - Tendō Pain! Đôi mắt Rinnegan, phong thái thần linh & cử động pixel 16-bit 60fps mượt mà.',
+              desc: '★ 16-Bit God of Six Paths & Akatsuki Leader! Divine Rinnegan, Shinra Tensei repulsion shockwaves, mid-air levitation & catastrophic Chō Shinra Tensei.',
               stats: { atk: 5, def: 4, spd: 4, ult: 5 },
               getPortrait(player) {
                   return `<svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
@@ -3712,7 +3712,8 @@
             hooperCutsceneTimer: 0,
             hooperCutsceneDuration: 115,
             hooperCutsceneCaster: null,
-            hooperBalls: []
+            hooperBalls: [],
+            chibakuTensei: []
         };
 
         function announceText(text, color) {
@@ -3832,6 +3833,7 @@
             gameState.hooperCutsceneTimer = 0;
             gameState.hooperCutsceneCaster = null;
             gameState.hooperBalls = [];
+            gameState.chibakuTensei = [];
             canvas.classList.remove('shake');
         }
 
@@ -3958,7 +3960,14 @@
                 }
             }
             update() {
-                if (gameState.timestopActive) return;
+                if (gameState.timestopActive) {
+                    if (this.target === gameState.timestopCaster) {
+                        this.target.isStunned = false;
+                        this.target.isBeingPulled = false;
+                        this.target.stunTimer = 0;
+                    }
+                    return;
+                }
                 this.frame += config.timeScale;
                 this.x += this.vx * config.timeScale;
                 this.y += this.vy * config.timeScale;
@@ -6050,7 +6059,7 @@
             }
 
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isDashing;
@@ -6534,7 +6543,7 @@
             }
 
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isDashing;
@@ -7030,7 +7039,7 @@
             }
 
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isGliding = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -7401,7 +7410,7 @@
             }
 
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -7822,7 +7831,7 @@
 
             // 2) Animation State Machine
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const inAir = fighter.y < config.groundY - 2;
             const speed = Math.abs(fighter.velX);
             const walkPhase = (fighter.walkCycle || 0) * (isBeast ? 1.35 : 1.05);
@@ -8260,7 +8269,7 @@
             }
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -8703,7 +8712,7 @@
             }
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging && !fighter.isSaiyanDodging;
@@ -9175,7 +9184,7 @@
 
             // Determine Animation State & Progress
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -9702,7 +9711,7 @@ function drawPixelZookeeper(fighter, frozenInDraw) {
 
             // Animation Progress & State
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -10095,7 +10104,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
             // 3) Animation State & Kinematics
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -10543,7 +10552,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
             // Kinematics & States
             const drawAttacking = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne = fighter.y < config.groundY - 2;
             const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging && !fighter.isParrying;
@@ -11264,6 +11273,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
             }
             update() { 
+                if (!this.active) return;
                 if (gameState.timestopActive) {
                     if (this.owner !== gameState.timestopCaster) {
                         return;
@@ -11276,27 +11286,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 this.age += (1 * config.timeScale);
 
-                // Shinra Tensei Repelled Deflection flight
-                if (this.isRepelledByShinra) {
-                    this.repelledLife = (this.repelledLife !== undefined ? this.repelledLife : 26) - 1;
-                    this.x += this.speed * this.facing * config.timeScale;
-                    this.y += (this.angleY || 0) * config.timeScale;
 
-                    if (Math.random() > 0.25) {
-                        const pCol = Math.random() > 0.4 ? '#ffffff' : (this.color || '#a55eea');
-                        const tp = new Particle(this.x, this.y, pCol, 1.2);
-                        tp.specialBehavior = 'wind';
-                        tp.vx = -this.facing * (2 + Math.random() * 5);
-                        tp.vy = (Math.random() - 0.5) * 4;
-                        gameState.particles.push(tp);
-                    }
-
-                    if (this.x <= 35 || this.x >= canvas.width - 35 || this.repelledLife <= 0) {
-                        this.active = false;
-                        createShinraExplosion(this.x, this.y, this.color || '#ffffff', this.facing, false);
-                    }
-                    return;
-                } 
 
                 if (this.isMageSpark) {
                     this.x += this.speed * this.facing * config.timeScale;
@@ -11425,6 +11415,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
             }
             draw() {
+                if (!this.active) return;
                 ctx.save(); ctx.shadowBlur = 40; ctx.shadowColor = this.color;
                 if (this.isHollowPurple) {
                     ctx.save();
@@ -13214,8 +13205,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
 
                 if (!(opp.type === 'sixeye' && opp.isInfinityShieldActive) && !opp.isSaiyanDodging) {
-                    const dmg = opp.isBlocking ? 5 : 14;
-                    opp.health -= dmg;
+                    const dmg = 0; // Hooper Zone C deals 0 damage as requested
                     opp.isStunned = true;
                     opp.stunTimer = Math.max(opp.stunTimer || 0, 32); // ~0.53s ankle-broken fall stun
                     opp.hooperAnkleFallTimer = 32;
@@ -13285,6 +13275,517 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             ctx.restore();
         }
 
+
+        // ============ 16-BIT PIXEL ART CHIBAKU TENSEI (GRAVITATIONAL PLANETARY SATELLITE) ============
+        function drawPixelRockChunk(ctx, x, y, sizeType, angle, seed) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+            const P = 2; // High-precision 2px pixel grid
+            
+            const px = (gx, gy, gw, gh, col) => {
+                ctx.fillStyle = col;
+                ctx.fillRect(gx * P, gy * P, gw * P, gh * P);
+            };
+
+            // 16-Bit Handcrafted Earth & Bedrock Palette
+            const cOut   = '#181b22'; // Dark bedrock perimeter
+            const cDeep  = '#2d3436'; // Deep rock crevice & shadow
+            const cBase  = '#576574'; // Slate stone body
+            const cMid   = '#747d8c'; // Intermediate rock face
+            const cLight = '#a4b0be'; // Sunlit chiseled ridge
+            const cHigh  = '#f1f2f6'; // Razor specular granite glint
+            const cLoam  = '#3d261a'; // Rich dark topsoil layer
+            const cTurf  = '#2ed573'; // Arena grass turf fringe
+            const cMoss  = '#1e824c'; // Deep moss edge
+
+            if (sizeType === 'huge') {
+                // Massive Bedrock Boulder Slab (~18x14 cells = 36x28px)
+                px(-8, -6, 16, 12, cOut);
+                px(-9, -4, 18, 8, cOut);
+                px(-7, -7, 14, 14, cOut);
+                
+                // Arena surface turf cap
+                px(-7, -6, 14, 2, cMoss);
+                px(-6, -7, 12, 1, cTurf);
+                px(-8, -4, 16, 2, cLoam);
+                
+                // Multi-faceted chiseled granite face
+                px(-8, -2, 16, 8, cBase);
+                px(-7, -2, 7, 7, cMid);     // Lit face
+                px(-6, -1, 5, 2, cLight);   // High ridge
+                px(-4, -1, 2, 1, cHigh);    // Glint
+                px(0, -2, 8, 8, cDeep);     // Shadow face
+                
+                // Jagged fault line cracks
+                px(-2, -3, 1, 4, cOut);
+                px(-1, 1, 3, 1, cOut);
+                px(2, 2, 1, 3, cOut);
+            } else if (sizeType === 'large') {
+                // Angular Stone Block (~14x10 cells = 28x20px)
+                px(-6, -4, 12, 8, cOut);
+                px(-7, -3, 14, 6, cOut);
+                px(-5, -5, 10, 10, cOut);
+                
+                px(-5, -4, 10, 2, cLoam);
+                px(-6, -2, 6, 6, cMid);
+                px(-5, -3, 4, 3, cLight);
+                px(-4, -2, 2, 1, cHigh);
+                px(0, -2, 6, 6, cDeep);
+                px(1, -1, 4, 4, cBase);
+                px(0, 0, 1, 3, cOut);
+            } else if (sizeType === 'medium') {
+                // Craggy Earth Rock (~10x8 cells = 20x16px)
+                px(-4, -3, 8, 6, cOut);
+                px(-5, -2, 10, 4, cOut);
+                px(-3, -4, 6, 8, cOut);
+                
+                px(-4, -2, 4, 4, cLight);
+                px(0, -2, 4, 4, cDeep);
+                px(-1, -1, 2, 2, cMid);
+                px(-2, -1, 1, 1, cHigh);
+            } else {
+                // Jagged Granite Shard (~6x6 cells = 12x12px)
+                px(-2, -2, 4, 4, cOut);
+                px(-1, -2, 2, 4, cMid);
+                px(-2, -1, 4, 2, cMid);
+                px(-1, -1, 1, 1, cHigh);
+                px(0, 0, 2, 2, cDeep);
+            }
+
+            ctx.imageSmoothingEnabled = prevSmooth;
+            ctx.restore();
+        }
+
+                const VORONOI_ROCK_CELLS = [[[0.571, 0.553], [0.443, 0.784], [0.384, 0.699], [0.414, 0.39], [0.443, 0.369]], [[-0.891, -0.268], [-0.855, -0.216], [-0.908, -0.005], [-1.2, -0.079], [-1.2, -0.33]], [[0.214, 0.321], [0.184, 0.185], [0.199, 0.13], [0.262, 0.047], [0.447, -0.003], [0.56, 0.062], [0.574, 0.265], [0.443, 0.369], [0.414, 0.39]], [[-0.671, -0.671], [-0.579, -0.592], [-0.514, -0.387], [-0.662, -0.397]], [[0.115, -0.848], [0.164, -0.876], [0.234, -0.817], [0.211, -0.719], [0.196, -0.7], [0.066, -0.684], [0.097, -0.796]], [[-0.005, -0.855], [-0.132, -0.71], [-0.172, -0.716], [-0.421, -1.2], [-0.32, -1.2]], [[0.022, -0.582], [-0.114, -0.695], [0.097, -0.796], [0.066, -0.684]], [[0.02, 0.702], [0.048, 0.671], [0.059, 0.664], [0.236, 1.2], [0.095, 1.2]], [[0.443, 0.784], [0.571, 0.553], [0.585, 0.531], [0.66, 0.518], [0.79, 0.543], [1.2, 0.781], [1.2, 1.2], [0.573, 1.2]], [[-0.881, 0.202], [-0.797, 0.162], [-0.7, 0.328], [-0.788, 0.671], [-0.844, 0.745]], [[-0.172, -0.716], [-0.264, -0.619], [-0.825, -1.2], [-0.421, -1.2]], [[0.231, 0.603], [0.097, 0.606], [-0.037, 0.473], [0.201, 0.352]], [[0.732, 0.013], [0.738, -0.006], [0.962, -0.201], [1.2, -0.304], [1.2, 0.208]], [[0.979, -1.128], [0.462, -0.748], [0.234, -0.817], [0.164, -0.876], [0.201, -1.2], [1.053, -1.2]], [[-0.354, 0.046], [-0.44, -0.178], [-0.371, -0.246], [-0.362, -0.25], [-0.276, -0.248], [-0.209, -0.067], [-0.212, -0.014]], [[-0.851, 0.756], [-0.844, 0.745], [-0.788, 0.671], [-0.324, 0.389], [-0.256, 0.373], [-0.293, 0.728]], [[-0.197, 0.82], [-0.293, 0.728], [-0.256, 0.373], [-0.238, 0.36], [-0.216, 0.367], [-0.111, 0.45], [-0.104, 0.623]], [[0.666, -0.538], [0.395, -0.545], [0.462, -0.748], [0.979, -1.128]], [[-0.264, -0.252], [0.012, -0.184], [-0.069, -0.018], [-0.209, -0.067], [-0.276, -0.248]], [[-0.142, -0.448], [-0.27, -0.605], [-0.264, -0.619], [-0.172, -0.716], [-0.132, -0.71], [-0.114, -0.695], [0.022, -0.582], [0.047, -0.515]], [[-0.4, 0.347], [-0.658, 0.296], [-0.651, 0.287], [-0.566, 0.209]], [[-0.7, -0.32], [-0.662, -0.397], [-0.514, -0.387], [-0.371, -0.246], [-0.44, -0.178], [-0.487, -0.163]], [[0.595, 0.29], [0.585, 0.531], [0.571, 0.553], [0.443, 0.369], [0.574, 0.265]], [[-0.114, -0.695], [-0.132, -0.71], [-0.005, -0.855], [0.115, -0.848], [0.097, -0.796]], [[-0.791, 0.043], [-0.87, 0.07], [-1.2, 0.002], [-1.2, -0.079], [-0.908, -0.005]], [[-0.065, 0.649], [-0.104, 0.623], [-0.111, 0.45], [-0.037, 0.473], [0.097, 0.606], [0.059, 0.664], [0.048, 0.671]], [[0.444, -0.162], [0.385, -0.382], [0.652, -0.411], [0.747, -0.341], [0.754, -0.322]], [[-0.079, 0.073], [-0.14, 0.115], [-0.212, -0.014], [-0.209, -0.067], [-0.069, -0.018]], [[0.201, 0.352], [-0.037, 0.473], [-0.111, 0.45], [-0.216, 0.367], [0.184, 0.185], [0.214, 0.321]], [[0.657, 0.324], [0.595, 0.29], [0.574, 0.265], [0.56, 0.062], [0.732, 0.013], [1.2, 0.208], [1.2, 0.404]], [[0.158, -0.427], [0.338, -0.436], [0.385, -0.382], [0.444, -0.162], [0.447, -0.003], [0.262, 0.047], [0.043, -0.191]], [[-0.373, -0.516], [-0.362, -0.25], [-0.371, -0.246], [-0.514, -0.387], [-0.579, -0.592]], [[-0.487, -0.163], [-0.44, -0.178], [-0.354, 0.046], [-0.344, 0.149], [-0.547, 0.125], [-0.647, -0.017]], [[0.344, -0.451], [0.395, -0.545], [0.666, -0.538], [0.652, -0.411], [0.385, -0.382], [0.338, -0.436]], [[-0.682, -0.012], [-0.647, -0.017], [-0.547, 0.125], [-0.566, 0.209], [-0.651, 0.287]], [[0.755, -0.322], [0.754, -0.322], [0.747, -0.341], [1.2, -1.157], [1.2, -0.337]], [[-0.837, -0.294], [-0.7, -0.32], [-0.487, -0.163], [-0.647, -0.017], [-0.682, -0.012], [-0.696, -0.011], [-0.855, -0.216], [-0.891, -0.268]], [[-0.373, -0.516], [-0.31, -0.582], [-0.27, -0.605], [-0.142, -0.448], [-0.264, -0.252], [-0.276, -0.248], [-0.362, -0.25]], [[0.344, -0.451], [0.338, -0.436], [0.158, -0.427], [0.101, -0.479], [0.196, -0.7], [0.211, -0.719]], [[-0.766, 0.047], [-0.797, 0.162], [-0.881, 0.202], [-1.153, 0.189], [-0.87, 0.07], [-0.791, 0.043]], [[-0.245, 0.278], [-0.238, 0.36], [-0.256, 0.373], [-0.324, 0.389], [-0.4, 0.347], [-0.566, 0.209], [-0.547, 0.125], [-0.344, 0.149]], [[-0.216, 0.367], [-0.238, 0.36], [-0.245, 0.278], [-0.14, 0.115], [-0.079, 0.073], [0.199, 0.13], [0.184, 0.185]], [[-0.687, -0.697], [-0.793, -0.951], [-0.31, -0.582], [-0.373, -0.516], [-0.579, -0.592], [-0.671, -0.671]], [[-0.696, -0.011], [-0.682, -0.012], [-0.651, 0.287], [-0.658, 0.296], [-0.7, 0.328], [-0.797, 0.162], [-0.766, 0.047]], [[-0.87, 0.07], [-1.153, 0.189], [-1.2, 0.193], [-1.2, 0.002]], [[-0.043, 0.739], [-0.065, 0.649], [0.048, 0.671], [0.02, 0.702]], [[-0.696, -0.011], [-0.766, 0.047], [-0.791, 0.043], [-0.908, -0.005], [-0.855, -0.216]], [[0.462, -0.748], [0.395, -0.545], [0.344, -0.451], [0.211, -0.719], [0.234, -0.817]], [[0.747, -0.341], [0.652, -0.411], [0.666, -0.538], [0.979, -1.128], [1.053, -1.2], [1.2, -1.2], [1.2, -1.157]], [[-1.2, 1.082], [-0.851, 0.756], [-0.293, 0.728], [-0.197, 0.82], [-0.173, 0.865], [-0.1, 1.2], [-1.2, 1.2]], [[0.657, 0.324], [0.695, 0.422], [0.66, 0.518], [0.585, 0.531], [0.595, 0.29]], [[0.101, -0.479], [0.047, -0.515], [0.022, -0.582], [0.066, -0.684], [0.196, -0.7]], [[-1.2, 1.082], [-1.2, 0.193], [-1.153, 0.189], [-0.881, 0.202], [-0.844, 0.745], [-0.851, 0.756]], [[0.766, -0.221], [0.962, -0.201], [0.738, -0.006]], [[-0.14, 0.115], [-0.245, 0.278], [-0.344, 0.149], [-0.354, 0.046], [-0.212, -0.014]], [[-0.173, 0.865], [-0.197, 0.82], [-0.104, 0.623], [-0.065, 0.649], [-0.043, 0.739]], [[0.79, 0.543], [0.66, 0.518], [0.695, 0.422]], [[-0.658, 0.296], [-0.4, 0.347], [-0.324, 0.389], [-0.788, 0.671], [-0.7, 0.328]], [[-0.079, 0.073], [-0.069, -0.018], [0.012, -0.184], [0.043, -0.191], [0.262, 0.047], [0.199, 0.13]], [[-0.793, -0.951], [-0.687, -0.697], [-0.837, -0.294], [-0.891, -0.268], [-1.2, -0.33], [-1.2, -1.2], [-0.918, -1.2]], [[0.79, 0.543], [0.695, 0.422], [0.657, 0.324], [1.2, 0.404], [1.2, 0.781]], [[-0.173, 0.865], [-0.043, 0.739], [0.02, 0.702], [0.095, 1.2], [-0.1, 1.2]], [[0.164, -0.876], [0.115, -0.848], [-0.005, -0.855], [-0.32, -1.2], [0.201, -1.2]], [[-0.264, -0.619], [-0.27, -0.605], [-0.31, -0.582], [-0.793, -0.951], [-0.918, -1.2], [-0.825, -1.2]], [[0.231, 0.603], [0.201, 0.352], [0.214, 0.321], [0.414, 0.39], [0.384, 0.699]], [[-0.687, -0.697], [-0.671, -0.671], [-0.662, -0.397], [-0.7, -0.32], [-0.837, -0.294]], [[0.444, -0.162], [0.754, -0.322], [0.755, -0.322], [0.766, -0.221], [0.738, -0.006], [0.732, 0.013], [0.56, 0.062], [0.447, -0.003]], [[-0.142, -0.448], [0.047, -0.515], [0.101, -0.479], [0.158, -0.427], [0.043, -0.191], [0.012, -0.184], [-0.264, -0.252]], [[0.059, 0.664], [0.097, 0.606], [0.231, 0.603], [0.384, 0.699], [0.443, 0.784], [0.573, 1.2], [0.236, 1.2]], [[0.962, -0.201], [0.766, -0.221], [0.755, -0.322], [1.2, -0.337], [1.2, -0.304]]];
+
+        function drawAnimeChibakuPlanetoid(ctx, cx, cy, radius, age, isDetonating, pass) {
+            const R = Math.round(radius);
+            if (R <= 0) return;
+
+            ctx.save();
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+
+            if (pass === 'back') {
+                // 1. Purple Gravitational Distortion Space-Time Rings
+                ctx.save();
+                ctx.globalAlpha = 0.35 + Math.sin(age * 0.15) * 0.15;
+                for (let r = 50; r <= R + 60; r += 28) {
+                    const ringR = (r + age * 2.2) % (R + 70);
+                    ctx.strokeStyle = '#a55eea';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                ctx.restore();
+
+                // 2. Base Solid Rock Foundation (Rear hemisphere behind trapped fighter)
+                ctx.fillStyle = '#181410';
+                ctx.beginPath();
+                ctx.arc(cx, cy, R + 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#3a342c';
+                ctx.beginPath();
+                ctx.arc(cx, cy, R, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (pass === 'front') {
+                // 3. Jigsaw Interlocking Voronoi Rock Slabs (Exact match to anime reference photo!)
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(cx, cy, R, 0, Math.PI * 2);
+                ctx.clip();
+
+                // Solid base earth underlayer
+                ctx.fillStyle = '#3a342c';
+                ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
+
+                const basePalette = [
+                    '#6d6255', '#7d7263', '#5d5347', '#8e8271', 
+                    '#766b5d', '#544c41', '#847868', '#645a4e',
+                    '#7b7061', '#5a5144', '#8a7d6d', '#6f6456'
+                ];
+
+                // Render each Voronoi rock plate
+                for (let i = 0; i < VORONOI_ROCK_CELLS.length; i++) {
+                    const poly = VORONOI_ROCK_CELLS[i];
+                    if (poly.length < 3) continue;
+
+                    // Calculate polygon centroid for 3D lighting
+                    let sumX = 0, sumY = 0;
+                    for (let p of poly) {
+                        sumX += p[0];
+                        sumY += p[1];
+                    }
+                    const midX = sumX / poly.length;
+                    const midY = sumY / poly.length;
+
+                    // 3D Directional Lighting: Sun from top-left (-0.65, -0.65)
+                    const lightDot = (-midX * 0.65 - midY * 0.65);
+
+                    const colHex = basePalette[i % basePalette.length];
+                    let cr = parseInt(colHex.slice(1, 3), 16);
+                    let cg = parseInt(colHex.slice(3, 5), 16);
+                    let cb = parseInt(colHex.slice(5, 7), 16);
+
+                    if (lightDot > 0) {
+                        const boost = lightDot * 50;
+                        cr = Math.min(235, cr + boost);
+                        cg = Math.min(225, cg + boost * 0.95);
+                        cb = Math.min(215, cb + boost * 0.9);
+                    } else {
+                        const dark = Math.abs(lightDot) * 45;
+                        cr = Math.max(25, cr - dark);
+                        cg = Math.max(22, cg - dark);
+                        cb = Math.max(19, cb - dark);
+                    }
+
+                    ctx.beginPath();
+                    ctx.moveTo(cx + poly[0][0] * R, cy + poly[0][1] * R);
+                    for (let p = 1; p < poly.length; p++) {
+                        ctx.lineTo(cx + poly[p][0] * R, cy + poly[p][1] * R);
+                    }
+                    ctx.closePath();
+
+                    ctx.fillStyle = 'rgb(' + Math.round(cr) + ',' + Math.round(cg) + ',' + Math.round(cb) + ')';
+                    ctx.fill();
+
+                    // Dark deep rock crevice crack outline between plates
+                    ctx.strokeStyle = '#181410';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+
+                    // Subtle internal fracture line inside some slabs
+                    if (i % 3 === 0) {
+                        ctx.strokeStyle = '#221c17';
+                        ctx.lineWidth = 1.2;
+                        ctx.beginPath();
+                        ctx.moveTo(cx + poly[0][0] * R, cy + poly[0][1] * R);
+                        ctx.lineTo(cx + midX * R, cy + midY * R);
+                        ctx.stroke();
+                    }
+                }
+
+                if (isDetonating) {
+                    // Blinding white shatter cracks
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 4;
+                    for (let s = 0; s < 12; s++) {
+                        const sAngle = (s / 12) * Math.PI * 2;
+                        ctx.beginPath();
+                        ctx.moveTo(cx, cy);
+                        ctx.lineTo(cx + Math.cos(sAngle) * R * 1.15, cy + Math.sin(sAngle) * R * 1.15);
+                        ctx.stroke();
+                    }
+                }
+
+                ctx.restore(); // end clip
+
+                // 4. Heavy rugged bedrock perimeter ring
+                ctx.strokeStyle = '#14100c';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(cx, cy, R, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // 5. Cloud deck removed as requested by user
+
+                // 6. Shower of Falling / Rising Rock Shards Beneath
+                ctx.save();
+                const shards = [
+                    { dx: -R * 0.65, dy: R * 0.80, w: 7, h: 12, ang: 0.3 },
+                    { dx: -R * 0.52, dy: R * 1.02, w: 6, h: 10, ang: -0.4 },
+                    { dx: -R * 0.42, dy: R * 1.22, w: 8, h: 14, ang: 0.6 },
+                    { dx: -R * 0.32, dy: R * 0.86, w: 5, h: 9, ang: -0.2 },
+                    { dx: -R * 0.20, dy: R * 1.12, w: 7, h: 11, ang: 0.5 },
+                    { dx: -R * 0.10, dy: R * 1.32, w: 6, h: 10, ang: -0.3 },
+                    { dx: -R * 0.02, dy: R * 0.95, w: 8, h: 13, ang: 0.1 },
+                    { dx: R * 0.10, dy: R * 1.25, w: 7, h: 12, ang: -0.5 },
+                    { dx: R * 0.22, dy: R * 0.90, w: 6, h: 9, ang: 0.4 },
+                    { dx: R * 0.32, dy: R * 1.18, w: 8, h: 14, ang: -0.2 },
+                    { dx: R * 0.45, dy: R * 0.98, w: 5, h: 10, ang: 0.7 },
+                    { dx: R * 0.58, dy: R * 1.20, w: 7, h: 11, ang: -0.4 },
+                    { dx: R * 0.68, dy: R * 0.85, w: 6, h: 9, ang: 0.2 }
+                ];
+
+                ctx.fillStyle = '#221c17';
+                for (let sh of shards) {
+                    const sx = cx + sh.dx;
+                    const sy = cy + sh.dy;
+                    ctx.save();
+                    ctx.translate(sx, sy);
+                    ctx.rotate(sh.ang);
+                    ctx.fillRect(-sh.w / 2, -sh.h / 2, sh.w, sh.h);
+                    ctx.strokeStyle = '#120f0c';
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(-sh.w / 2, -sh.h / 2, sh.w, sh.h);
+                    ctx.restore();
+                }
+                ctx.restore();
+            }
+
+            ctx.imageSmoothingEnabled = prevSmooth;
+            ctx.restore();
+        }
+
+        class ChibakuTensei {
+            constructor(caster, target) {
+                this.caster = caster;
+                this.target = target;
+                this.facing = caster.facing;
+                this.startX = caster.x + caster.facing * 18;
+                this.startY = caster.y - 45;
+                this.x = this.startX;
+                this.y = this.startY;
+                
+                // Apex coordinates in the upper sky above the arena
+                this.apexX = Math.round(Math.max(140, Math.min(canvas.width - 140, target ? target.x : (caster.x + caster.facing * 180))));
+                this.apexY = 125;
+                
+                this.state = 'rising'; // 'rising' | 'attracting' | 'detonating'
+                this.active = true;
+                this.age = 0;
+                this.coreRadius = 6;
+                this.sphereRadius = 24; // Radius of the solid planetary rock sphere
+                this.maxSphereRadius = 88; // Expands to colossal 220px diameter anime rock sphere!
+                this.satelliteRadius = 24;
+                this.maxSatelliteRadius = 92;
+                this.rocks = [];
+                this.initRocks();
+            }
+
+            initRocks() {
+                this.rocks = [];
+                const numRocks = 42; // Dense swarm of 42 earth & stone blocks
+                for (let i = 0; i < numRocks; i++) {
+                    const spreadX = this.apexX + (Math.random() - 0.5) * 580;
+                    const startX = Math.max(40, Math.min(canvas.width - 40, spreadX));
+                    const startY = config.groundY + Math.random() * 6;
+                    
+                    let sizeType;
+                    if (i < 10) sizeType = 'huge';        // 10 massive bedrock slabs
+                    else if (i < 24) sizeType = 'large'; // 14 large stone blocks
+                    else if (i < 34) sizeType = 'medium';// 10 medium craggy earth chunks
+                    else sizeType = 'small';             // 8 small shards
+                    
+                    const delay = 14 + Math.floor(Math.random() * 42); // Rips from ground in staggered waves
+                    const targetAngle = (i / numRocks) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
+                    const targetDist = 14 + Math.random() * (this.maxSatelliteRadius - 14);
+
+                    this.rocks.push({
+                        x: startX,
+                        y: startY,
+                        vx: 0,
+                        vy: 0,
+                        angle: Math.random() * Math.PI * 2,
+                        rotSpeed: (Math.random() - 0.5) * 0.22,
+                        sizeType: sizeType,
+                        delay: delay,
+                        spawned: false,
+                        adhered: false,
+                        targetAngle: targetAngle,
+                        targetDist: targetDist,
+                        orbitAngle: targetAngle,
+                        orbitDist: targetDist,
+                        seed: i
+                    });
+                }
+            }
+
+            update() {
+                if (gameState.timestopActive) return;
+                this.age += 1 * config.timeScale;
+
+                // Phase 1: Rising from Pain's palms to apex (frames 0 -> 22)
+                if (this.age <= 22) {
+                    const t = Math.min(1.0, this.age / 22);
+                    const easeT = 1 - Math.pow(1 - t, 3);
+                    this.x = this.startX + (this.apexX - this.startX) * easeT;
+                    this.y = this.startY + (this.apexY - this.startY) * easeT;
+
+                    if (Math.random() > 0.2) {
+                        const sp = new Particle(this.x + (Math.random() - 0.5) * 8, this.y + (Math.random() - 0.5) * 8, Math.random() > 0.4 ? '#a55eea' : '#000000', 1.0);
+                        sp.specialBehavior = 'pixel';
+                        sp.size = 2;
+                        gameState.particles.push(sp);
+                    }
+
+                    if (this.target && !this.target.isDead) {
+                        this.target.isStunned = true;
+                        this.target.stunTimer = 6;
+                    }
+
+                    if (this.age >= 22) {
+                        this.state = 'attracting';
+                        gameState.shake = 18;
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y, 1, '#ffffff'));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y, -1, '#a55eea'));
+                    }
+                    return;
+                }
+
+                // Phase 2: Active Gravitational Singularity & Formation of Massive Rock Sphere (frames 22 -> 125)
+                if (this.age > 22 && this.age < 125) {
+                    // Smoothly grow the colossal planetary rock sphere as earth accumulates
+                    const growthRatio = Math.min(1.0, (this.age - 22) / 45);
+                    this.sphereRadius = 24 + growthRatio * (this.maxSphereRadius - 24);
+                    this.satelliteRadius = this.sphereRadius;
+
+                    // Suction on Opponent
+                    if (this.target && !this.target.isDead) {
+                        const dx = this.x - this.target.x;
+                        const dy = this.y - (this.target.y - 45);
+                        const dist = Math.hypot(dx, dy);
+
+                        this.target.isStunned = true;
+                        this.target.stunTimer = 6;
+
+                        if (dist > 18) {
+                            this.target.velX = Math.max(-14, Math.min(14, dx * 0.18));
+                            this.target.velY = Math.max(-16, Math.min(16, dy * 0.18));
+                        } else {
+                            this.target.velX = 0;
+                            this.target.velY = 0;
+                            this.target.x = this.x;
+                            this.target.y = this.y + 35; // Pinned directly into the core of the giant rock sphere
+
+                            if (Math.floor(this.age) % 12 === 0) {
+                                this.target.health = Math.max(1, this.target.health - 2);
+                                gameState.shake = Math.max(gameState.shake || 0, 8);
+                                gameState.pixelEffects.push(new PixelVFX('impact_burst', this.x + (Math.random()-0.5)*25, this.y + (Math.random()-0.5)*25, 1, '#a4b0be', { maxFrames: 10, P: 2 }));
+                            }
+                        }
+                    }
+
+                    // Suction & Flight of Rock Blocks
+                    for (let i = 0; i < this.rocks.length; i++) {
+                        const rock = this.rocks[i];
+                        if (!rock.spawned && this.age >= rock.delay) {
+                            rock.spawned = true;
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', rock.x, config.groundY, (rock.x < this.x ? 1 : -1), '#dfe6e9'));
+                            for (let k = 0; k < 2; k++) {
+                                gameState.particles.push(new Particle(rock.x + (Math.random() - 0.5) * 10, config.groundY - 3, '#7f8c8d', 1.0, false, 0, 0, 'rock'));
+                            }
+                        }
+
+                        if (rock.spawned && !rock.adhered) {
+                            const rdx = this.x - rock.x;
+                            const rdy = this.y - rock.y;
+                            const rdist = Math.hypot(rdx, rdy);
+                            const spd = Math.min(24, 7 + (1 - rdist / 550) * 18);
+                            rock.vx = (rdx / rdist) * spd;
+                            rock.vy = (rdy / rdist) * spd;
+                            rock.x += rock.vx * config.timeScale;
+                            rock.y += rock.vy * config.timeScale;
+                            rock.angle += rock.rotSpeed * config.timeScale;
+
+                            if (rdist <= this.sphereRadius + 10) {
+                                rock.adhered = true;
+                                rock.orbitDist = Math.max(this.sphereRadius * 0.85, Math.min(rdist, this.sphereRadius + 6));
+                                rock.orbitAngle = Math.atan2(rock.y - this.y, rock.x - this.x);
+                                if (Math.random() > 0.3) {
+                                    gameState.pixelEffects.push(new PixelVFX('impact_burst', rock.x, rock.y, 1, '#a4b0be', { maxFrames: 10, P: 2 }));
+                                }
+                            }
+                        } else if (rock.adhered) {
+                            rock.orbitAngle += 0.012 * config.timeScale;
+                            rock.x = this.x + Math.cos(rock.orbitAngle) * rock.orbitDist;
+                            rock.y = this.y + Math.sin(rock.orbitAngle) * rock.orbitDist;
+                            rock.angle += 0.012 * config.timeScale;
+                        }
+                    }
+
+                    this.coreRadius = 6 + Math.sin(this.age * 0.25) * 1.5;
+                    return;
+                }
+
+                // Phase 3: Cataclysmic Planetary Shatter & Meteor Slam (frames 125 -> 155)
+                if (this.age >= 125) {
+                    if (this.state !== 'detonating') {
+                        this.state = 'detonating';
+                        gameState.flashAlpha = 0.65;
+                        gameState.flashColor = '#ffffff';
+                        gameState.shake = 35;
+                        announceText('CHIBAKU TENSEI!', '#ff793f');
+
+                        for (let i = 0; i < this.rocks.length; i++) {
+                            const rock = this.rocks[i];
+                            rock.adhered = false;
+                            const bAngle = Math.atan2(rock.y - this.y, rock.x - this.x);
+                            const bSpd = 16 + Math.random() * 24;
+                            rock.vx = Math.cos(bAngle) * bSpd;
+                            rock.vy = Math.sin(bAngle) * bSpd;
+                            rock.rotSpeed = (Math.random() - 0.5) * 0.5;
+                        }
+
+                        createShinraExplosion(this.x, this.y, '#ff793f', 1, true);
+                        createShinraExplosion(this.x, this.y, '#ffffff', -1, true);
+
+                        if (this.target && !this.target.isDead) {
+                            this.target.velY = 24; // Violent downward meteor slam
+                            this.target.velX = (this.target.x >= this.x ? 1 : -1) * 8;
+                            this.target.health = Math.max(0, this.target.health - 22);
+                            this.target.isStunned = true;
+                            this.target.stunTimer = 45;
+                            if (this.target.health <= 0) {
+                                this.target.health = 0;
+                                triggerWin(this.caster);
+                            }
+                        }
+                    }
+
+                    for (let i = 0; i < this.rocks.length; i++) {
+                        const rock = this.rocks[i];
+                        rock.x += rock.vx * config.timeScale;
+                        rock.y += rock.vy * config.timeScale;
+                        rock.vy += 0.5 * config.timeScale;
+                        rock.angle += rock.rotSpeed * config.timeScale;
+                    }
+
+                    if (this.target && this.target.y >= config.groundY - 5 && this.target.velY > 0) {
+                        gameState.pixelEffects.push(new PixelVFX('impact_burst', this.target.x, config.groundY, 1, '#dfe6e9', { maxFrames: 24, P: 4 }));
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', this.target.x - 24, config.groundY, -1, '#bdc3c7'));
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', this.target.x + 24, config.groundY, 1, '#bdc3c7'));
+                        this.target.velY = 0;
+                    }
+
+                    if (this.age >= 155) {
+                        this.active = false;
+                        this.caster.painChibakuActive = false;
+                        this.caster.cooldown = 240; // 4s cooldown on B
+                    }
+                }
+            }
+
+            drawBack() {
+                if (!this.active) return;
+                ctx.save();
+
+                // Draw solid rear foundation of anime rock sphere & space-time ripples
+                if (this.state === 'attracting' || this.state === 'rising') {
+                    drawAnimeChibakuPlanetoid(ctx, this.x, this.y, this.sphereRadius, this.age, false, 'back');
+                }
+
+                ctx.restore();
+            }
+
+            drawFront() {
+                if (!this.active) return;
+                ctx.save();
+
+                // Draw clean solid front tectonic crust of ANIME ROCK SPHERE + cloud belt + falling debris
+                if (this.state === 'attracting' || this.state === 'rising' || (this.state === 'detonating' && this.age < 135)) {
+                    drawAnimeChibakuPlanetoid(ctx, this.x, this.y, this.sphereRadius, this.age, this.state === 'detonating', 'front');
+                }
+
+                ctx.restore();
+            }
+        }
+
         class Stickman {
             constructor(x, color, id, type) {
                 this.id = id; this.type = type;
@@ -13313,7 +13814,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 else if (type === 'miner') mCd = 540;  // 9s cooldown for the dig-up special (B)
                 else if (type === 'deidara') mCd = 900; // 15s cooldown for the clay dragon ult (B)
                 else if (type === 'hooper') mCd = 840;  // 14s cooldown for Zone Awakening + 9s Virtual Court
+                else if (type === 'pain') mCd = 300;    // 5s cooldown for Pain's B (Shinra / Chibaku)
                 this.maxCooldown = mCd;
+                this.launcherKickCooldown = 0;          // Cooldown for launcher kick after enemy lands on ground
                 
                 this.isDead = false; this.isDashing = false;
                 this.jumpCount = 0; this.maxJumps = (type === 'martial' || type === 'shinobi' || type === 'sixeye' || type === 'saiyan' || type === 'dio' || type === 'raijin' || type === 'phantom' || type === 'slasher' || type === 'deidara' || type === 'hooper' || type === 'pain') ? 2 : 1;
@@ -13426,6 +13929,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 if (type === 'pain') {
                     this.painShinraCooldown = 0;
                     this.painShinraMax = 300;           // 5s @ 60fps canon Shinra Tensei interval
+                    this.painChibakuWindow = 0;         // Follow-up window for [B] Chibaku Tensei
+                    this.painChibakuActive = false;
                 }
                 this.hooperAnkleFallTimer = 0;          // Visual knockdown timer when ankle-broken by Hooper
                 this.airComboCount = 0;                 // Storm 4 Air Combo hit count (max 4 per jump)
@@ -14813,6 +15318,15 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         this.painShinraCooldown -= 1 * config.timeScale;
                         if (this.painShinraCooldown < 0) this.painShinraCooldown = 0;
                     }
+                    if (this.painChibakuWindow > 0) {
+                        this.painChibakuWindow -= 1 * config.timeScale;
+                        if (this.painChibakuWindow <= 0) {
+                            this.painChibakuWindow = 0;
+                            if (this.hasLaunchedOpponent && opponent && (opponent.y >= config.groundY - 1)) {
+                                this.hasLaunchedOpponent = false;
+                            }
+                        }
+                    }
 
                     // Aerial Levitation & Hover logic
                     const isP1Pain = (typeof p1 !== 'undefined' && (this.id === 1 || this === window.p1));
@@ -14835,6 +15349,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                     // Ultimate Charging Logic (Chō Shinra Tensei - max 2.0s / 120 frames)
                     if (this.painChargingUlt) {
+                        if (gameState.timestopActive && this !== gameState.timestopCaster) {
+                            // Frozen by DIO's Timestop — charging is halted!
+                            this.velY = 0; this.velX = 0;
+                            return;
+                        }
+                        this.cooldown = this.maxCooldown; // Energy bar remains empty during charge
                         this.painUltChargeTimer = (this.painUltChargeTimer || 0) + 1 * config.timeScale;
                         this.painLevitating = true;
                         this.velY = 0; this.velX = 0;
@@ -14869,25 +15389,56 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         if (opponent && opponent.projectiles && opponent.projectiles.length > 0) {
                             for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
                                 const p = opponent.projectiles[i];
-                                if (!p.active || p.isRepelledByShinra) continue;
+                                if (!p || !p.active) continue;
                                 const pRadius = p.radius || (p.isMageBubble ? 50 : (p.owner && p.owner.type === 'martial' ? 38 : 30));
                                 const dist = Math.hypot(p.x - this.x, p.y - originY);
                                 // Immediate detonation as soon as the outer edge touches the shockwave or touches Pain!
-                                if (dist <= shockwaveRadius + pRadius + 15 || dist <= pRadius + 50) {
+                                if (dist <= shockwaveRadius + pRadius + 20 || dist <= pRadius + 65) {
                                     interactShinraWithProjectile(p, this);
                                 }
                             }
+                            opponent.projectiles = opponent.projectiles.filter(p => p && p.active);
                         }
                         if (gameState.deidaraBugs && gameState.deidaraBugs.length > 0) {
                             for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
                                 const b = gameState.deidaraBugs[i];
                                 if (b.owner === opponent) {
                                     const dist = Math.hypot(b.x - this.x, b.y - originY);
-                                    if (dist <= shockwaveRadius + 35) {
+                                    if (dist <= shockwaveRadius + 35 || dist <= 95) {
                                         b.exploded = true;
                                         const pushDir = b.x >= this.x ? 1 : -1;
                                         createShinraExplosion(b.x, b.y, '#f39c12', pushDir, true);
                                         gameState.deidaraBugs.splice(i, 1);
+                                    }
+                                }
+                            }
+                        }
+                        if (gameState.deidaraBombs && gameState.deidaraBombs.length > 0) {
+                            for (let i = gameState.deidaraBombs.length - 1; i >= 0; i--) {
+                                const b = gameState.deidaraBombs[i];
+                                if (b.owner === opponent && b.active) {
+                                    const dist = Math.hypot(b.x - this.x, b.y - originY);
+                                    if (dist <= shockwaveRadius + 35 || dist <= 95) {
+                                        b.active = false;
+                                        const pushDir = b.x >= this.x ? 1 : -1;
+                                        createShinraExplosion(b.x, b.y, '#f39c12', pushDir, true);
+                                        gameState.deidaraBombs.splice(i, 1);
+                                    }
+                                }
+                            }
+                        }
+                        if (gameState.hooperBalls && gameState.hooperBalls.length > 0) {
+                            for (let i = gameState.hooperBalls.length - 1; i >= 0; i--) {
+                                const hb = gameState.hooperBalls[i];
+                                if (hb.active && hb.owner === opponent) {
+                                    const dist = Math.hypot(hb.x - this.x, hb.y - originY);
+                                    if (dist <= shockwaveRadius + 30 || dist <= 95) {
+                                        const pushDir = hb.x >= this.x ? 1 : -1;
+                                        hb.state = 'rebound';
+                                        hb.facing = pushDir;
+                                        hb.velX = pushDir * 18;
+                                        hb.velY = -6;
+                                        gameState.pixelEffects.push(new PixelVFX('impact_burst', hb.x, hb.y, pushDir, '#ffffff'));
                                     }
                                 }
                             }
@@ -15194,6 +15745,17 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 if (this.cooldown > 0) this.cooldown -= (1 * config.timeScale);
                 if (this.internalCooldown > 0) this.internalCooldown -= (1 * config.timeScale);
+                if (this.launcherKickCooldown > 0) {
+                    this.launcherKickCooldown -= (1 * config.timeScale);
+                    if (this.launcherKickCooldown < 0) this.launcherKickCooldown = 0;
+                }
+                // When launched opponent falls and touches ground, start 6s cooldown on launcher kick
+                if (this.hasLaunchedOpponent && opponent) {
+                    if (((opponent.y >= config.groundY - 1) && opponent.velY >= 0) || opponent.isDead) {
+                        this.hasLaunchedOpponent = false;
+                        this.launcherKickCooldown = 360; // 6 seconds @ 60fps
+                    }
+                }
 
                 if (this.isParrying) {
                     this.parryTimer -= (1 * config.timeScale);
@@ -15546,40 +16108,42 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     if (!frozenByTimestop) this.checkHit(opponent);
                 }
 
-                this.projectiles.forEach((p, index) => {
+                // Clean inactive projectiles before iteration
+                this.projectiles = this.projectiles.filter(p => p && p.active);
+
+                for (let index = this.projectiles.length - 1; index >= 0; index--) {
+                    const p = this.projectiles[index];
+                    if (!p || !p.active) {
+                        this.projectiles.splice(index, 1);
+                        continue;
+                    }
+
                     // Critical Time Stop Freeze Guardrail: Skip entirely for non-caster frozen projectiles
                     if (gameState.timestopActive && p.owner !== gameState.timestopCaster) {
-                        return;
+                        continue;
                     }
                     
                     p.update();
+                    if (!p.active) {
+                        this.projectiles.splice(index, 1);
+                        continue;
+                    }
                     
                     let target = (p.owner === this) ? opponent : this;
                     let shooter = (p.owner === this) ? this : opponent;
 
-                    // Shinra Tensei Direct Projectile Interaction: Incoming projectiles striking the expanding barrier detonate or get repelled!
+                    // Shinra Tensei Direct Projectile Interaction: Incoming projectiles striking the expanding barrier detonate instantly!
                     if (target && target.type === 'pain' && target.attacking && target.attackType === 'shinra_tensei') {
-                        if (p.active && !p.isRepelledByShinra) {
+                        const targetOriginY = (target.y < config.groundY - 15) ? (target.y - 45) : (config.groundY - 45);
+                        const tProg = 1 - (target.attackTimer / (target.attackMax || 22));
+                        const maxR = target.painCurrentMaxRadius || 310;
+                        const shockwaveR = (1 - Math.pow(1 - tProg, 2.0)) * maxR;
+                        const pRadius = p.radius || (p.isMageBubble ? 50 : (p.owner && p.owner.type === 'martial' ? 38 : 30));
+                        const distToPain = Math.hypot(p.x - target.x, p.y - targetOriginY);
+                        if (p.active && (distToPain <= shockwaveR + pRadius + 20 || distToPain <= pRadius + 65)) {
                             interactShinraWithProjectile(p, target);
-                        }
-                        return;
-                    }
-
-                    // Repelled projectile hitting opponent
-                    if (p.active && p.isRepelledByShinra) {
-                        const distToOpp = Math.hypot(p.x - target.x, p.y - (target.y - 45));
-                        if (distToOpp < 45) {
-                            p.active = false;
-                            if (!target.isInfinityShieldActive && !target.isSaiyanDodging) {
-                                target.health = Math.max(0, target.health - (target.isBlocking ? 3 : 10));
-                                target.velX = p.facing * 12;
-                                target.velY = -3;
-                                target.isStunned = true;
-                                target.stunTimer = 22;
-                                if (target.health <= 0) { target.health = 0; triggerWin(shooter); }
-                            }
-                            createShinraExplosion(p.x, p.y, p.color || '#ffffff', p.facing, false);
-                            return;
+                            this.projectiles.splice(index, 1);
+                            continue;
                         }
                     }
                     
@@ -15871,7 +16435,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                     if(!p.isRedSphere && (p.x < -100 || p.x > canvas.width + 100)) p.active = false;
                     if(!p.active) this.projectiles.splice(index, 1);
-                });
+                }
+                this.projectiles = this.projectiles.filter(p => p && p.active);
             }
 
             slasherChannelUpdate(opponent) {
@@ -16082,6 +16647,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
             releasePainUlt() {
                 if (!this.painChargingUlt) return;
+                if (gameState.timestopActive && this !== gameState.timestopCaster) return; // Cannot release during Timestop!
                 const opponent = (typeof p1 !== 'undefined' && this.id === p1.id) ? (typeof p2 !== 'undefined' ? p2 : null) : (typeof p1 !== 'undefined' ? p1 : null);
                 const chargeTimer = this.painUltChargeTimer || 0;
                 const chargeRatio = Math.min(1.0, chargeTimer / 120); // 0.0 to 1.0 (2 seconds max)
@@ -16120,9 +16686,13 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', originX, originY, this.facing, '#ffffff', { maxFrames: 22 }));
 
                     if (opponent && opponent.projectiles) {
-                        opponent.projectiles.forEach(p => {
-                            if (p.active && Math.hypot(p.x - originX, p.y - originY) <= 85) interactShinraWithProjectile(p, this);
-                        });
+                        for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
+                            const p = opponent.projectiles[i];
+                            if (p && p.active && Math.hypot(p.x - originX, p.y - originY) <= 120) {
+                                interactShinraWithProjectile(p, this);
+                            }
+                        }
+                        opponent.projectiles = opponent.projectiles.filter(p => p && p.active);
                     }
 
                     if (opponent && !opponent.isDead) {
@@ -16167,11 +16737,13 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.particles.push(new Particle(k, config.groundY - 3, '#7f8c8d', 1.2, false, 0, 0, 'rock'));
                     }
 
-                    // Destroy/repel all projectiles in field
+                    // Destroy all projectiles in field
                     if (opponent && opponent.projectiles) {
-                        opponent.projectiles.forEach(p => {
-                            if (p.active) interactShinraWithProjectile(p, this);
-                        });
+                        for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
+                            const p = opponent.projectiles[i];
+                            if (p && p.active) interactShinraWithProjectile(p, this);
+                        }
+                        opponent.projectiles = opponent.projectiles.filter(p => p && p.active);
                     }
                     if (gameState.deidaraBugs) {
                         gameState.deidaraBugs.forEach(b => {
@@ -16181,6 +16753,25 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             }
                         });
                         gameState.deidaraBugs = [];
+                    }
+                    if (gameState.deidaraBombs) {
+                        gameState.deidaraBombs.forEach(b => {
+                            if (b.owner === opponent && b.active) {
+                                b.active = false;
+                                createShinraExplosion(b.x, b.y, '#f39c12', (b.x >= originX ? 1 : -1), true);
+                            }
+                        });
+                        gameState.deidaraBombs = [];
+                    }
+                    if (gameState.hooperBalls) {
+                        gameState.hooperBalls.forEach(hb => {
+                            if (hb.active && hb.owner === opponent) {
+                                hb.active = false;
+                                hb.owner.hooperHasBall = true;
+                                createShinraExplosion(hb.x, hb.y, '#ff6b00', (hb.x >= originX ? 1 : -1), false);
+                            }
+                        });
+                        gameState.hooperBalls = [];
                     }
 
                     // Damage: EXACT 70% OF CURRENT HP IF FULL 4s, otherwise scaled!
@@ -16605,7 +17196,40 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 }
 
-                if (this.attacking || this.isDead || (this.isBlocking && type !== 'launcher_kick' && !(this.type === 'fisherman' && type === 'special')) || this.internalCooldown > 0 || this.isCharging || this.isParrying || this.isTransforming || this.isBeingPulled || this.isStunned || this.isSaiyanDodging || this.phantomChargingB || this.slasherUltActive) return;
+                // ── PAIN CHIBAKU TENSEI FOLLOW-UP (Can cancel launcher_kick recovery) ─────────────
+                if (this.type === 'pain' && type === 'pain_chibaku') {
+                    if (this.isDead || this.isStunned || this.isBeingPulled || this.isParrying || this.isTransforming) return;
+                    if (gameState.timestopActive && this !== gameState.timestopCaster) return;
+                    if (this.cooldown > 0) {
+                        announceText('COOLDOWN: ' + (this.cooldown / 60).toFixed(1) + 's', '#a55eea');
+                        return;
+                    }
+                    this.cooldown = this.maxCooldown; // Instantly deplete energy bar upon casting Chibaku Tensei
+                    this.painChibakuWindow = 0;
+                    this.hasLaunchedOpponent = false;
+                    this.attacking = true;
+                    this.attackType = 'pain_chibaku_cast';
+                    this.attackMax = 32;
+                    this.attackTimer = 32;
+                    this.internalCooldown = 40;
+                    this.painChibakuActive = true;
+
+                    announceText('CHIBAKU TENSEI!', '#a55eea');
+                    gameState.shake = 22;
+                    gameState.flashAlpha = 0.40;
+                    gameState.flashColor = '#a55eea';
+
+                    if (!gameState.chibakuTensei) gameState.chibakuTensei = [];
+                    gameState.chibakuTensei.push(new ChibakuTensei(this, opponent));
+                    return;
+                }
+
+                const isDioSpecial = (this.type === 'dio' && type === 'special');
+                if (!isDioSpecial) {
+                    if (this.attacking || this.isDead || (this.isBlocking && type !== 'launcher_kick' && !(this.type === 'fisherman' && type === 'special')) || this.internalCooldown > 0 || this.isCharging || this.isParrying || this.isTransforming || this.isBeingPulled || this.isStunned || this.isSaiyanDodging || this.phantomChargingB || this.slasherUltActive) return;
+                } else {
+                    if (this.isDead) return;
+                }
                 if ((type === 'dash' || type === 'special' || type === 'saiyan_beam') && this.cooldown > 0) return;
                 if (gameState.timestopActive && this !== gameState.timestopCaster) return;
                 
@@ -16621,8 +17245,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 // Universal Launcher Kick: Block + Kick (for all characters with a leg kick)
                 if (type === 'launcher_kick') {
-                    const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                    const noLegKick = ['inventor', 'duelist', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                     if (noLegKick.includes(this.type)) return;
+                    if (this.launcherKickCooldown > 0) {
+                        announceText('LAUNCHER CD: ' + (this.launcherKickCooldown / 60).toFixed(1) + 's', '#ffffff');
+                        return;
+                    }
 
                     this.isBlocking = false;
                     this.attacking = true;
@@ -16639,7 +17267,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         }
                     }
 
-                    gameState.pixelEffects.push(new PixelVFX('gale_kick', this.x + 28 * this.facing, this.y - 45, this.facing, this.color));
+                    const kickVFXCol = (this.type === 'pain') ? '#ffffff' : this.color;
+                    gameState.pixelEffects.push(new PixelVFX('gale_kick', this.x + 28 * this.facing, this.y - 45, this.facing, kickVFXCol));
                     gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 20 * this.facing, this.y - 35, this.facing, '#ffffff'));
                     gameState.shake = Math.max(gameState.shake || 0, 8);
                     return;
@@ -16866,6 +17495,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             gameState.timestopWaveRadius = 1; 
                             gameState.roadrollerTriggered = false;
                             this.cooldown = this.maxCooldown;
+                            this.isStunned = false;
+                            this.isBeingPulled = false;
+                            this.stunTimer = 0;
+                            this.velX = 0;
+                            this.velY = 0;
                             
                             opponent.isBlocking = false; 
                             announceText('TIME STOP (3.6S)!', this.color);
@@ -17160,14 +17794,18 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 } 
                 
 
+
+
                 if (this.type === 'pain' && type === 'pain_ult') {
                     if (this.isDead || this.isStunned || this.isBeingPulled) return;
+                    if (gameState.timestopActive && this !== gameState.timestopCaster) return;
                     // 5-second cooldown guardrail on B:
                     if (this.cooldown > 0) {
                         announceText('COOLDOWN: ' + (this.cooldown / 60).toFixed(1) + 's', '#a55eea');
                         return;
                     }
                     if (!this.painChargingUlt) {
+                        this.cooldown = this.maxCooldown; // Instantly deplete energy bar upon pressing B
                         this.painChargingUlt = true;
                         this.painUltChargeTimer = 0;
                         this.painLevitating = true;
@@ -17209,23 +17847,53 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         if (opponent && opponent.projectiles && opponent.projectiles.length > 0) {
                             for (let i = opponent.projectiles.length - 1; i >= 0; i--) {
                                 const p = opponent.projectiles[i];
-                                if (!p.active || p.isRepelledByShinra) continue;
+                                if (!p || !p.active) continue;
                                 const dist = Math.hypot(p.x - this.x, p.y - (this.y - 45));
-                                if (dist <= 75) {
+                                if (dist <= 95) {
                                     interactShinraWithProjectile(p, this);
                                 }
                             }
+                            opponent.projectiles = opponent.projectiles.filter(p => p && p.active);
                         }
                         if (gameState.deidaraBugs && gameState.deidaraBugs.length > 0) {
                             for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
                                 const b = gameState.deidaraBugs[i];
                                 if (b.owner === opponent) {
                                     const dist = Math.hypot(b.x - this.x, b.y - (this.y - 45));
-                                    if (dist <= 75) {
+                                    if (dist <= 95) {
                                         b.exploded = true;
                                         const pushDir = b.x >= this.x ? 1 : -1;
                                         createShinraExplosion(b.x, b.y, '#f39c12', pushDir, true);
                                         gameState.deidaraBugs.splice(i, 1);
+                                    }
+                                }
+                            }
+                        }
+                        if (gameState.deidaraBombs && gameState.deidaraBombs.length > 0) {
+                            for (let i = gameState.deidaraBombs.length - 1; i >= 0; i--) {
+                                const b = gameState.deidaraBombs[i];
+                                if (b.owner === opponent && b.active) {
+                                    const dist = Math.hypot(b.x - this.x, b.y - (this.y - 45));
+                                    if (dist <= 95) {
+                                        b.active = false;
+                                        const pushDir = b.x >= this.x ? 1 : -1;
+                                        createShinraExplosion(b.x, b.y, '#f39c12', pushDir, true);
+                                        gameState.deidaraBombs.splice(i, 1);
+                                    }
+                                }
+                            }
+                        }
+                        if (gameState.hooperBalls && gameState.hooperBalls.length > 0) {
+                            for (let i = gameState.hooperBalls.length - 1; i >= 0; i--) {
+                                const hb = gameState.hooperBalls[i];
+                                if (hb.active && hb.owner === opponent) {
+                                    const dist = Math.hypot(hb.x - this.x, hb.y - (this.y - 45));
+                                    if (dist <= 95) {
+                                        hb.active = false;
+                                        hb.owner.hooperHasBall = true;
+                                        const pushDir = hb.x >= this.x ? 1 : -1;
+                                        createShinraExplosion(hb.x, hb.y, '#ff6b00', pushDir, false);
+                                        gameState.hooperBalls.splice(i, 1);
                                     }
                                 }
                             }
@@ -17712,16 +18380,23 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             this.brawlerAirStep = 0;
                             this.airComboTotalDmg = 0;
 
+                            if (this.type === 'pain') {
+                                this.painChibakuWindow = 85; // ~1.4s follow-up window for [B] Chibaku Tensei!
+                                announceText('AIR LAUNCH! [B] CHIBAKU TENSEI', '#a55eea');
+                            } else {
+                                announceText('AIR LAUNCH!', this.color);
+                            }
+
+                            const hitCol = (this.type === 'pain') ? '#ffffff' : this.color;
                             gameState.shake = 18;
                             gameState.flashAlpha = 0.35;
-                            gameState.flashColor = this.color;
-                            announceText('AIR LAUNCH!', this.color);
+                            gameState.flashColor = hitCol;
 
-                            gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 35, this.facing, this.color, { maxFrames: 22, P: 4 }));
-                            gameState.pixelEffects.push(new PixelVFX('gale_kick', opponent.x, opponent.y - 45, this.facing, this.color));
+                            gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 35, this.facing, hitCol, { maxFrames: 22, P: 4 }));
+                            gameState.pixelEffects.push(new PixelVFX('gale_kick', opponent.x, opponent.y - 45, this.facing, hitCol));
                             gameState.pixelEffects.push(new PixelVFX('air_ring', opponent.x, config.groundY - 6, this.facing, '#ffffff'));
-                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x - 18, config.groundY, -1, this.color));
-                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x + 18, config.groundY, 1, this.color));
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x - 18, config.groundY, -1, hitCol));
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x + 18, config.groundY, 1, hitCol));
 
                             if (opponent.health <= 0) {
                                 opponent.health = 0;
@@ -18638,35 +19313,68 @@ function drawPixelSwapper(fighter, frozenInDraw) {
         function interactShinraWithProjectile(p, painCaster) {
             if (!p || !p.active) return;
             const pushDir = (p.x >= painCaster.x) ? 1 : -1;
+            const hitX = p.x;
+            const hitY = p.y;
+            const pCol = p.color || '#ffffff';
 
-            // Direct deflection check: solid/compact projectiles get violently repelled & blasted away!
-            const isSolid = (p.isDioKnife || p.isFishingHook || p.isScytheCut || 
-                (p.owner && (p.owner.type === 'gunslinger' || p.owner.type === 'shinobi' || p.owner.type === 'duelist' || p.owner.type === 'miner')));
+            // Differentiate physical vs energy projectiles
+            const isPhysical = p.isDioKnife || p.isFishingHook || 
+                               (p.owner && (p.owner.type === 'gunslinger' || p.owner.type === 'shinobi' || p.owner.type === 'slasher'));
 
-            if (isSolid && !p.isRepelledByShinra) {
-                // Direct physical deflection: violent knockback away from Pain!
-                p.isRepelledByShinra = true;
+            if (isPhysical) {
+                // Physical projectiles BOUNCE BACK / REFLECT away with reversed velocity towards the original attacker!
                 p.facing = pushDir;
-                p.speed = 36;
-                p.angleY = (Math.random() - 0.5) * 4;
-                p.owner = painCaster; // Pain is now the owner of the repelled projectile
-                p.repelledLife = 26;
-                p.color = '#ffffff';
-                // Direct deflection collision spark & burst
-                gameState.pixelEffects.push(new PixelVFX('impact_burst', p.x, p.y, pushDir, '#ffffff', { maxFrames: 14 }));
-                gameState.pixelEffects.push(new PixelVFX('air_ring', p.x, p.y, pushDir, '#ffffff'));
-                createExplosion(p.x, p.y, '#ffffff', 8, 1.2);
-                gameState.shake = Math.max(gameState.shake || 0, 12);
-            } else {
-                // Energy / heavy projectile (Mage bubble, Hadou-fist, Hollow purple, etc.): IMMEDIATE SHATTER DETONATION!
-                p.active = false;
-                const isMega = p.isHollowPurple || p.isSaiyanUltWave || p.isPhantomChargedBall || p.isMageBubble || (p.owner && p.owner.type === 'martial');
-                createShinraExplosion(p.x, p.y, p.color, pushDir, isMega);
-                if (p.isMageBubble) {
-                    createMagePixelExplosion(p.x, p.y, 2.0, true, p.color);
-                } else if (p.isMageSpark) {
-                    createMagePixelExplosion(p.x, p.y, 1.2, false, p.color);
+                const reboundSpeed = Math.max(18, Math.abs(p.speed || p.vx || 14) * 1.4);
+                p.speed = reboundSpeed;
+                p.vx = pushDir * reboundSpeed;
+                p.vy = (p.vy || 0) * 0.3 - 2.5;
+                p.isReflected = true;
+
+                // Reassign ownership to painCaster so it damages original thrower
+                if (p.owner && p.owner.projectiles) {
+                    const idx = p.owner.projectiles.indexOf(p);
+                    if (idx !== -1) p.owner.projectiles.splice(idx, 1);
                 }
+                p.owner = painCaster;
+                if (!painCaster.projectiles.includes(p)) {
+                    painCaster.projectiles.push(p);
+                }
+
+                // Crisp metallic deflection spark
+                gameState.pixelEffects.push(new PixelVFX('impact_burst', hitX, hitY, pushDir, '#ffffff', { maxFrames: 12, P: 3 }));
+                gameState.pixelEffects.push(new PixelVFX('air_ring', hitX, hitY, pushDir, '#ffffff'));
+                gameState.shake = Math.max(gameState.shake || 0, 8);
+                return;
+            }
+
+            // Energy projectiles EXPLODE & DETONATE on contact!
+            p.active = false;
+            p.speed = 0;
+            p.vx = 0;
+            p.vy = 0;
+            p.angleY = 0;
+            p.x = -99999;
+            p.y = -99999;
+
+            if (p.owner && p.owner.projectiles) {
+                const idx = p.owner.projectiles.indexOf(p);
+                if (idx !== -1) p.owner.projectiles.splice(idx, 1);
+            }
+            if (typeof p1 !== 'undefined' && p1 && p1.projectiles) {
+                const idx1 = p1.projectiles.indexOf(p);
+                if (idx1 !== -1) p1.projectiles.splice(idx1, 1);
+            }
+            if (typeof p2 !== 'undefined' && p2 && p2.projectiles) {
+                const idx2 = p2.projectiles.indexOf(p);
+                if (idx2 !== -1) p2.projectiles.splice(idx2, 1);
+            }
+
+            const isMega = p.isHollowPurple || p.isSaiyanUltWave || p.isPhantomChargedBall || p.isMageBubble || (p.owner && p.owner.type === 'martial');
+            createShinraExplosion(hitX, hitY, pCol, pushDir, isMega);
+            if (p.isMageBubble) {
+                createMagePixelExplosion(hitX, hitY, 2.2, true, pCol);
+            } else if (p.isMageSpark) {
+                createMagePixelExplosion(hitX, hitY, 1.4, false, pCol);
             }
         }
 
@@ -19419,7 +20127,7 @@ function drawPixelPain(fighter, frozenInDraw) {
 
     // 3) Kinematics & Animation State Machine
     const drawAttacking = frozenInDraw ? false : fighter.attacking;
-    const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+    const drawAttackType = frozenInDraw ? '' : fighter.attackType;
     const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
     const isAirborne = fighter.y < config.groundY - 2;
     const isRunning = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -19491,7 +20199,68 @@ function drawPixelPain(fighter, frozenInDraw) {
             armB = [-4, -18, -2, -16,  2, -14];
             armF = [ 3, -18,  6, -16,  9, -14];
         }
-    } else if (drawAttacking && (drawAttackType === 'kick' || drawAttackType === 'launcher_kick')) {
+    } else if (drawAttacking && drawAttackType === 'launcher_kick') {
+        // TENDŌ PAIN TAEKWONDO HIGH SIDE KICK (YOP CHAGI) - EXACT MATCH TO USER REFERENCE SKELETON!
+        if (progress < 0.22) {
+            // Phase 1: Knee chamber & plant standing foot firmly on the floor
+            expr = 'focus';
+            torsoLean = -3;
+            bodyY = 0;
+            headX = 0; headY = -24;
+            legB = [-2 - torsoLean, -10, -1 - torsoLean, -5, 0 - torsoLean, 0];
+            legF = [ 2 - torsoLean, -10,  4 - torsoLean, -16, 3 - torsoLean, -20]; // Tucked high chamber
+            armB = [-4, -18, -6, -15, -4, -13];
+            armF = [ 2, -18,  4, -16,  5, -14];
+            cloakHemOffset = -1;
+        } else if (progress < 0.78) {
+            // Phase 2: FULL EXTENSION - TAEKWONDO HIGH SIDE KICK (Yop Chagi)
+            // - Standing leg: Straight vertical pillar flat on the mat (x = 0, y = 0).
+            // - Torso: Leans back diagonally at ~50° (torsoLean = -8).
+            // - Head: Sits on tilted shoulders, looking along kicking line over shoulder at opponent.
+            // - Guard arms: Rear fist tucked tight at hip/belt; lead fist guarding chest/chin.
+            // - Striking leg: Drives high heel straight up-forward at ~60° to apex (15, -33), well above head level!
+            expr = 'focus';
+            torsoLean = -8; // Deep martial torso counter-lean
+            bodyY = 0;
+            headX = 2; headY = -23; // Resolute focus looking at opponent
+
+            // Standing leg: Planted firmly and vertically straight down at x = 0 on the mat!
+            legB = [-1 - torsoLean, -11, 0 - torsoLean, -6, 0 - torsoLean, 0];
+
+            // Striking leg: High diagonal side kick extending to apex (15, -33) - above head height!
+            legF = [1 - torsoLean, -11, 8 - torsoLean, -22, 15 - torsoLean, -33];
+
+            // Martial arts guard arms (Karate/Taekwondo chambered guard):
+            armB = [-3, -18, -6, -15, -3, -13]; // Rear fist tucked at ribs/belt
+            armF = [ 2, -18,  2, -14,  4, -13]; // Lead fist raised guarding chin/chest
+
+            cloakHemOffset = -4;
+            cloakSpread = 1;
+        } else {
+            // Phase 3: Rapid chamber retraction & return to battle stance
+            expr = 'normal';
+            torsoLean = -1;
+            bodyY = 0;
+            headX = 0; headY = -24;
+            legB = [-3, -10, -4, -5, -5, 0];
+            legF = [ 2, -10,  4, -8,  5, -2];
+            armB = [-4, -17, -5, -14, -4, -12];
+            armF = [ 2, -17,  4, -14,  6, -12];
+            cloakHemOffset = -1;
+        }
+    } else if (drawAttacking && drawAttackType === 'pain_chibaku_cast') {
+        // TENDŌ PAIN CHIBAKU TENSEI PRAYER SEAL POSE
+        expr = 'focus';
+        torsoLean = 0;
+        headX = 0; headY = -24;
+        bodyY = -1;
+        armB = [-3, -18, -1, -16, 2, -15];
+        armF = [3, -18, 1, -16, 2, -15];
+        legB = [-3, -10, -4, -5, -5, 0];
+        legF = [2, -10, 3, -5, 4, 0];
+        cloakHemOffset = -1;
+        cloakSpread = 2;
+    } else if (drawAttacking && drawAttackType === 'kick') {
         // Akatsuki snap kick
         expr = 'focus';
         if (progress < 0.35) {
@@ -19670,10 +20439,15 @@ function drawPixelPain(fighter, frozenInDraw) {
         px(tx - 3 + cloakHemOffset, ty - 4, 2, 2, cloakShade);
     }
 
+
+
     // 6) Front Leg
     drawLimb(legF[0] + tx, legF[1] + ty, legF[2] + tx, legF[3] + ty, 2, pantsMain, out);
     drawLimb(legF[2] + tx, legF[3] + ty, legF[4] + tx, legF[5], 2, wrapMain, wrapShade);
-    px(legF[4] + tx - 1, legF[5] - 1, 3, 2, sandalCol);
+    // Sandal heel & blade of the foot pointing up-forward
+    px(legF[4] + tx - 1, legF[5] - 1, 4, 3, out);
+    px(legF[4] + tx, legF[5], 3, 2, sandalCol);
+    px(legF[4] + tx + 1, legF[5] - 1, 2, 2, skin);
 
     // 7) Head, Yahiko Spiky Orange Hair, Headband, Rinnegan & Piercings
     // Head base & skin
@@ -19863,7 +20637,7 @@ function drawPixelDeidara(fighter, frozenInDraw) {
 
     // Kinematics & States
     const drawAttacking = frozenInDraw ? false : fighter.attacking;
-    const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+    const drawAttackType = frozenInDraw ? '' : fighter.attackType;
     const progress = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
     const isAirborne = (fighter.y < config.groundY - 2) && !fighter.isRidingDragon;
     const isRunning = !isAirborne && !fighter.isRidingDragon && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -20724,7 +21498,7 @@ function drawPixelMage(fighter, frozenInDraw) {
 
     // Animation States
     const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-    const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+    const drawAttackType = frozenInDraw ? '' : fighter.attackType;
     const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
     const isAirborne     = fighter.y < config.groundY - 2;
     const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -21122,7 +21896,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -21351,7 +22125,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking && !fighter.isCharging;
@@ -21579,7 +22353,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -21795,7 +22569,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             }
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -21972,7 +22746,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = fighter.y < config.groundY - 2;
             const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -22294,7 +23068,7 @@ function drawPixelMage(fighter, frozenInDraw) {
             ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
 
             const drawAttacking  = frozenInDraw ? false : fighter.attacking;
-            const drawAttackType = frozenInDraw ? '' : (fighter.attackType === 'launcher_kick' ? 'kick' : fighter.attackType);
+            const drawAttackType = frozenInDraw ? '' : fighter.attackType;
             const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
             const isAirborne     = !fighter.slasherUltActive && (fighter.y < config.groundY - 2);
             const isRunning      = !isAirborne && !fighter.slasherUltActive && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
@@ -24104,15 +24878,20 @@ function drawPixelMage(fighter, frozenInDraw) {
                         me.attack('hooper_c');
                     }
                 } else if (me.type === 'pain') {
-                    if (canSpecial && rand < 0.35) {
-                        me.attack('special');
+                    const oppInAir = opponent.y < config.groundY - 20;
+                    if ((me.painChibakuWindow > 0 || (me.hasLaunchedOpponent && oppInAir)) && !me.painChibakuActive) {
+                        me.attack('pain_chibaku', opponent);
+                    } else if (!oppInAir && dist < 95 && rand < 0.35) {
+                        me.attack('launcher_kick', opponent);
+                    } else if (canSpecial && rand < 0.35) {
+                        me.attack('special', opponent);
                     } else if (me.painShinraCooldown <= 0 && rand < 0.70) {
-                        me.attack('punch');
+                        me.attack('punch', opponent);
                     } else {
-                        me.attack('kick');
+                        me.attack('kick', opponent);
                     }
                 } else if (me.type === 'martial') {
-                    const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                    const noLegKick = ['inventor', 'duelist', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                     const oppInAir = opponent.y < config.groundY - 25;
                     if (oppInAir && dist < 120) {
                         if (me.y >= config.groundY - 1) me.jump();
@@ -24205,7 +24984,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                 cpu1Vel.v = runCPU(p1, p2, cpu1Counter, cpu1Vel);
                 applyVelocity(p1, cpu1Vel.v);
             } else {
-                const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                const noLegKick = ['inventor', 'duelist', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                 const p1HoldingBlock = !!keys['KeyS'];
                 const p1PressKick = !!keys['KeyV'];
 
@@ -24253,7 +25032,12 @@ function drawPixelMage(fighter, frozenInDraw) {
                         }
                     } else if (p1.type === 'pain') {
                         if (keys['KeyB']) {
-                            p1.attack('pain_ult');
+                            const oppInAir = p2 && (p2.y < config.groundY - 20);
+                            if ((p1.painChibakuWindow > 0 || (p1.hasLaunchedOpponent && oppInAir)) && !p1.painChargingUlt && !p1.painChibakuActive) {
+                                p1.attack('pain_chibaku', p2);
+                            } else if (!p1.painChibakuActive) {
+                                p1.attack('pain_ult');
+                            }
                         } else if (p1.painChargingUlt) {
                             p1.releasePainUlt();
                         }
@@ -24270,7 +25054,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                 cpu2Vel.v = runCPU(p2, p1, cpu2Counter, cpu2Vel);
                 applyVelocity(p2, cpu2Vel.v);
             } else {
-                const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                const noLegKick = ['inventor', 'duelist', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                 const p2HoldingBlock = !!keys['ArrowDown'];
                 const p2PressKick = !!keys['KeyK'];
 
@@ -24318,7 +25102,12 @@ function drawPixelMage(fighter, frozenInDraw) {
                         }
                     } else if (p2.type === 'pain') {
                         if (keys['KeyL']) {
-                            p2.attack('pain_ult');
+                            const oppInAir = p1 && (p1.y < config.groundY - 20);
+                            if ((p2.painChibakuWindow > 0 || (p2.hasLaunchedOpponent && oppInAir)) && !p2.painChargingUlt && !p2.painChibakuActive) {
+                                p2.attack('pain_chibaku', p1);
+                            } else if (!p2.painChibakuActive) {
+                                p2.attack('pain_ult');
+                            }
                         } else if (p2.painChargingUlt) {
                             p2.releasePainUlt();
                         }
@@ -24402,6 +25191,14 @@ function drawPixelMage(fighter, frozenInDraw) {
 
                 p1.update(p2);
                 p2.update(p1);
+
+                if (gameState.chibakuTensei) {
+                    for (let i = gameState.chibakuTensei.length - 1; i >= 0; i--) {
+                        const ct = gameState.chibakuTensei[i];
+                        ct.update();
+                        if (!ct.active) gameState.chibakuTensei.splice(i, 1);
+                    }
+                }
 
                 // Update & draw pending lightning strike 16-bit pixel target beacons
                 if (!gameState.timestopActive) {
@@ -24718,8 +25515,14 @@ function drawPixelMage(fighter, frozenInDraw) {
                         r.update(); r.draw();
                         if (!r.active) gameState.roadrollers.splice(i, 1);
                     }
+                    if (gameState.chibakuTensei) {
+                        gameState.chibakuTensei.forEach(ct => ct.drawBack());
+                    }
                     p1.draw();
                     p2.draw();
+                    if (gameState.chibakuTensei) {
+                        gameState.chibakuTensei.forEach(ct => ct.drawFront());
+                    }
 
                     for (let i = gameState.deidaraBugs.length - 1; i >= 0; i--) {
                         const b = gameState.deidaraBugs[i];

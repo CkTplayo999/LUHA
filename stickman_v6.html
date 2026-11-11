@@ -3960,7 +3960,14 @@
                 }
             }
             update() {
-                if (gameState.timestopActive) return;
+                if (gameState.timestopActive) {
+                    if (this.target === gameState.timestopCaster) {
+                        this.target.isStunned = false;
+                        this.target.isBeingPulled = false;
+                        this.target.stunTimer = 0;
+                    }
+                    return;
+                }
                 this.frame += config.timeScale;
                 this.x += this.vx * config.timeScale;
                 this.y += this.vy * config.timeScale;
@@ -13198,8 +13205,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
 
                 if (!(opp.type === 'sixeye' && opp.isInfinityShieldActive) && !opp.isSaiyanDodging) {
-                    const dmg = opp.isBlocking ? 5 : 14;
-                    opp.health -= dmg;
+                    const dmg = 0; // Hooper Zone C deals 0 damage as requested
                     opp.isStunned = true;
                     opp.stunTimer = Math.max(opp.stunTimer || 0, 32); // ~0.53s ankle-broken fall stun
                     opp.hooperAnkleFallTimer = 32;
@@ -13486,27 +13492,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 ctx.arc(cx, cy, R, 0, Math.PI * 2);
                 ctx.stroke();
 
-                // 5. Horizontal Cloud Deck wrapping across lower sphere (Exact anime match!)
-                ctx.save();
-                const cloudY = cy + R * 0.52;
-                const cloudPuffs = [
-                    { dx: -R * 0.95, dy: 0, rw: 52, rh: 18, col: 'rgba(215, 205, 195, 0.82)' },
-                    { dx: -R * 0.55, dy: -5, rw: 68, rh: 22, col: 'rgba(235, 226, 216, 0.90)' },
-                    { dx: -R * 0.12, dy: 3, rw: 82, rh: 26, col: 'rgba(245, 238, 230, 0.94)' },
-                    { dx: R * 0.45, dy: -4, rw: 66, rh: 20, col: 'rgba(230, 222, 212, 0.90)' },
-                    { dx: R * 0.88, dy: 5, rw: 54, rh: 18, col: 'rgba(215, 205, 195, 0.82)' },
-                    { dx: -R * 0.75, dy: 12, rw: 58, rh: 16, col: 'rgba(165, 155, 145, 0.68)' },
-                    { dx: 0, dy: 15, rw: 90, rh: 18, col: 'rgba(175, 165, 155, 0.72)' },
-                    { dx: R * 0.65, dy: 11, rw: 62, rh: 16, col: 'rgba(160, 150, 140, 0.68)' }
-                ];
-
-                for (let cp of cloudPuffs) {
-                    ctx.fillStyle = cp.col;
-                    ctx.beginPath();
-                    ctx.ellipse(cx + cp.dx, cloudY + cp.dy, cp.rw, cp.rh, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                ctx.restore();
+                // 5. Cloud deck removed as requested by user
 
                 // 6. Shower of Falling / Rising Rock Shards Beneath
                 ctx.save();
@@ -13828,7 +13814,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 else if (type === 'miner') mCd = 540;  // 9s cooldown for the dig-up special (B)
                 else if (type === 'deidara') mCd = 900; // 15s cooldown for the clay dragon ult (B)
                 else if (type === 'hooper') mCd = 840;  // 14s cooldown for Zone Awakening + 9s Virtual Court
+                else if (type === 'pain') mCd = 300;    // 5s cooldown for Pain's B (Shinra / Chibaku)
                 this.maxCooldown = mCd;
+                this.launcherKickCooldown = 0;          // Cooldown for launcher kick after enemy lands on ground
                 
                 this.isDead = false; this.isDashing = false;
                 this.jumpCount = 0; this.maxJumps = (type === 'martial' || type === 'shinobi' || type === 'sixeye' || type === 'saiyan' || type === 'dio' || type === 'raijin' || type === 'phantom' || type === 'slasher' || type === 'deidara' || type === 'hooper' || type === 'pain') ? 2 : 1;
@@ -15361,6 +15349,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                     // Ultimate Charging Logic (Chō Shinra Tensei - max 2.0s / 120 frames)
                     if (this.painChargingUlt) {
+                        if (gameState.timestopActive && this !== gameState.timestopCaster) {
+                            // Frozen by DIO's Timestop — charging is halted!
+                            this.velY = 0; this.velX = 0;
+                            return;
+                        }
+                        this.cooldown = this.maxCooldown; // Energy bar remains empty during charge
                         this.painUltChargeTimer = (this.painUltChargeTimer || 0) + 1 * config.timeScale;
                         this.painLevitating = true;
                         this.velY = 0; this.velX = 0;
@@ -15439,11 +15433,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                                 if (hb.active && hb.owner === opponent) {
                                     const dist = Math.hypot(hb.x - this.x, hb.y - originY);
                                     if (dist <= shockwaveRadius + 30 || dist <= 95) {
-                                        hb.active = false;
-                                        hb.owner.hooperHasBall = true;
                                         const pushDir = hb.x >= this.x ? 1 : -1;
-                                        createShinraExplosion(hb.x, hb.y, '#ff6b00', pushDir, false);
-                                        gameState.hooperBalls.splice(i, 1);
+                                        hb.state = 'rebound';
+                                        hb.facing = pushDir;
+                                        hb.velX = pushDir * 18;
+                                        hb.velY = -6;
+                                        gameState.pixelEffects.push(new PixelVFX('impact_burst', hb.x, hb.y, pushDir, '#ffffff'));
                                     }
                                 }
                             }
@@ -15750,6 +15745,17 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 if (this.cooldown > 0) this.cooldown -= (1 * config.timeScale);
                 if (this.internalCooldown > 0) this.internalCooldown -= (1 * config.timeScale);
+                if (this.launcherKickCooldown > 0) {
+                    this.launcherKickCooldown -= (1 * config.timeScale);
+                    if (this.launcherKickCooldown < 0) this.launcherKickCooldown = 0;
+                }
+                // When launched opponent falls and touches ground, start 6s cooldown on launcher kick
+                if (this.hasLaunchedOpponent && opponent) {
+                    if (((opponent.y >= config.groundY - 1) && opponent.velY >= 0) || opponent.isDead) {
+                        this.hasLaunchedOpponent = false;
+                        this.launcherKickCooldown = 360; // 6 seconds @ 60fps
+                    }
+                }
 
                 if (this.isParrying) {
                     this.parryTimer -= (1 * config.timeScale);
@@ -16641,6 +16647,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
             releasePainUlt() {
                 if (!this.painChargingUlt) return;
+                if (gameState.timestopActive && this !== gameState.timestopCaster) return; // Cannot release during Timestop!
                 const opponent = (typeof p1 !== 'undefined' && this.id === p1.id) ? (typeof p2 !== 'undefined' ? p2 : null) : (typeof p1 !== 'undefined' ? p1 : null);
                 const chargeTimer = this.painUltChargeTimer || 0;
                 const chargeRatio = Math.min(1.0, chargeTimer / 120); // 0.0 to 1.0 (2 seconds max)
@@ -17192,6 +17199,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 // ── PAIN CHIBAKU TENSEI FOLLOW-UP (Can cancel launcher_kick recovery) ─────────────
                 if (this.type === 'pain' && type === 'pain_chibaku') {
                     if (this.isDead || this.isStunned || this.isBeingPulled || this.isParrying || this.isTransforming) return;
+                    if (gameState.timestopActive && this !== gameState.timestopCaster) return;
+                    if (this.cooldown > 0) {
+                        announceText('COOLDOWN: ' + (this.cooldown / 60).toFixed(1) + 's', '#a55eea');
+                        return;
+                    }
+                    this.cooldown = this.maxCooldown; // Instantly deplete energy bar upon casting Chibaku Tensei
                     this.painChibakuWindow = 0;
                     this.hasLaunchedOpponent = false;
                     this.attacking = true;
@@ -17211,7 +17224,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     return;
                 }
 
-                if (this.attacking || this.isDead || (this.isBlocking && type !== 'launcher_kick' && !(this.type === 'fisherman' && type === 'special')) || this.internalCooldown > 0 || this.isCharging || this.isParrying || this.isTransforming || this.isBeingPulled || this.isStunned || this.isSaiyanDodging || this.phantomChargingB || this.slasherUltActive) return;
+                const isDioSpecial = (this.type === 'dio' && type === 'special');
+                if (!isDioSpecial) {
+                    if (this.attacking || this.isDead || (this.isBlocking && type !== 'launcher_kick' && !(this.type === 'fisherman' && type === 'special')) || this.internalCooldown > 0 || this.isCharging || this.isParrying || this.isTransforming || this.isBeingPulled || this.isStunned || this.isSaiyanDodging || this.phantomChargingB || this.slasherUltActive) return;
+                } else {
+                    if (this.isDead) return;
+                }
                 if ((type === 'dash' || type === 'special' || type === 'saiyan_beam') && this.cooldown > 0) return;
                 if (gameState.timestopActive && this !== gameState.timestopCaster) return;
                 
@@ -17227,8 +17245,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 // Universal Launcher Kick: Block + Kick (for all characters with a leg kick)
                 if (type === 'launcher_kick') {
-                    const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                    const noLegKick = ['inventor', 'duelist', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                     if (noLegKick.includes(this.type)) return;
+                    if (this.launcherKickCooldown > 0) {
+                        announceText('LAUNCHER CD: ' + (this.launcherKickCooldown / 60).toFixed(1) + 's', '#ffffff');
+                        return;
+                    }
 
                     this.isBlocking = false;
                     this.attacking = true;
@@ -17245,7 +17267,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         }
                     }
 
-                    gameState.pixelEffects.push(new PixelVFX('gale_kick', this.x + 28 * this.facing, this.y - 45, this.facing, this.color));
+                    const kickVFXCol = (this.type === 'pain') ? '#ffffff' : this.color;
+                    gameState.pixelEffects.push(new PixelVFX('gale_kick', this.x + 28 * this.facing, this.y - 45, this.facing, kickVFXCol));
                     gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 20 * this.facing, this.y - 35, this.facing, '#ffffff'));
                     gameState.shake = Math.max(gameState.shake || 0, 8);
                     return;
@@ -17472,6 +17495,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             gameState.timestopWaveRadius = 1; 
                             gameState.roadrollerTriggered = false;
                             this.cooldown = this.maxCooldown;
+                            this.isStunned = false;
+                            this.isBeingPulled = false;
+                            this.stunTimer = 0;
+                            this.velX = 0;
+                            this.velY = 0;
                             
                             opponent.isBlocking = false; 
                             announceText('TIME STOP (3.6S)!', this.color);
@@ -17770,12 +17798,14 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 if (this.type === 'pain' && type === 'pain_ult') {
                     if (this.isDead || this.isStunned || this.isBeingPulled) return;
+                    if (gameState.timestopActive && this !== gameState.timestopCaster) return;
                     // 5-second cooldown guardrail on B:
                     if (this.cooldown > 0) {
                         announceText('COOLDOWN: ' + (this.cooldown / 60).toFixed(1) + 's', '#a55eea');
                         return;
                     }
                     if (!this.painChargingUlt) {
+                        this.cooldown = this.maxCooldown; // Instantly deplete energy bar upon pressing B
                         this.painChargingUlt = true;
                         this.painUltChargeTimer = 0;
                         this.painLevitating = true;
@@ -18357,15 +18387,16 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                                 announceText('AIR LAUNCH!', this.color);
                             }
 
+                            const hitCol = (this.type === 'pain') ? '#ffffff' : this.color;
                             gameState.shake = 18;
                             gameState.flashAlpha = 0.35;
-                            gameState.flashColor = this.color;
+                            gameState.flashColor = hitCol;
 
-                            gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 35, this.facing, this.color, { maxFrames: 22, P: 4 }));
-                            gameState.pixelEffects.push(new PixelVFX('gale_kick', opponent.x, opponent.y - 45, this.facing, this.color));
+                            gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 35, this.facing, hitCol, { maxFrames: 22, P: 4 }));
+                            gameState.pixelEffects.push(new PixelVFX('gale_kick', opponent.x, opponent.y - 45, this.facing, hitCol));
                             gameState.pixelEffects.push(new PixelVFX('air_ring', opponent.x, config.groundY - 6, this.facing, '#ffffff'));
-                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x - 18, config.groundY, -1, this.color));
-                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x + 18, config.groundY, 1, this.color));
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x - 18, config.groundY, -1, hitCol));
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x + 18, config.groundY, 1, hitCol));
 
                             if (opponent.health <= 0) {
                                 opponent.health = 0;
@@ -19282,23 +19313,49 @@ function drawPixelSwapper(fighter, frozenInDraw) {
         function interactShinraWithProjectile(p, painCaster) {
             if (!p || !p.active) return;
             const pushDir = (p.x >= painCaster.x) ? 1 : -1;
+            const hitX = p.x;
+            const hitY = p.y;
+            const pCol = p.color || '#ffffff';
 
-            // Instantly deactivate and completely neutralize
+            // Differentiate physical vs energy projectiles
+            const isPhysical = p.isDioKnife || p.isFishingHook || 
+                               (p.owner && (p.owner.type === 'gunslinger' || p.owner.type === 'shinobi' || p.owner.type === 'slasher'));
+
+            if (isPhysical) {
+                // Physical projectiles BOUNCE BACK / REFLECT away with reversed velocity towards the original attacker!
+                p.facing = pushDir;
+                const reboundSpeed = Math.max(18, Math.abs(p.speed || p.vx || 14) * 1.4);
+                p.speed = reboundSpeed;
+                p.vx = pushDir * reboundSpeed;
+                p.vy = (p.vy || 0) * 0.3 - 2.5;
+                p.isReflected = true;
+
+                // Reassign ownership to painCaster so it damages original thrower
+                if (p.owner && p.owner.projectiles) {
+                    const idx = p.owner.projectiles.indexOf(p);
+                    if (idx !== -1) p.owner.projectiles.splice(idx, 1);
+                }
+                p.owner = painCaster;
+                if (!painCaster.projectiles.includes(p)) {
+                    painCaster.projectiles.push(p);
+                }
+
+                // Crisp metallic deflection spark
+                gameState.pixelEffects.push(new PixelVFX('impact_burst', hitX, hitY, pushDir, '#ffffff', { maxFrames: 12, P: 3 }));
+                gameState.pixelEffects.push(new PixelVFX('air_ring', hitX, hitY, pushDir, '#ffffff'));
+                gameState.shake = Math.max(gameState.shake || 0, 8);
+                return;
+            }
+
+            // Energy projectiles EXPLODE & DETONATE on contact!
             p.active = false;
             p.speed = 0;
             p.vx = 0;
             p.vy = 0;
             p.angleY = 0;
-
-            const hitX = p.x;
-            const hitY = p.y;
-            const pCol = p.color || '#ffffff';
-
-            // Teleport off-screen immediately so it can never be seen or drawn
             p.x = -99999;
             p.y = -99999;
 
-            // Immediately purge from all fighter projectile lists
             if (p.owner && p.owner.projectiles) {
                 const idx = p.owner.projectiles.indexOf(p);
                 if (idx !== -1) p.owner.projectiles.splice(idx, 1);
@@ -19312,7 +19369,6 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 if (idx2 !== -1) p2.projectiles.splice(idx2, 1);
             }
 
-            // High-impact dramatic detonation & pixel destruction burst
             const isMega = p.isHollowPurple || p.isSaiyanUltWave || p.isPhantomChargedBall || p.isMageBubble || (p.owner && p.owner.type === 'martial');
             createShinraExplosion(hitX, hitY, pCol, pushDir, isMega);
             if (p.isMageBubble) {
@@ -20144,116 +20200,53 @@ function drawPixelPain(fighter, frozenInDraw) {
             armF = [ 3, -18,  6, -16,  9, -14];
         }
     } else if (drawAttacking && drawAttackType === 'launcher_kick') {
-        // TENDŌ PAIN MEIA LUA DE COMPASSO (180° CAPOEIRA HAND-PLANT KICK)
-        if (progress < 0.20) {
-            // Phase 1: Rotational drop & reach for the ground
+        // TENDŌ PAIN TAEKWONDO HIGH SIDE KICK (YOP CHAGI) - EXACT MATCH TO USER REFERENCE SKELETON!
+        if (progress < 0.22) {
+            // Phase 1: Knee chamber & plant standing foot firmly on the floor
             expr = 'focus';
-            bodyY = 2; torsoLean = 1;
-            headX = 0; headY = -18;
-            legB = [-2, -8, -4, -4, -4, 0];
-            legF = [ 2, -8,  3, -9,  1, -6];
-            armB = [-3, -14, -1, -10,  1, -6];
-            armF = [ 2, -14,  3, -8,   2, -2];
-            cloakHemOffset = 1;
-        } else if (progress < 0.75) {
-            // Phase 2: EXACT CAPOEIRA MEIA LUA POSE MATCHING USER'S REFERENCE IMAGE!
-            // Clean pixel-perfect 16-bit rendering: No deformed blobs, no white arc line!
-            
-            // 1. Planted Hand on the Floor (flat palm at x = -8, y = 0)
-            px(-10, -2, 4, 2, out);
-            px(-9, -2, 3, 1, skin);
-            // Forearm (bare skin) from hand (-8, -2) to elbow (-7, -5)
-            drawLimb(-8, -2, -7, -5, 2, skin, skinDark);
-            // Upper Arm (black Akatsuki sleeve) from elbow (-7, -5) to shoulder (-5, -9)
-            drawLimb(-7, -5, -5, -9, 2, cloakMain, cloakShade);
-
-            // 2. Supporting Leg (planted on the ground at x = 0, y = 0)
-            px(-1, -2, 4, 2, sandalCol);
-            px(0, -2, 2, 1, skin);
-            // Lower leg with white ninja bandages from ankle (0, -2) to knee (0, -7)
-            drawLimb(0, -2, 0, -7, 2, wrapMain, wrapShade);
-            // Thigh with dark Akatsuki trousers from knee (0, -7) to hips (-2, -12)
-            drawLimb(0, -7, -2, -12, 2, pantsMain, out);
-
-            // 3. Torso & Inverted Akatsuki Cloak (sloping from hips (-2, -12) to shoulder (-5, -9))
-            px(-7, -13, 8, 6, out);
-            px(-6, -12, 6, 5, cloakMain);
-            px(-6, -11, 2, 4, cloakShade);
-            px(-3, -12, 2, 1, cloakHighlight);
-
-            // High standing collar with crimson inner lining
-            px(-8, -9, 3, 3, collarIn);
-            px(-5, -8, 2, 2, collarIn);
-
-            // Akatsuki Red Cloud Motif on back
-            px(-4, -12, 3, 2, cloudWhite);
-            px(-3, -12, 2, 1, cloudRed);
-
-            // Draping cloak hem
-            px(-3, -10, 4, 4, out);
-            px(-2, -9, 3, 3, cloakMain);
-
-            // 4. Yahiko Head (Low near planted hand, looking forward at opponent at +x!)
-            px(-8, -10, 2, 2, skinDark); // Neck
-            px(-12, -14, 6, 5, out);
-            px(-11, -13, 5, 4, skin);
-            px(-11, -11, 4, 2, skinDark);
-
-            // Hidden Rain Rogue Headband
-            px(-12, -13, 6, 2, bandCloth);
-            px(-11, -13, 4, 2, bandMetal);
-            px(-10, -12, 3, 1, bandMetalShade);
-            px(-9, -13, 1, 2, out);
-
-            // Rinnegan Eye (focused intently on opponent at +x!)
-            px(-8, -11, 2, 2, rinneIris);
-            px(-8, -11, 1, 1, '#ffffff');
-
-            // Chakra Receiver Studs
-            px(-7, -11, 1, 1, piercing);
-            px(-12, -12, 1, 2, piercing);
-
-            // Yahiko Iconic Bright Orange Spiky Hair
-            px(-13, -17, 7, 4, out);
-            px(-12, -16, 6, 3, hairDark);
-            px(-11, -17, 5, 4, hairMain);
-            px(-10, -17, 3, 2, hairLight);
-            px(-14, -15, 2, 2, hairDark);
-            px(-13, -16, 2, 2, hairMain);
-            px(-9, -18, 2, 2, hairMain);
-            px(-8, -17, 2, 2, hairLight);
-
-            // 5. Guard Arm (Tucked near chest)
-            drawLimb(-4, -10, -3, -7, 2, cloakMain, cloakShade);
-            px(-3, -7, 2, 2, skin);
-            px(-2, -6, 1, 1, nailPolish);
-
-            // 6. Kicking Leg (Whips diagonally UP and OVER into the sky!)
-            // Thigh (dark trousers) from hips (-2, -12) to knee (3, -18)
-            drawLimb(-2, -12, 3, -18, 2, pantsMain, out);
-            // Shin (white shinobi bandages) from knee (3, -18) to ankle (8, -25)
-            drawLimb(3, -18, 8, -25, 2, wrapMain, wrapShade);
-            // Ninja Sandal & bare toes at the apex (9, -26)
-            px(8, -27, 4, 3, out);
-            px(9, -27, 2, 2, sandalCol);
-            px(10, -26, 2, 1, skin);
-
-            // NO white arc line - kept clean as requested!
-
-            ctx.imageSmoothingEnabled = prevSmooth;
-            ctx.restore();
-            return;
-        } else {
-            // Phase 3: Fluid push-off & return to battle stance
-            expr = 'normal';
-            bodyY = 1; torsoLean = -1;
-            headX = 0; headY = -22;
-            legB = [-3, -10, -4, -5, -5, 0];
-            legF = [ 2, -10,  5, -6,  6, 0];
-            armB = [-4, -17, -5, -14, -4, -12];
-            armF = [ 2, -17,  5, -14,  6, -12];
+            torsoLean = -3;
+            bodyY = 0;
+            headX = 0; headY = -24;
+            legB = [-2 - torsoLean, -10, -1 - torsoLean, -5, 0 - torsoLean, 0];
+            legF = [ 2 - torsoLean, -10,  4 - torsoLean, -16, 3 - torsoLean, -20]; // Tucked high chamber
+            armB = [-4, -18, -6, -15, -4, -13];
+            armF = [ 2, -18,  4, -16,  5, -14];
             cloakHemOffset = -1;
+        } else if (progress < 0.78) {
+            // Phase 2: FULL EXTENSION - TAEKWONDO HIGH SIDE KICK (Yop Chagi)
+            // - Standing leg: Straight vertical pillar flat on the mat (x = 0, y = 0).
+            // - Torso: Leans back diagonally at ~50° (torsoLean = -8).
+            // - Head: Sits on tilted shoulders, looking along kicking line over shoulder at opponent.
+            // - Guard arms: Rear fist tucked tight at hip/belt; lead fist guarding chest/chin.
+            // - Striking leg: Drives high heel straight up-forward at ~60° to apex (15, -33), well above head level!
+            expr = 'focus';
+            torsoLean = -8; // Deep martial torso counter-lean
+            bodyY = 0;
+            headX = 2; headY = -23; // Resolute focus looking at opponent
+
+            // Standing leg: Planted firmly and vertically straight down at x = 0 on the mat!
+            legB = [-1 - torsoLean, -11, 0 - torsoLean, -6, 0 - torsoLean, 0];
+
+            // Striking leg: High diagonal side kick extending to apex (15, -33) - above head height!
+            legF = [1 - torsoLean, -11, 8 - torsoLean, -22, 15 - torsoLean, -33];
+
+            // Martial arts guard arms (Karate/Taekwondo chambered guard):
+            armB = [-3, -18, -6, -15, -3, -13]; // Rear fist tucked at ribs/belt
+            armF = [ 2, -18,  2, -14,  4, -13]; // Lead fist raised guarding chin/chest
+
+            cloakHemOffset = -4;
             cloakSpread = 1;
+        } else {
+            // Phase 3: Rapid chamber retraction & return to battle stance
+            expr = 'normal';
+            torsoLean = -1;
+            bodyY = 0;
+            headX = 0; headY = -24;
+            legB = [-3, -10, -4, -5, -5, 0];
+            legF = [ 2, -10,  4, -8,  5, -2];
+            armB = [-4, -17, -5, -14, -4, -12];
+            armF = [ 2, -17,  4, -14,  6, -12];
+            cloakHemOffset = -1;
         }
     } else if (drawAttacking && drawAttackType === 'pain_chibaku_cast') {
         // TENDŌ PAIN CHIBAKU TENSEI PRAYER SEAL POSE
@@ -20451,7 +20444,10 @@ function drawPixelPain(fighter, frozenInDraw) {
     // 6) Front Leg
     drawLimb(legF[0] + tx, legF[1] + ty, legF[2] + tx, legF[3] + ty, 2, pantsMain, out);
     drawLimb(legF[2] + tx, legF[3] + ty, legF[4] + tx, legF[5], 2, wrapMain, wrapShade);
-    px(legF[4] + tx - 1, legF[5] - 1, 3, 2, sandalCol);
+    // Sandal heel & blade of the foot pointing up-forward
+    px(legF[4] + tx - 1, legF[5] - 1, 4, 3, out);
+    px(legF[4] + tx, legF[5], 3, 2, sandalCol);
+    px(legF[4] + tx + 1, legF[5] - 1, 2, 2, skin);
 
     // 7) Head, Yahiko Spiky Orange Hair, Headband, Rinnegan & Piercings
     // Head base & skin
@@ -24895,7 +24891,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                         me.attack('kick', opponent);
                     }
                 } else if (me.type === 'martial') {
-                    const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                    const noLegKick = ['inventor', 'duelist', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                     const oppInAir = opponent.y < config.groundY - 25;
                     if (oppInAir && dist < 120) {
                         if (me.y >= config.groundY - 1) me.jump();
@@ -24988,7 +24984,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                 cpu1Vel.v = runCPU(p1, p2, cpu1Counter, cpu1Vel);
                 applyVelocity(p1, cpu1Vel.v);
             } else {
-                const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                const noLegKick = ['inventor', 'duelist', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                 const p1HoldingBlock = !!keys['KeyS'];
                 const p1PressKick = !!keys['KeyV'];
 
@@ -25058,7 +25054,7 @@ function drawPixelMage(fighter, frozenInDraw) {
                 cpu2Vel.v = runCPU(p2, p1, cpu2Counter, cpu2Vel);
                 applyVelocity(p2, cpu2Vel.v);
             } else {
-                const noLegKick = ['miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+                const noLegKick = ['inventor', 'duelist', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                 const p2HoldingBlock = !!keys['ArrowDown'];
                 const p2PressKick = !!keys['KeyK'];
 
