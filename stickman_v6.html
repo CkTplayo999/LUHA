@@ -11289,6 +11289,10 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 this.age += (1 * config.timeScale);
 
+                if (this.isReflected && Math.random() > 0.25) {
+                    gameState.pixelEffects.push(new PixelVFX('ki_spark', this.x - this.facing * 12, this.y + (Math.random() - 0.5) * 6, this.facing, '#ffffff'));
+                }
+
 
 
                 if (this.isMageSpark) {
@@ -13216,8 +13220,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.isReflected = true;
                 this.reflectedCaster = painCaster;
                 this.facing = pushDir;
-                this.velX = pushDir * 24;
-                this.velY = -4.5;
+                this.velX = pushDir * 16;
+                this.velY = -5.2;
                 this.state = 'reflected_blast';
                 this.age = 0;
                 gameState.pixelEffects.push(new PixelVFX('impact_burst', this.x, this.y, pushDir, '#ffffff', { maxFrames: 14, P: 3 }));
@@ -14113,6 +14117,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 if (this.type === 'pain') {
                     const frozenInDraw = gameState.timestopActive && this !== gameState.timestopCaster;
                     drawPixelPain(this, frozenInDraw);
+                    if (this.projectiles && this.projectiles.length > 0) {
+                        this.projectiles.forEach(p => p.draw());
+                    }
                     return;
                 }
                 if (this.type === 'deidara') {
@@ -16482,8 +16489,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         }
                     }
 
-                    if (!p.isRedSphere) {
+                    if (!p.isRedSphere && !p.isReflected) {
                         opponent.projectiles.forEach((op) => {
+                            if (op.isReflected) return;
                             const distProj = Math.sqrt(Math.pow(p.x - op.x, 2) + Math.pow(p.y - op.y, 2));
                             const clashRadius = (p.isPhantomChargedBall || op.isPhantomChargedBall || p.isMageBubble || op.isMageBubble) ? 68 : 50;
                             if(distProj < clashRadius && !op.isRedSphere) {
@@ -19411,8 +19419,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 // Physical projectiles BOUNCE BACK / REFLECT away with reversed velocity towards the original attacker!
                 p.active = false;
 
-                const reboundSpeed = Math.max(24, Math.abs(p.speed || 16) * 1.45);
-                const spawnX = painCaster.x + pushDir * 55;
+                const reboundSpeed = Math.max(16, Math.min(22, Math.abs(p.speed || 16) * 1.15));
+                const spawnX = hitX + pushDir * 14;
                 const spawnY = hitY;
 
                 const ref = new Projectile(
@@ -19436,7 +19444,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     ref.isTargetedHook = true;
                     // Target the opponent who cast it!
                     ref.targetOpponent = (painCaster === p1 ? p2 : p1);
-                    ref.hookSpeed = 32;
+                    ref.hookSpeed = 22;
                 }
 
                 if (painCaster && painCaster.projectiles) {
@@ -19444,9 +19452,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
 
                 // Crisp metallic deflection spark & shockwave
-                gameState.pixelEffects.push(new PixelVFX('impact_burst', hitX, hitY, pushDir, '#ffffff', { maxFrames: 14, P: 3 }));
+                gameState.pixelEffects.push(new PixelVFX('impact_burst', hitX, hitY, pushDir, '#ffffff', { maxFrames: 18, P: 3 }));
                 gameState.pixelEffects.push(new PixelVFX('air_ring', hitX, hitY, pushDir, '#ffffff'));
-                gameState.shake = Math.max(gameState.shake || 0, 10);
+                gameState.shake = Math.max(gameState.shake || 0, 12);
                 return;
             }
 
@@ -20624,6 +20632,9 @@ function drawPixelPain(fighter, frozenInDraw) {
 
     ctx.imageSmoothingEnabled = prevSmooth;
     ctx.restore();
+    if (fighter.projectiles && fighter.projectiles.length > 0) {
+        fighter.projectiles.forEach(p => p.draw());
+    }
 }
 
 
