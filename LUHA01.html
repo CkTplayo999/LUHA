@@ -12209,16 +12209,16 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.hitLanded = false;
 
                 // Summon slightly behind owner on the ground
-                this.x = owner.x - this.facing * 28;
+                this.x = owner.x - this.facing * 35;
                 this.y = config.groundY;
                 this.vx = 0;
                 this.vy = 0;
 
-                // Summon smoke puff & purple chakra ring
+                // Purple chakra summoning burst
                 gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, this.facing, '#ffffff'));
-                gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 30, this.facing, '#a55eea'));
-                for (let i = 0; i < 7; i++) {
-                    gameState.particles.push(new Particle(this.x + (Math.random() - 0.5) * 22, config.groundY - 10 - Math.random() * 32, '#bdc3c7', 0.8));
+                gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 35, this.facing, '#a55eea'));
+                for (let i = 0; i < 9; i++) {
+                    gameState.particles.push(new Particle(this.x + (Math.random() - 0.5) * 25, config.groundY - 10 - Math.random() * 35, Math.random() > 0.4 ? '#a55eea' : '#ffffff', 0.8));
                 }
             }
 
@@ -12229,32 +12229,37 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.timer += 1 * config.timeScale;
 
                 if (this.state === 'summon_burst') {
-                    // Crouched entrance landing, locking target
+                    // Crouched entrance landing, locking eyes with opponent
                     this.facing = this.opponent.x >= this.x ? 1 : -1;
                     if (this.timer >= 8) {
                         this.state = 'charge';
                         this.timer = 0;
-                        this.vx = this.facing * 19;
+                        this.vx = this.facing * 20;
                         announceText('SHURADŌ: ASURA ROCKET RUSH!', '#a55eea');
-                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 25, this.facing, '#a55eea'));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 28, this.facing, '#a55eea'));
                         gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, -this.facing, '#ffffff'));
                     }
                 } else if (this.state === 'charge') {
                     this.x += this.vx * config.timeScale;
-                    // Purple chakra jet flame exhaust particles from cyborg back/boots
-                    if (Math.random() > 0.2) {
-                        gameState.particles.push(new Particle(this.x - this.facing * 20, this.y - 22 + (Math.random() - 0.5) * 16, Math.random() > 0.5 ? '#a55eea' : '#8e44ad', 0.5, false, -this.facing * 2.5, (Math.random() - 0.5) * 1.5));
+                    // Dense purple chakra jet flame particles streaming behind
+                    for (let i = 0; i < 3; i++) {
+                        gameState.particles.push(new Particle(
+                            this.x - this.facing * 26 + (Math.random() - 0.5) * 6,
+                            this.y - 25 + (Math.random() - 0.5) * 16,
+                            Math.random() > 0.4 ? '#a55eea' : (Math.random() > 0.3 ? '#d980fa' : '#ffffff'),
+                            0.7, false, -this.facing * (3 + Math.random() * 3), (Math.random() - 0.5) * 2
+                        ));
                     }
 
                     // Check impact range with opponent
                     const dist = Math.abs(this.x - this.opponent.x);
-                    if (dist <= 48 && Math.abs(this.y - this.opponent.y) < 70) {
+                    if (dist <= 50 && Math.abs(this.y - this.opponent.y) < 70) {
                         this.state = 'strike';
                         this.timer = 0;
                         this.vx = 0;
                         this.hitLanded = true;
 
-                        // Crushing Asura Rocket Fist impact with vibrant purple effects!
+                        // Crushing Asura Rocket Fist impact with massive purple chakra blast!
                         const dmg = this.opponent.isBlocking ? 6 : 16;
                         this.opponent.health = Math.max(0, this.opponent.health - dmg);
                         this.opponent.velX = this.facing * (this.opponent.isBlocking ? 8 : 19);
@@ -12262,14 +12267,18 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         this.opponent.isStunned = true;
                         this.opponent.stunTimer = 35;
 
-                        gameState.shake = 22;
-                        gameState.flashAlpha = 0.4;
+                        gameState.shake = 26;
+                        gameState.flashAlpha = 0.55;
                         gameState.flashColor = '#a55eea';
 
-                        gameState.pixelEffects.push(new PixelVFX('impact_burst', this.opponent.x, this.opponent.y - 45, this.facing, '#a55eea', { maxFrames: 24, P: 4 }));
-                        createExplosion(this.opponent.x, this.opponent.y - 40, '#a55eea', 16, 1.4);
-                        createExplosion(this.opponent.x, this.opponent.y - 40, '#8e44ad', 12, 1.1);
-                        gameState.slashes.push(new SlashEffect(this.opponent.x - 28 * this.facing, this.opponent.y - 65, this.opponent.x + 28 * this.facing, this.opponent.y - 15, '#a55eea', 6, true, true));
+                        // SPECTACULAR 100% PURPLE CHAKRA IMPACT VISUALS:
+                        gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', this.opponent.x, this.opponent.y - 45, this.facing, '#a55eea', { maxFrames: 24, maxRadius: 210 }));
+                        gameState.pixelEffects.push(new PixelVFX('impact_burst', this.opponent.x, this.opponent.y - 45, this.facing, '#a55eea', { maxFrames: 26, P: 4 }));
+                        createExplosion(this.opponent.x, this.opponent.y - 42, '#a55eea', 24, 1.9);
+                        createExplosion(this.opponent.x, this.opponent.y - 42, '#d980fa', 18, 1.5);
+                        createExplosion(this.opponent.x, this.opponent.y - 42, '#ffffff', 12, 1.1);
+                        gameState.slashes.push(new SlashEffect(this.opponent.x - 35 * this.facing, this.opponent.y - 70, this.opponent.x + 35 * this.facing, this.opponent.y - 18, '#a55eea', 7, true, true));
+                        gameState.slashes.push(new SlashEffect(this.opponent.x + 30 * this.facing, this.opponent.y - 65, this.opponent.x - 30 * this.facing, this.opponent.y - 22, '#ffffff', 5, true, true));
 
                         if (this.opponent.health <= 0) {
                             this.opponent.health = 0;
@@ -12287,7 +12296,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 } else if (this.state === 'vanish') {
                     gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, this.facing, '#ffffff'));
-                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 30, this.facing, '#ffffff'));
+                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 30, this.facing, '#a55eea'));
                     this.active = false;
                 }
             }
@@ -12332,60 +12341,62 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             const cloudRed = '#d63031';
             const cloudWhite = '#ffffff';
             const collarIn = '#8b0000';
-            const skin = '#f0c294';
-            const skinDark = '#d49b6a';
-            const skinLight = '#f8d7b8';
+            const skin = '#f5cbb1';       // Pale skin tone
+            const skinDark = '#cb8e5c';   // Shaded contour
+            const skinLight = '#fae1c8';  // Bald dome sheen highlight
             const metal = '#7f8c8d';
-            const metalDark = '#34495e';
-            const metalBright = '#bdc3c7';
-            const bandCloth = '#2c3e50';
+            const metalDark = '#2c3e50';
+            const metalBright = '#e0e0e0';
+            const bandCloth = '#232b38';
             const bandMetal = '#bdc3c7';
             const rinneIris = '#9b59b6';
             const rinneDark = '#8e44ad';
-            const piercing = '#111111';
+            const piercing = '#050505';
 
-            // PURPLE CHAKRA THRUST FLAMES
-            const thrustFlame1 = '#a55eea'; // Vibrant chakra violet
-            const thrustFlame2 = '#8e44ad'; // Deep purple outer exhaust
-            const thrustFlame3 = '#ffffff'; // White-hot chakra core
+            // INTENSE PURPLE CHAKRA ROCKET FLAMES
+            const flameCore = '#ffffff';     // White-hot plasma core
+            const flameMid = '#d980fa';      // Electric lilac
+            const flameOuter = '#a55eea';    // Vibrant chakra violet
+            const flameDark = '#8e44ad';     // Deep royal purple edge
 
+            // Body Stance
             let bodyY = 0;
             let torsoLean = 0;
             let headX = 0, headY = -24;
-            let legB = [-3, -10, -4, -5, -5, 0];
-            let legF = [ 2, -10,  3, -5,  4, 0];
-            let armB = [-4, -18, -6, -15, -4, -13];
-            let armF = [ 3, -18,  5, -15,  7, -13];
+            let legB = [-4, -10, -5, -5, -6, 0];
+            let legF = [ 3, -10,  4, -5,  5, 0];
+            let armB = [-5, -18, -8, -15, -6, -13];
+            let armF = [ 4, -18,  7, -15, 10, -13];
             let cloakHemOffset = 0;
 
             if (asura.state === 'summon_burst') {
                 // Crouched 3-point landing pose
-                bodyY = 3; torsoLean = 2; headX = 2; headY = -21;
-                legB = [-4, -8, -6, -4, -7, 0];
-                legF = [ 2, -8,  4, -4,  5, 0];
-                armB = [-3, -15, -5, -12, -4, -9];
-                armF = [ 2, -15,  3, -10,  4, 0];
-                cloakHemOffset = -2;
+                bodyY = 3; torsoLean = 3; headX = 2; headY = -21;
+                legB = [-5, -8, -7, -4, -8, 0];
+                legF = [ 3, -8,  5, -4,  6, 0];
+                armB = [-4, -15, -6, -12, -5, -9];
+                armF = [ 3, -15,  4, -10,  5, 0];
+                cloakHemOffset = -3;
             } else if (asura.state === 'charge') {
                 // Low rocket sprint dive
-                bodyY = 1; torsoLean = 6; headX = 5; headY = -23;
-                legB = [-5, -9, -9, -5, -11, -1];
-                legF = [ 3, -9,  6, -6,  7, 0];
-                armB = [-3, -16, -9, -15, -14, -14]; // Thruster arm pointing back
-                armF = [ 3, -16,  7, -15, 11, -14];  // Coiled cybernetic fist
-                cloakHemOffset = -5;
+                bodyY = 1; torsoLean = 7; headX = 5; headY = -23;
+                legB = [-6, -9, -10, -5, -12, -1];
+                legF = [ 4, -9,   7, -6,   9, 0];
+                armB = [-4, -16, -10, -15, -16, -14]; // Rear rocket thruster arm
+                armF = [ 4, -16,   8, -15,  13, -14]; // Coiled heavy cyborg fist
+                cloakHemOffset = -6;
             } else if (asura.state === 'strike') {
                 // Full Rocket Cyborg Punch extension
-                bodyY = 0; torsoLean = 4; headX = 3; headY = -24;
-                legB = [-6, -10, -9, -5, -10, 0];
-                legF = [ 3, -10,  7, -6,   9, 0];
-                armB = [-4, -17, -7, -13, -8, -11];
-                armF = [ 4, -17, 14, -17, 24, -17]; // Elongated Rocket Cyborg Fist!
-                cloakHemOffset = -4;
+                bodyY = 0; torsoLean = 5; headX = 3; headY = -24;
+                legB = [-6, -10, -10, -5, -11, 0];
+                legF = [ 4, -10,   8, -6,  10, 0];
+                armB = [-5, -17,  -8, -13,  -9, -11];
+                armF = [ 5, -17,  16, -17,  27, -17]; // Elongated Rocket Cyborg Fist!
+                cloakHemOffset = -5;
             } else if (asura.state === 'vanish') {
                 torsoLean = 1; headX = 1; headY = -24;
-                armB = [-4, -17, -5, -14, -4, -12];
-                armF = [ 3, -17,  5, -14,  6, -12];
+                armB = [-5, -17, -6, -14, -5, -12];
+                armF = [ 4, -17,  6, -14,  7, -12];
             }
 
             const tx = torsoLean;
@@ -12393,135 +12404,150 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             const hx = headX;
             const hy = headY;
 
-            // Purple Rocket flame jets during charge or strike
+            // ── DRAMATIC PURPLE CHAKRA ROCKET FLAMES ──────────────────────────────
             if (asura.state === 'charge') {
-                // Exhaust from rear elbow
-                px(armB[4] + tx - 8, armB[5] + ty - 2, 8, 4, thrustFlame2);
-                px(armB[4] + tx - 6, armB[5] + ty - 1, 6, 2, thrustFlame1);
-                px(armB[4] + tx - 2, armB[5] + ty, 2, 1, thrustFlame3);
-                // Exhaust from boot
-                px(legB[4] + tx - 7, legB[5] - 2, 7, 3, thrustFlame2);
-                px(legB[4] + tx - 4, legB[5] - 1, 4, 1, thrustFlame1);
+                // Rocket thruster jet blasting backward from rear arm
+                const rx = armB[4] + tx;
+                const ry = armB[5] + ty;
+                px(rx - 18, ry - 4, 18, 9, flameDark);
+                px(rx - 13, ry - 3, 13, 7, flameOuter);
+                px(rx - 8, ry - 2, 8, 5, flameMid);
+                px(rx - 4, ry - 1, 4, 3, flameCore);
+
+                // Trailing exhaust motes
+                px(rx - 24, ry - 2, 4, 4, flameOuter);
+                px(rx - 30, ry, 3, 3, flameMid);
+
+                // Boot rocket jets
+                px(legB[4] + tx - 10, legB[5] - 2, 10, 4, flameOuter);
+                px(legB[4] + tx - 6, legB[5] - 1, 6, 2, flameCore);
             } else if (asura.state === 'strike') {
-                // Massive purple rocket exhaust blasting behind the extended elbow!
-                px(armF[2] + tx - 9, armF[3] + ty - 3, 9, 5, thrustFlame2);
-                px(armF[2] + tx - 7, armF[3] + ty - 2, 7, 3, thrustFlame1);
-                px(armF[2] + tx - 3, armF[3] + ty - 1, 3, 2, thrustFlame3);
+                // MASSIVE PURPLE ROCKET EXHAUST BLASTING BACKWARDS FROM CYBORG ELBOW
+                const ex = armF[2] + tx - 4;
+                const ey = armF[3] + ty;
+                px(ex - 20, ey - 5, 20, 11, flameDark);
+                px(ex - 15, ey - 4, 15, 9, flameOuter);
+                px(ex - 10, ey - 2, 10, 5, flameMid);
+                px(ex - 5, ey - 1, 5, 3, flameCore);
+                // Trailing exhaust bursts
+                px(ex - 26, ey - 3, 5, 5, flameOuter);
+                px(ex - 32, ey - 1, 3, 3, flameMid);
             }
 
             // 1) Back Leg & Back Arm
-            drawLimb(legB[0] + tx, legB[1] + ty, legB[2] + tx, legB[3] + ty, 2, cloakMain, out);
+            drawLimb(legB[0] + tx, legB[1] + ty, legB[2] + tx, legB[3] + ty, 3, cloakMain, out);
             drawLimb(legB[2] + tx, legB[3] + ty, legB[4] + tx, legB[5], 2, metalDark, metal);
-            px(legB[4] + tx - 1, legB[5] - 1, 3, 2, out);
+            px(legB[4] + tx - 1, legB[5] - 1, 4, 2, out);
 
             // Back Sleeve & Arm
-            drawLimb(armB[0] + tx, armB[1] + ty, armB[2] + tx, armB[3] + ty, 3, cloakMain, cloakShade);
-            drawLimb(armB[2] + tx, armB[3] + ty, armB[4] + tx, armB[5] + ty, 2, metal, metalDark);
+            drawLimb(armB[0] + tx, armB[1] + ty, armB[2] + tx, armB[3] + ty, 4, cloakMain, cloakShade);
+            drawLimb(armB[2] + tx, armB[3] + ty, armB[4] + tx, armB[5] + ty, 3, metal, metalDark);
 
-            // 2) Akatsuki Cloak Body
-            px(tx - 5, ty - 19, 10, 10, out);
-            px(tx - 4, ty - 18, 8, 9, cloakMain);
-            px(tx - 4, ty - 18, 3, 9, cloakShade);
-            px(tx + 1, ty - 18, 3, 2, cloakHighlight);
+            // 2) Akatsuki Cloak Torso (Broader build: 12 px wide)
+            px(tx - 6, ty - 19, 12, 11, out);
+            px(tx - 5, ty - 18, 10, 10, cloakMain);
+            px(tx - 5, ty - 18, 4, 10, cloakShade);
+            px(tx + 2, ty - 18, 3, 3, cloakHighlight);
 
-            // Red Cloud
-            px(tx - 2, ty - 15, 6, 4, cloudWhite);
-            px(tx - 3, ty - 14, 2, 2, cloudWhite);
-            px(tx + 3, ty - 14, 2, 2, cloudWhite);
-            px(tx - 1, ty - 14, 4, 2, cloudRed);
-            px(tx, ty - 15, 2, 1, cloudRed);
+            // Large Akatsuki Red Cloud Motif with crisp white border
+            px(tx - 3, ty - 15, 7, 5, cloudWhite);
+            px(tx - 4, ty - 14, 2, 3, cloudWhite);
+            px(tx + 4, ty - 14, 2, 3, cloudWhite);
+            px(tx - 2, ty - 14, 5, 3, cloudRed);
+            px(tx - 1, ty - 15, 3, 1, cloudRed);
 
-            // High Collar
-            px(tx - 4, ty - 22, 8, 4, out);
-            px(tx - 3, ty - 21, 6, 3, cloakMain);
-            px(tx - 1, ty - 21, 4, 2, collarIn);
-            px(tx - 4, ty - 22, 2, 3, collarIn);
+            // High Standing Flared Collar framing bald neck and chin (Crimson inner lining)
+            px(tx - 5, ty - 23, 10, 5, out);
+            px(tx - 4, ty - 22, 8, 4, cloakMain);
+            px(tx - 1, ty - 22, 5, 3, collarIn);
+            px(tx - 5, ty - 23, 2, 4, collarIn);
 
             // Cloak Hem
-            const hemX = tx - 4 + cloakHemOffset;
-            px(hemX - 2, ty - 9, 8, 5, out);
-            px(hemX - 1, ty - 8, 6, 4, cloakMain);
-            px(hemX - 1, ty - 8, 3, 4, cloakShade);
+            const hemX = tx - 5 + cloakHemOffset;
+            px(hemX - 2, ty - 9, 10, 6, out);
+            px(hemX - 1, ty - 8, 8, 5, cloakMain);
+            px(hemX - 1, ty - 8, 4, 5, cloakShade);
 
             // 3) Front Leg
-            drawLimb(legF[0] + tx, legF[1] + ty, legF[2] + tx, legF[3] + ty, 2, cloakMain, out);
+            drawLimb(legF[0] + tx, legF[1] + ty, legF[2] + tx, legF[3] + ty, 3, cloakMain, out);
             drawLimb(legF[2] + tx, legF[3] + ty, legF[4] + tx, legF[5] + ty, 2, metalDark, metal);
             px(legF[4] + tx - 1, legF[5] + ty - 1, 4, 3, out);
 
-            // 4) Head: ASURA PATH ICONIC BALD CRANIUM (KHÔNG CÓ TÓC) & HEADBAND & STUDS
-            // Outer dome of bald skull
-            px(hx - 4, hy - 6, 8, 4, out);
-            px(hx - 3, hy - 7, 6, 2, out);
-            px(hx - 2, hy - 8, 4, 1, out);
-            px(hx - 4, hy - 2, 9, 8, out);
+            // ── 4) PERFECT PROPORTIONATE BALD ASURA HEAD (100% BALD CRANIUM) ─────
+            // Smooth rounded bald dome (outline):
+            px(hx - 2, hy - 7, 5, 1, out); // Top rounded apex
+            px(hx - 4, hy - 6, 9, 2, out); // Upper skull dome
+            px(hx - 5, hy - 4, 11, 3, out); // Brow and temple width
+            px(hx - 5, hy - 1, 11, 7, out); // Lower face and jaw
 
-            // Bald skull flesh base & shading
-            px(hx - 3, hy - 6, 7, 5, skin);
-            px(hx - 2, hy - 7, 4, 2, skin);
-            px(hx - 3, hy - 1, 7, 6, skin);
-            px(hx - 3, hy - 6, 2, 11, skinDark);  // Rear shadow contour
-            px(hx + 1, hy - 6, 3, 2, skinLight); // Forehead dome highlight
-            px(hx - 1, hy - 7, 2, 1, skinLight); // Top cranium glint
-            px(hx + 1, hy, 3, 2, skinLight);     // Cheek highlight
+            // Flesh base (no hair!):
+            px(hx - 1, hy - 6, 3, 1, skin);
+            px(hx - 3, hy - 5, 7, 2, skin);
+            px(hx - 4, hy - 3, 9, 2, skin);
+            px(hx - 4, hy - 1, 9, 6, skin);
 
-            // Amegakure Rogue Scratched Headband wrapped across bald brow
-            px(hx - 4, hy - 2, 9, 2, bandCloth);
-            px(hx - 1, hy - 2, 5, 2, bandMetal);
-            px(hx, hy - 2, 3, 1, '#ffffff');
-            px(hx - 1, hy - 2, 5, 1, out); // Rogue scratch line
+            // Natural 3D dome highlights & contours:
+            px(hx - 4, hy - 5, 2, 10, skinDark);  // Rear shadow contour
+            px(hx, hy - 6, 2, 1, skinLight);     // Top apex glint
+            px(hx + 1, hy - 4, 3, 2, skinLight); // Forehead sheen
+            px(hx + 2, hy + 1, 2, 2, skinLight); // Cheek glint
 
-            // Cybernetic Chakra Receiver Rivets/Studs embedded across bald dome
-            px(hx - 2, hy - 7, 1, 1, piercing);
-            px(hx, hy - 7, 1, 1, piercing);
-            px(hx + 2, hy - 6, 1, 1, piercing);
+            // Cybernetic Chakra Receiver Studs embedded across the bald dome:
+            px(hx - 2, hy - 5, 1, 1, piercing);
+            px(hx, hy - 5, 1, 1, piercing);
+            px(hx + 2, hy - 4, 1, 1, piercing);
+            px(hx - 5, hy - 1, 1, 1, piercing);
+            px(hx - 5, hy + 2, 1, 1, piercing);
 
-            // Forehead / temple studs above headband
-            px(hx - 3, hy - 4, 1, 1, piercing);
-            px(hx - 1, hy - 4, 1, 1, piercing);
-            px(hx + 1, hy - 4, 1, 1, piercing);
+            // Amegakure Rogue Headband wrapped across lower brow:
+            px(hx - 5, hy - 2, 11, 2, bandCloth);
+            px(hx - 2, hy - 2, 7, 2, bandMetal);
+            px(hx - 1, hy - 2, 4, 1, '#ffffff');  // Metal plate glint
+            px(hx - 2, hy - 1, 7, 1, out);        // Rogue cross-scratch line!
 
-            // Side/ear studs
-            px(hx - 4, hy, 1, 1, piercing);
-            px(hx - 4, hy + 2, 1, 1, piercing);
-            px(hx - 4, hy + 4, 1, 1, piercing);
-
-            // Concentric Rinnegan Eye
-            px(hx, hy + 1, 3, 2, out);
-            px(hx + 1, hy + 1, 2, 2, rinneDark);
+            // Concentric Rinnegan Eye (Purple divine ripple rings):
+            px(hx, hy + 1, 4, 2, out);
+            px(hx + 1, hy + 1, 3, 2, rinneDark);
             px(hx + 1, hy + 1, 2, 1, rinneIris);
-            px(hx + 2, hy + 1, 1, 1, out);
+            px(hx + 2, hy + 1, 1, 1, '#ffffff'); // Glint
 
-            // Nose bridge studs
-            px(hx + 2, hy + 1, 1, 1, piercing);
-            px(hx + 3, hy + 2, 1, 1, piercing);
+            // Nose bridge chakra studs:
+            px(hx + 3, hy + 1, 1, 1, piercing);
+            px(hx + 4, hy + 2, 1, 1, piercing);
 
-            // Square cybernetic jaw with menacing bare-teeth grin
-            px(hx + 1, hy + 3, 3, 1, '#ffffff'); // teeth grin
-            px(hx + 1, hy + 4, 2, 1, out);
-            px(hx + 2, hy + 5, 1, 1, piercing); // chin cyber spike
+            // Broad square cybernetic jaw with bare teeth:
+            px(hx + 1, hy + 3, 4, 2, out);
+            px(hx + 1, hy + 3, 3, 1, '#ffffff'); // Bare teeth
+            px(hx + 2, hy + 5, 1, 1, piercing);  // Chin chakra spike
 
-            // 5) Front Arm - Cybernetic Mechanical Rocket Fist!
+            // ── 5) FRONT ARM: COLOSSAL CYBERNETIC ROCKET CANNON / FIST ─────────────
             if (asura.state === 'strike') {
-                // Fully launched Rocket Arm with steel pistons & thruster exhaust
-                drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 4, cloakMain, cloakShade);
-                // Cylindrical cyborg launcher elbow sleeve
-                px(armF[2] + tx - 2, armF[3] + ty - 2, 4, 4, metalDark);
-                px(armF[2] + tx - 1, armF[3] + ty - 1, 2, 2, metalBright);
+                // High-velocity rocket cannon arm fully launched forward!
+                drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 5, cloakMain, cloakShade);
+                // Cylindrical rocket exhaust chamber at elbow
+                px(armF[2] + tx - 3, armF[3] + ty - 3, 6, 6, metalDark);
+                px(armF[2] + tx - 2, armF[3] + ty - 2, 4, 4, metalBright);
 
                 // Extended mechanical piston shaft
-                drawLimb(armF[2] + tx, armF[3] + ty, armF[4] + tx - 4, armF[5] + ty, 3, metal, metalDark);
-                px(armF[4] + tx - 6, armF[5] + ty - 1, 3, 2, metalBright);
+                drawLimb(armF[2] + tx, armF[3] + ty, armF[4] + tx - 5, armF[5] + ty, 4, metal, metalDark);
+                px(armF[4] + tx - 7, armF[5] + ty - 2, 4, 3, metalBright);
 
-                // Heavy Armored Cyber Fist with purple impact energy
-                px(armF[4] + tx - 3, armF[5] + ty - 3, 6, 6, out);
-                px(armF[4] + tx - 2, armF[5] + ty - 2, 5, 5, metalDark);
-                px(armF[4] + tx - 1, armF[5] + ty - 1, 4, 3, metalBright);
-                px(armF[4] + tx + 1, armF[5] + ty - 2, 2, 4, '#a55eea'); // Purple knuckle impact spikes
+                // Heavy Armored Cybernetic Rocket Fist:
+                px(armF[4] + tx - 4, armF[5] + ty - 4, 8, 8, out);
+                px(armF[4] + tx - 3, armF[5] + ty - 3, 7, 7, metalDark);
+                px(armF[4] + tx - 2, armF[5] + ty - 2, 5, 4, metalBright);
+
+                // RADIANT PURPLE CHAKRA CORONA & KNUCKLE SPIKES
+                px(armF[4] + tx + 2, armF[5] + ty - 3, 3, 5, flameMid);
+                px(armF[4] + tx + 4, armF[5] + ty - 2, 2, 3, flameCore);
+
+                // Purple chakra energy arcs around fist
+                px(armF[4] + tx - 2, armF[5] + ty - 5, 4, 1, flameOuter);
+                px(armF[4] + tx - 2, armF[5] + ty + 4, 4, 1, flameOuter);
             } else {
-                // Normal sleeve & arm
-                drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 3, cloakMain, cloakShade);
-                drawLimb(armF[2] + tx, armF[3] + ty, armF[4] + tx, armF[5] + ty, 2, metal, metalDark);
-                px(armF[4] + tx, armF[5] + ty, 2, 2, out);
+                drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 4, cloakMain, cloakShade);
+                drawLimb(armF[2] + tx, armF[3] + ty, armF[4] + tx, armF[5] + ty, 3, metal, metalDark);
+                px(armF[4] + tx, armF[5] + ty, 3, 3, out);
             }
 
             ctx.imageSmoothingEnabled = prevSmooth;
@@ -18247,7 +18273,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                     this.velX = this.facing * 14;
                     gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, -this.facing, '#ffffff'));
-                    gameState.pixelEffects.push(new PixelVFX('sword_dash_trail', this.x, this.y, this.facing, '#a55eea'));
+                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 30, this.facing, '#a55eea'));
                     announceText('SIX PATHS: KOKUSHIN POKE!', '#a55eea');
                     return;
                 }
