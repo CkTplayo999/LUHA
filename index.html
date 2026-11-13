@@ -12248,6 +12248,19 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     this.rodX = opponent.x;
                     this.rodY = config.groundY;
                     this.rodImpaled = false;
+                } else if (pathType === 'animal') {
+                    // Wait brief beat after Preta Rod impalement, then leap out, crouch-summon in smoke, and dive giant bird from sky
+                    this.state = 'wait_follow';
+                    this.visible = false;
+                    this.summonDir = (opponent.x > canvas.width * 0.5) ? 1 : -1;
+                    this.facing = this.summonDir;
+                    this.targetLandX = Math.max(48, Math.min(canvas.width - 48, opponent.x - this.summonDir * 116));
+                    this.startX = Math.max(35, Math.min(canvas.width - 35, this.targetLandX - this.summonDir * 48));
+                    this.startY = config.groundY - 120;
+                    this.x = this.startX;
+                    this.y = this.startY;
+                    this.bird = null;
+                    this.birdHitDealt = false;
                 }
             }
 
@@ -12262,6 +12275,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     this.updateNaraka();
                 } else if (this.pathType === 'preta') {
                     this.updatePreta();
+                } else if (this.pathType === 'animal') {
+                    this.updateAnimal();
                 }
             }
 
@@ -12412,7 +12427,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     return;
                 }
 
-                const dmg = this.opponent.isBlocking ? 4 : 9;
+                const dmg = this.opponent.isBlocking ? 4 : 8;
                 this.opponent.health = Math.max(0, this.opponent.health - dmg);
                 this.opponent.velX = this.facing * (this.opponent.isBlocking ? 4 : 6);
                 this.opponent.velY = -5.2;
@@ -12563,7 +12578,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     return;
                 }
 
-                const dmg = this.opponent.isBlocking ? 5 : 10;
+                const dmg = this.opponent.isBlocking ? 4 : 9;
                 this.opponent.health = Math.max(0, this.opponent.health - dmg);
                 this.opponent.velX = this.gateFacing * (this.opponent.isBlocking ? 4 : 6);
                 this.opponent.velY = -4.5;
@@ -12664,9 +12679,14 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                                 i % 2 === 0 ? '#a55eea' : '#18181a', 0.7
                             ));
                         }
-                        this.opponent.velX = this.diveDir * 5;
-                        this.opponent.velY = -3;
-                        this.opponent.stunTimer = Math.min(this.opponent.stunTimer, 14);
+                        this.opponent.velX = this.diveDir * 2.5;
+                        this.opponent.velY = 0;
+                        this.opponent.isStunned = true;
+                        this.opponent.stunTimer = 60;
+                        if (this.opponent.health > 0 && !gameState.gameOver && !this.spawnedNext) {
+                            this.spawnedNext = true;
+                            gameState.painAssists.push(new PainAssistPath('animal', this.owner, this.opponent));
+                        }
                         this.vanishNow();
                     }
                 }
@@ -12684,7 +12704,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     return;
                 }
 
-                const dmg = this.opponent.isBlocking ? 5 : 10;
+                const dmg = this.opponent.isBlocking ? 4 : 9;
                 this.opponent.health = Math.max(0, this.opponent.health - dmg);
                 this.opponent.velX = 0;
                 this.opponent.velY = 0;
@@ -12713,6 +12733,198 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
             }
 
+            updateAnimal() {
+                if (this.state === 'wait_follow') {
+                    if (this.opponent.isStunned) {
+                        this.opponent.stunTimer = Math.max(this.opponent.stunTimer, 55);
+                    }
+                    if (this.timer >= 6) {
+                        if (this.opponent.health <= 0 || gameState.gameOver) {
+                            this.active = false;
+                            return;
+                        }
+                        this.summonDir = (this.opponent.x > canvas.width * 0.5) ? 1 : -1;
+                        this.facing = this.summonDir;
+                        this.targetLandX = Math.max(48, Math.min(canvas.width - 48, this.opponent.x - this.summonDir * 116));
+                        this.startX = Math.max(35, Math.min(canvas.width - 35, this.targetLandX - this.summonDir * 48));
+                        this.startY = config.groundY - 120;
+                        this.x = this.startX;
+                        this.y = this.startY;
+                        this.visible = true;
+                        this.state = 'jump_in';
+                        this.timer = 0;
+
+                        announceText('CHIKUSHŌDŌ: KUCHIYOSE!', '#a55eea');
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y, this.facing, '#a55eea'));
+                    }
+                } else if (this.state === 'jump_in') {
+                    const t = Math.min(1, this.timer / 10);
+                    this.x = this.startX + (this.targetLandX - this.startX) * t;
+                    this.y = this.startY + (config.groundY - this.startY) * t - Math.sin(t * Math.PI) * 24;
+                    this.facing = (this.opponent.x >= this.x) ? 1 : -1;
+                    if (this.opponent.isStunned) {
+                        this.opponent.stunTimer = Math.max(this.opponent.stunTimer, 45);
+                    }
+                    if (t >= 1) {
+                        this.y = config.groundY;
+                        this.state = 'summon_crouch';
+                        this.timer = 0;
+                        // Kuchiyose Palm Slam onto arena floor + thick rising summoning smoke
+                        const palmX = this.x + this.facing * 20;
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', palmX - 14, config.groundY, -1, '#ffffff'));
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', palmX + 14, config.groundY, 1, '#ffffff'));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', palmX, config.groundY - 4, this.facing, '#a55eea'));
+                        for (let i = 0; i < 16; i++) {
+                            const sp = new Particle(
+                                palmX + (Math.random() - 0.5) * 44,
+                                config.groundY - 4 - Math.random() * 14,
+                                i % 3 === 0 ? '#a55eea' : (i % 2 === 0 ? '#ffffff' : '#dfe6e9'),
+                                1.1, false, (Math.random() - 0.5) * 4.5, -1.5 - Math.random() * 3.5
+                            );
+                            sp.size = 6 + Math.random() * 6;
+                            gameState.particles.push(sp);
+                        }
+                    }
+                } else if (this.state === 'summon_crouch') {
+                    this.facing = (this.opponent.x >= this.x) ? 1 : -1;
+                    if (this.opponent.isStunned) {
+                        this.opponent.stunTimer = Math.max(this.opponent.stunTimer, 36);
+                    }
+                    // Billowing Kuchiyose smoke clouds drifting up from summoning spot
+                    const palmX = this.x + this.facing * 20;
+                    if (Math.floor(this.timer) % 2 === 0) {
+                        const sp = new Particle(
+                            palmX + (Math.random() - 0.5) * 38,
+                            config.groundY - 6 - Math.random() * 24,
+                            Math.random() > 0.3 ? '#dfe6e9' : (Math.random() > 0.4 ? '#ffffff' : '#a55eea'),
+                            0.9, false, (Math.random() - 0.5) * 2.5, -2.2 - Math.random() * 2.2
+                        );
+                        sp.size = 7 + Math.random() * 5;
+                        gameState.particles.push(sp);
+                    }
+                    // Spawn Giant Drill-Beaked Bird up in the sky inside an aerial smoke cloud at frame 7
+                    if (this.timer >= 7 && !this.bird) {
+                        const bx = Math.max(40, Math.min(canvas.width - 40, this.opponent.x - this.facing * 175));
+                        const by = 28;
+                        const tx = this.opponent.x;
+                        const ty = this.opponent.y - 36;
+                        const ang = Math.atan2(ty - by, tx - bx);
+                        this.bird = {
+                            x: bx,
+                            y: by,
+                            startX: bx,
+                            startY: by,
+                            facing: (tx >= bx) ? 1 : -1,
+                            angle: ang,
+                            phase: 'dive',
+                            active: true
+                        };
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', bx, by, this.bird.facing, '#ffffff'));
+                        for (let k = 0; k < 10; k++) {
+                            const sp = new Particle(bx + (Math.random() - 0.5) * 42, by + (Math.random() - 0.5) * 28, k % 2 === 0 ? '#ffffff' : '#dfe6e9', 0.9);
+                            sp.size = 7;
+                            gameState.particles.push(sp);
+                        }
+                    }
+                    if (this.timer >= 13) {
+                        this.state = 'bird_dive';
+                        this.timer = 0;
+                    }
+                } else if (this.state === 'bird_dive') {
+                    if (this.bird && this.bird.active) {
+                        const b = this.bird;
+                        if (b.phase === 'dive') {
+                            const t = Math.min(1, this.timer / 11);
+                            const tx = this.opponent.x;
+                            const ty = this.opponent.y - 36;
+                            const ease = 0.25 * t + 0.75 * t * t;
+                            b.x = b.startX + (tx - b.startX) * ease;
+                            b.y = b.startY + (ty - b.startY) * ease;
+                            b.facing = (tx >= b.startX) ? 1 : -1;
+                            b.angle = Math.atan2(ty - b.startY, tx - b.startX);
+
+                            // Trailing sky-dive speed particles & feathers
+                            if (Math.floor(this.timer) % 2 === 0) {
+                                gameState.particles.push(new Particle(
+                                    b.x - Math.cos(b.angle) * 24 + (Math.random() - 0.5) * 14,
+                                    b.y - Math.sin(b.angle) * 24 + (Math.random() - 0.5) * 14,
+                                    Math.random() > 0.4 ? '#dfe6e9' : '#a55eea',
+                                    0.6, false, -Math.cos(b.angle) * 2, -Math.sin(b.angle) * 2
+                                ));
+                            }
+
+                            const dist = Math.hypot(b.x - tx, b.y - ty);
+                            if (dist <= 34 || t >= 1) {
+                                this.applyAnimalBirdHit();
+                                b.phase = 'swoop_away';
+                                this.state = 'swoop_vanish';
+                                this.timer = 0;
+                            }
+                        }
+                    } else {
+                        this.state = 'swoop_vanish';
+                        this.timer = 0;
+                    }
+                } else if (this.state === 'swoop_vanish') {
+                    if (this.bird && this.bird.active) {
+                        this.bird.x += this.bird.facing * 16 * config.timeScale;
+                        this.bird.y -= 10 * config.timeScale;
+                        this.bird.angle = this.bird.facing === 1 ? -0.45 : -(Math.PI - 0.45);
+                        if (this.timer >= 8) {
+                            for (let k = 0; k < 8; k++) {
+                                const sp = new Particle(this.bird.x + (Math.random() - 0.5) * 32, this.bird.y + (Math.random() - 0.5) * 24, '#ffffff', 0.8);
+                                sp.size = 6;
+                                gameState.particles.push(sp);
+                            }
+                            this.bird.active = false;
+                        }
+                    }
+                    if (this.timer >= 11) {
+                        this.vanishNow();
+                    }
+                }
+            }
+
+            applyAnimalBirdHit() {
+                if (this.birdHitDealt) return;
+                this.birdHitDealt = true;
+
+                if (this.opponent.isParrying) {
+                    this.opponent.reflectedThisFrame = true;
+                    return;
+                }
+                if ((this.opponent.type === 'sixeye' && this.opponent.isInfinityShieldActive) || this.opponent.isSaiyanDodging) {
+                    return;
+                }
+
+                const dmg = this.opponent.isBlocking ? 5 : 10;
+                this.opponent.health = Math.max(0, this.opponent.health - dmg);
+                const pushDir = this.bird ? this.bird.facing : this.facing;
+                this.opponent.velX = pushDir * (this.opponent.isBlocking ? 6 : 15);
+                this.opponent.velY = -7.2;
+                this.opponent.isStunned = true;
+                this.opponent.stunTimer = 28;
+
+                gameState.shake = 26;
+                gameState.flashAlpha = 0.42;
+                gameState.flashColor = '#ffffff';
+
+                gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', this.opponent.x, this.opponent.y - 40, pushDir, '#a55eea', { maxFrames: 20, maxRadius: 175 }));
+                gameState.pixelEffects.push(new PixelVFX('impact_burst', this.opponent.x, this.opponent.y - 40, pushDir, '#ffffff', { maxFrames: 20, P: 4 }));
+                createExplosion(this.opponent.x, this.opponent.y - 40, '#a55eea', 18, 1.5);
+                createExplosion(this.opponent.x, this.opponent.y - 40, '#dfe6e9', 14, 1.2);
+                gameState.slashes.push(new SlashEffect(
+                    this.opponent.x - pushDir * 44, this.opponent.y - 78,
+                    this.opponent.x + pushDir * 36, this.opponent.y - 16,
+                    '#ffffff', 6, true, true
+                ));
+
+                if (this.opponent.health <= 0) {
+                    this.opponent.health = 0;
+                    triggerWin(this.owner);
+                }
+            }
+
             vanishNow() {
                 gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, this.facing, '#ffffff'));
                 gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 30, this.facing, '#a55eea'));
@@ -12733,6 +12945,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 } else if (this.pathType === 'preta') {
                     drawPixelPreta(this);
+                } else if (this.pathType === 'animal') {
+                    drawPixelAnimal(this);
+                    if (this.bird && this.bird.active) {
+                        drawPixelSummonBird(this.bird);
+                    }
                 }
             }
         }
@@ -13370,6 +13587,199 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 ctx.restore();
                 ctx.imageSmoothingEnabled = prevS2;
             }
+        }
+
+        function drawPixelAnimal(animal) {
+            const P = 3;
+            const baseX = Math.round(animal.x / P) * P;
+            const baseY = Math.round(animal.y / P) * P;
+            const f = animal.facing || 1;
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+            const { px, drawLimb } = createPixelGrid(baseX, baseY, f, P);
+            const C = PAIN_PALETTE;
+
+            let pose = {
+                bodyY: 0, torsoLean: 0, headX: 0, headY: -24, cloakHemOffset: 0, armMetal: false,
+                legB: [-3, -10, -4, -5, -5, 0],
+                legF: [ 2, -10,  3, -5,  4, 0],
+                armB: [-4, -18, -6, -15, -4, -13],
+                armF: [ 3, -18,  6, -15,  8, -13]
+            };
+
+            if (animal.state === 'jump_in') {
+                pose.bodyY = 1; pose.torsoLean = 2; pose.headY = -23;
+                pose.legB = [-4, -10, -6, -5, -7, 0];
+                pose.legF = [ 3, -10,  5, -5,  6, 0];
+                pose.armB = [-4, -18, -8, -15, -10, -12];
+                pose.armF = [ 3, -18,  6, -15,   8, -13];
+                pose.cloakHemOffset = -3;
+            } else if (animal.state === 'summon_crouch' || animal.state === 'bird_dive') {
+                // Iconic low Kuchiyose ninja summon crouch with palm slammed onto floor!
+                pose.bodyY = 5; pose.torsoLean = 3; pose.headY = -19;
+                pose.legB = [-6, -7, -8, -3, -8, 0];
+                pose.legF = [ 3, -7,  5, -4,  5, 0];
+                pose.armB = [-4, -14, -8, -11, -9, -9];
+                pose.armF = [ 4, -14,  6,  -6,  8,  0]; // Palm pressed flat on config.groundY!
+                pose.cloakHemOffset = -4;
+            }
+
+            const tx = pose.torsoLean, ty = pose.bodyY;
+            const hx = pose.headX + tx, hy = pose.headY;
+
+            // Summoning ground chakra seal glow under palm while crouched
+            if (animal.state === 'summon_crouch') {
+                px(pose.armF[4] + tx - 5, -1, 12, 1, '#090b10');
+                px(pose.armF[4] + tx - 4, -1, 10, 1, '#a55eea');
+                px(pose.armF[4] + tx - 1, -2, 4, 2, '#ffffff');
+            }
+
+            // Rear medium bob hair flaring gently outward to neck/collar (tóc lỡ đến cổ)
+            px(hx - 6, hy - 3, 3, 8, C.out);
+            px(hx - 5, hy - 2, 2, 6, C.hairDark);
+            px(hx - 6, hy + 2, 2, 2, C.hairMain);
+
+            drawPainCanonicalBody(px, drawLimb, pose);
+
+            // Canonical 9x8 Face + Headband + Rinnegan
+            drawPainCanonicalHeadBase(px, hx, hy);
+
+            // Crown Hair Cap + Central Hair Tie + Angled Outward Spiky Crown Tufts (Ajisai reference!)
+            px(hx - 5, hy - 5, 11, 3, C.out);
+            px(hx - 4, hy - 4, 9, 2, C.hairMain);
+            // Central bun knot
+            px(hx - 2, hy - 7, 5, 2, C.out);
+            px(hx - 1, hy - 6, 3, 2, C.hairMain);
+            // Left outward-swept double hair spikes (pure orange, no dark-red ear look)
+            px(hx - 6, hy - 7, 4, 2, C.out);
+            px(hx - 8, hy - 8, 3, 2, C.out);
+            px(hx - 7, hy - 7, 4, 1, C.hairMain);
+            px(hx - 5, hy - 6, 3, 1, C.hairLight);
+            // Right outward-swept hair spike
+            px(hx + 2, hy - 7, 4, 2, C.out);
+            px(hx + 4, hy - 8, 3, 2, C.out);
+            px(hx + 2, hy - 6, 4, 1, C.hairMain);
+            px(hx + 3, hy - 7, 3, 1, C.hairLight);
+
+            // Parted Bangs + Choppy Neck-Length Side Locks framing face to Akatsuki collar
+            px(hx - 4, hy - 3, 3, 6, C.hairMain);
+            px(hx - 5, hy + 1, 2, 4, C.hairMain);
+            px(hx + 1, hy - 3, 2, 2, C.hairMain);
+            px(hx + 4, hy - 2, 2, 6, C.out);
+            px(hx + 4, hy - 1, 1, 4, C.hairMain);
+
+            // 3 Vertical Cheek Studs + Nose Bridge Stud
+            px(hx + 2, hy + 1, 1, 1, C.piercing);
+            px(hx - 1, hy + 2, 1, 1, C.piercing);
+            px(hx - 1, hy + 3, 1, 1, C.piercing);
+            px(hx - 1, hy + 4, 1, 1, C.piercing);
+            px(hx + 1, hy + 3, 2, 1, C.skinDark);
+
+            // Front Arm
+            drawLimb(pose.armF[0] + tx, pose.armF[1] + ty, pose.armF[2] + tx, pose.armF[3] + ty, 3, C.cloakMain, C.cloakShade);
+            drawLimb(pose.armF[2] + tx, pose.armF[3] + ty, pose.armF[4] + tx, pose.armF[5] + ty, 2, C.skin, C.skinDark);
+
+            ctx.imageSmoothingEnabled = prevSmooth;
+            ctx.restore();
+        }
+
+        function drawPixelSummonBird(bird) {
+            const P = 3;
+            const bx = Math.round(bird.x / P) * P;
+            const by = Math.round(bird.y / P) * P;
+            const f = bird.facing || 1;
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+            ctx.save();
+            ctx.translate(bx, by);
+            if (f === -1) {
+                ctx.scale(-1, 1);
+                ctx.rotate(Math.PI - (bird.angle || 0));
+            } else {
+                ctx.rotate(bird.angle || 0);
+            }
+
+            const px = (gx, gy, gw, gh, col) => {
+                ctx.fillStyle = col;
+                ctx.fillRect(gx * P, gy * P, gw * P, gh * P);
+            };
+            const flap = Math.round(Math.sin(Date.now() * 0.028) * 2);
+
+            const out = '#090b10';
+            const featherDark = '#2f3542';
+            const featherMain = '#57606f';
+            const featherLight = '#747d8c';
+            const beakOut = '#3d3420';
+            const beakDark = '#9c8d5e';
+            const beakMain = '#c7b887';
+            const beakLight = '#e3d5a5';
+            const talonCol = '#e1b12c';
+            const rinne = '#a55eea';
+
+            // 1) Tucked Yellow-Bandaged Talons Under Belly
+            px(-5, 3, 4, 3, out);
+            px(-4, 4, 3, 2, talonCol);
+            px(-2, 5, 2, 2, out);
+
+            // 2) Far / Upper Giant Falcon Wing (swept high & wide for unmistakable sky-dive silhouette!)
+            px(-8, -10 + flap, 9, 7, out);
+            px(-16, -15 + flap, 11, 6, out);
+            px(-22, -18 + flap, 10, 5, out);
+            px(-7, -9 + flap, 7, 5, featherMain);
+            px(-15, -14 + flap, 10, 4, featherMain);
+            px(-21, -17 + flap, 9, 3, featherDark);
+            px(-13, -13 + flap, 8, 2, featherLight);
+            // Serrated primary wingtips
+            px(-24, -19 + flap, 3, 2, out);
+            px(-23, -18 + flap, 2, 1, featherDark);
+            px(-23, -14 + flap, 3, 2, featherMain);
+
+            // 3) Sleek Feathered Torso & Splayed Tail Feathers
+            px(-19, -2, 8, 5, out);
+            px(-22, -3, 5, 3, featherDark);
+            px(-22, 1, 5, 2, featherMain);
+            px(-10, -4, 15, 8, out);
+            px(-9, -3, 13, 6, featherMain);
+            px(-8, -3, 10, 2, featherLight);
+            px(-9, 1, 11, 2, featherDark);
+
+            // Twin Black Chakra Receiver Rods Pierced into Bird's Back/Neck (exact reference photo detail!)
+            px(-2, -7, 3, 4, out);
+            px(-1, -7, 1, 4, '#2c3e50');
+            px(2, -6, 3, 3, out);
+            px(3, -6, 1, 3, '#a55eea');
+
+            // 4) Head & Concentric Purple Rinnegan Eye
+            px(3, -5, 6, 7, out);
+            px(4, -4, 4, 5, featherMain);
+            px(5, -3, 3, 3, out);
+            px(5, -2, 2, 2, rinne);
+            px(6, -2, 1, 1, '#ffffff');
+
+            // 5) Massive Jagged Bone / Khaki Drill Beak Pointing Forward Toward Victim
+            px(7, -5, 7, 7, beakOut);
+            px(13, -4, 6, 5, beakOut);
+            px(18, -2, 5, 3, beakOut);
+            px(8, -4, 6, 5, beakMain);
+            px(13, -3, 5, 3, beakMain);
+            px(18, -1, 4, 1, beakLight);
+            px(9, -4, 5, 2, beakLight);
+            px(8, -1, 9, 2, beakDark);
+            // Horny beak ridge crests
+            px(9, -6, 4, 2, beakLight);
+            px(9, 2, 3, 2, beakDark);
+
+            // 6) Near Giant Serrated Wing Extending Wide Below Torso
+            px(-9, 3 - flap, 10, 6, out);
+            px(-17, 7 - flap, 11, 6, out);
+            px(-22, 11 - flap, 9, 4, out);
+            px(-8, 4 - flap, 8, 4, featherDark);
+            px(-16, 8 - flap, 9, 4, featherMain);
+            px(-21, 12 - flap, 7, 2, featherDark);
+            px(-14, 7 - flap, 6, 2, featherLight);
+
+            ctx.imageSmoothingEnabled = prevSmooth;
+            ctx.restore();
         }
 
         class Roadroller {
