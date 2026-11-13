@@ -12261,6 +12261,19 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     this.y = this.startY;
                     this.bird = null;
                     this.birdHitDealt = false;
+                    this.humanSpawned = false;
+                } else if (pathType === 'human') {
+                    // Tendo pulls opponent with Bansho Ten'in; mid-flight, Human Path dashes in with a palm strike knocking their soul out and back in!
+                    this.state = 'wait_follow';
+                    this.visible = false;
+                    this.drawPullBeams = false;
+                    this.humanHitDealt = false;
+                    this.soul = null;
+                    this.pullStartX = opponent.x;
+                    this.pullStartY = opponent.y;
+                    this.pullStopX = opponent.x;
+                    this.x = owner.x;
+                    this.y = config.groundY;
                 }
             }
 
@@ -12277,6 +12290,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     this.updatePreta();
                 } else if (this.pathType === 'animal') {
                     this.updateAnimal();
+                } else if (this.pathType === 'human') {
+                    this.updateHuman();
                 }
             }
 
@@ -12427,7 +12442,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     return;
                 }
 
-                const dmg = this.opponent.isBlocking ? 4 : 8;
+                const dmg = this.opponent.isBlocking ? 4 : 7;
                 this.opponent.health = Math.max(0, this.opponent.health - dmg);
                 this.opponent.velX = this.facing * (this.opponent.isBlocking ? 4 : 6);
                 this.opponent.velY = -5.2;
@@ -12578,7 +12593,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     return;
                 }
 
-                const dmg = this.opponent.isBlocking ? 4 : 9;
+                const dmg = this.opponent.isBlocking ? 4 : 8;
                 this.opponent.health = Math.max(0, this.opponent.health - dmg);
                 this.opponent.velX = this.gateFacing * (this.opponent.isBlocking ? 4 : 6);
                 this.opponent.velY = -4.5;
@@ -12704,7 +12719,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     return;
                 }
 
-                const dmg = this.opponent.isBlocking ? 4 : 9;
+                const dmg = this.opponent.isBlocking ? 4 : 8;
                 this.opponent.health = Math.max(0, this.opponent.health - dmg);
                 this.opponent.velX = 0;
                 this.opponent.velY = 0;
@@ -12879,7 +12894,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             this.bird.active = false;
                         }
                     }
-                    if (this.timer >= 11) {
+                    if (this.timer >= 3 && !this.humanSpawned && this.opponent.health > 0 && !gameState.gameOver) {
+                        this.humanSpawned = true;
+                        gameState.painAssists.push(new PainAssistPath('human', this.owner, this.opponent));
+                    }
+                    if (this.timer >= 10) {
                         this.vanishNow();
                     }
                 }
@@ -12897,7 +12916,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     return;
                 }
 
-                const dmg = this.opponent.isBlocking ? 5 : 10;
+                const dmg = this.opponent.isBlocking ? 4 : 8;
                 this.opponent.health = Math.max(0, this.opponent.health - dmg);
                 const pushDir = this.bird ? this.bird.facing : this.facing;
                 this.opponent.velX = pushDir * (this.opponent.isBlocking ? 6 : 15);
@@ -12925,14 +12944,244 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
             }
 
+            updateHuman() {
+                if (this.owner && this.owner.isDead) {
+                    if (this.owner) this.owner.painBanshoPull = false;
+                    this.active = false;
+                    return;
+                }
+
+                if (this.state === 'wait_follow') {
+                    if (this.opponent.isStunned) {
+                        this.opponent.stunTimer = Math.max(this.opponent.stunTimer, 70);
+                    }
+                    this.opponent.velX *= 0.8;
+                    if (this.timer >= 5) {
+                        if (this.opponent.health <= 0 || gameState.gameOver) {
+                            this.active = false;
+                            return;
+                        }
+                        this.pullDir = (this.opponent.x >= this.owner.x) ? 1 : -1;
+                        this.owner.facing = this.pullDir;
+                        this.owner.painBanshoPull = true;
+                        // Guarantee clear airborne pull span even near corners
+                        if (Math.abs(this.opponent.x - this.owner.x) < 130) {
+                            const shiftX = Math.max(45, Math.min(canvas.width - 45, this.owner.x + this.pullDir * 155));
+                            this.opponent.x = shiftX;
+                        }
+                        this.pullStartX = this.opponent.x;
+                        this.pullStartY = Math.min(config.groundY, this.opponent.y);
+                        this.pullStopX = Math.max(45, Math.min(canvas.width - 45, this.owner.x + this.pullDir * 68));
+                        this.drawPullBeams = true;
+                        this.state = 'bansho_pull';
+                        this.timer = 0;
+
+                        announceText("BANSHŌ TEN'IN!", '#a55eea');
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.owner.x + this.pullDir * 24, this.owner.y - 44, this.pullDir, '#a55eea'));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.opponent.x, this.opponent.y - 42, -this.pullDir, '#ffffff'));
+                    }
+                } else if (this.state === 'bansho_pull') {
+                    // Opponent pulled flying through air toward our Pain (Tendo)
+                    const totalPull = 20;
+                    const t = Math.min(1, this.timer / totalPull);
+                    const ease = 0.35 * t + 0.65 * t * t;
+                    this.opponent.x = this.pullStartX + (this.pullStopX - this.pullStartX) * ease;
+                    this.opponent.y = config.groundY - Math.sin(t * Math.PI * 0.78) * 52;
+                    this.opponent.velX = 0;
+                    this.opponent.velY = 0;
+                    this.opponent.isStunned = true;
+                    this.opponent.stunTimer = 60;
+                    this.owner.facing = this.pullDir;
+                    this.owner.painBanshoPull = true;
+
+                    if (Math.floor(this.timer) % 3 === 0) {
+                        gameState.particles.push(new Particle(
+                            this.opponent.x + (Math.random() - 0.5) * 16,
+                            this.opponent.y - 38 + (Math.random() - 0.5) * 20,
+                            Math.random() > 0.4 ? '#a55eea' : '#ffffff',
+                            0.7, false, -this.pullDir * 3, (Math.random() - 0.5) * 1.5
+                        ));
+                    }
+
+                    // Mid-flight (~frame 11), Human Path dashes out to intercept with a Soul-Rip Palm!
+                    if (this.timer >= 11) {
+                        this.facing = this.pullDir;
+                        this.dashStartX = Math.max(30, Math.min(canvas.width - 30, this.owner.x + this.pullDir * 16));
+                        this.dashStartY = config.groundY;
+                        this.x = this.dashStartX;
+                        this.y = this.dashStartY;
+                        this.pullFlightBaseT = t;
+                        this.visible = true;
+                        this.state = 'human_dash_palm';
+                        this.timer = 0;
+
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', this.dashStartX, config.groundY, -this.facing, '#ffffff'));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.dashStartX, config.groundY - 38, this.facing, '#a55eea'));
+                    }
+                } else if (this.state === 'human_dash_palm') {
+                    // Opponent keeps flying incoming while Human Path lunges head-on for mid-air intercept!
+                    const d = Math.min(1, this.timer / 6);
+                    const pT = Math.min(0.88, this.pullFlightBaseT + d * 0.24);
+                    const pEase = 0.35 * pT + 0.65 * pT * pT;
+                    this.opponent.x = this.pullStartX + (this.pullStopX - this.pullStartX) * pEase;
+                    this.opponent.y = config.groundY - Math.sin(pT * Math.PI * 0.78) * 52;
+                    this.opponent.velX = 0;
+                    this.opponent.velY = 0;
+                    this.opponent.isStunned = true;
+                    this.opponent.stunTimer = 55;
+
+                    const meetX = this.opponent.x - this.facing * 48;
+                    const meetY = Math.min(config.groundY, this.opponent.y + 18);
+                    this.x = this.dashStartX + (meetX - this.dashStartX) * d;
+                    this.y = this.dashStartY + (meetY - this.dashStartY) * d;
+
+                    if (d >= 1) {
+                        this.x = meetX;
+                        this.y = meetY;
+                        this.drawPullBeams = false;
+                        if (this.owner) this.owner.painBanshoPull = false;
+                        this.applyHumanSoulStrike();
+                        this.state = 'soul_out_and_return';
+                        this.timer = 0;
+                    }
+                } else if (this.state === 'soul_out_and_return') {
+                    // Hold body steady while its colored Soul flies out a distance then snaps back in!
+                    this.opponent.velX = 0;
+                    this.opponent.velY = 0;
+                    this.opponent.isStunned = true;
+                    this.opponent.stunTimer = 30;
+                    // Smoothly lower Human Path feet toward ground if mid-air
+                    this.y += (config.groundY - this.y) * 0.22;
+
+                    if (this.soul && this.soul.active) {
+                        const s = this.soul;
+                        const tFrames = this.timer;
+                        if (tFrames <= 12) {
+                            // Ejected out cleanly ("linh hồn bị văng ra một khúc")
+                            s.phase = 'ejected';
+                            const fOut = Math.min(1, tFrames / 12);
+                            const easeOut = 1 - Math.pow(1 - fOut, 3);
+                            s.x = s.startX + (s.apexX - s.startX) * easeOut;
+                            s.y = s.startY + (s.apexY - s.startY) * easeOut - Math.sin(fOut * Math.PI) * 16;
+                            s.alpha = 0.94;
+                            s.stretch = 1 + (1 - fOut) * 0.45;
+                            if (Math.floor(tFrames) % 2 === 0) {
+                                gameState.particles.push(new Particle(
+                                    s.x + (Math.random() - 0.5) * 14,
+                                    s.y - 24 + (Math.random() - 0.5) * 18,
+                                    s.palette.main, 0.75, false, (Math.random() - 0.5) * 1.5, -0.8
+                                ));
+                            }
+                        } else if (tFrames <= 15) {
+                            // Brief peak suspension
+                            s.phase = 'apex';
+                            s.x = s.apexX;
+                            s.y = s.apexY;
+                            s.stretch = 1.05;
+                            if (Math.floor(tFrames) === 13) {
+                                gameState.pixelEffects.push(new PixelVFX('air_ring', s.x, s.y - 28, -s.facing, s.palette.main));
+                            }
+                        } else if (tFrames <= 27) {
+                            // Flies straight back into opponent's body ("rồi bay lại vào")
+                            s.phase = 'return';
+                            const fIn = Math.min(1, (tFrames - 15) / 12);
+                            const easeIn = fIn * fIn;
+                            const targetX = this.opponent.x;
+                            const targetY = this.opponent.y - 8;
+                            s.x = s.apexX + (targetX - s.apexX) * easeIn;
+                            s.y = s.apexY + (targetY - s.apexY) * easeIn - Math.sin(fIn * Math.PI) * 12;
+                            s.stretch = 1 + fIn * 0.35;
+                            s.alpha = 0.92;
+                            if (Math.floor(tFrames) % 2 === 0) {
+                                gameState.particles.push(new Particle(s.x, s.y - 24, s.palette.glow, 0.65));
+                            }
+                        } else {
+                            // Re-absorbed!
+                            s.active = false;
+                            gameState.pixelEffects.push(new PixelVFX('air_ring', this.opponent.x, this.opponent.y - 36, this.facing, s.palette.main));
+                            gameState.pixelEffects.push(new PixelVFX('impact_burst', this.opponent.x, this.opponent.y - 36, this.facing, s.palette.glow, { maxFrames: 14, P: 3 }));
+                            this.opponent.velX = this.facing * 7;
+                            this.opponent.velY = -3.8;
+                        }
+                    }
+
+                    if (this.timer >= 33) {
+                        this.vanishNow();
+                    }
+                }
+            }
+
+            applyHumanSoulStrike() {
+                if (this.humanHitDealt) return;
+                this.humanHitDealt = true;
+
+                if (this.opponent.isParrying) {
+                    this.opponent.reflectedThisFrame = true;
+                    return;
+                }
+                if ((this.opponent.type === 'sixeye' && this.opponent.isInfinityShieldActive) || this.opponent.isSaiyanDodging) {
+                    return;
+                }
+
+                const dmg = this.opponent.isBlocking ? 4 : 9;
+                this.opponent.health = Math.max(0, this.opponent.health - dmg);
+
+                const palette = getFighterSoulPalette(this.opponent);
+                const knockDir = this.facing;
+                let apexX = this.opponent.x + knockDir * 118;
+                let apexY = this.opponent.y - 26;
+                if (apexX > canvas.width - 36) {
+                    apexX = canvas.width - 42;
+                    apexY = Math.max(95, this.opponent.y - 90);
+                } else if (apexX < 36) {
+                    apexX = 42;
+                    apexY = Math.max(95, this.opponent.y - 90);
+                }
+
+                this.soul = {
+                    active: true,
+                    phase: 'ejected',
+                    x: this.opponent.x,
+                    y: this.opponent.y - 6,
+                    startX: this.opponent.x,
+                    startY: this.opponent.y - 6,
+                    apexX,
+                    apexY,
+                    facing: this.opponent.facing || -knockDir,
+                    stretch: 1.35,
+                    alpha: 0.95,
+                    palette
+                };
+
+                announceText('NINGENDŌ: SOUL EXTRACTION!', palette.main);
+                gameState.shake = 24;
+                gameState.flashAlpha = 0.36;
+                gameState.flashColor = palette.main;
+
+                gameState.pixelEffects.push(new PixelVFX('impact_burst', this.opponent.x, this.opponent.y - 38, knockDir, '#a55eea', { maxFrames: 20, P: 4 }));
+                gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', this.opponent.x, this.opponent.y - 38, knockDir, palette.main, { maxFrames: 18, maxRadius: 150 }));
+                createExplosion(this.opponent.x, this.opponent.y - 38, '#a55eea', 14, 1.3);
+                createExplosion(this.opponent.x, this.opponent.y - 38, palette.main, 16, 1.4);
+
+                if (this.opponent.health <= 0) {
+                    this.opponent.health = 0;
+                    triggerWin(this.owner);
+                }
+            }
+
             vanishNow() {
+                if (this.owner) this.owner.painBanshoPull = false;
                 gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, this.facing, '#ffffff'));
                 gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 30, this.facing, '#a55eea'));
                 this.active = false;
             }
 
             draw() {
-                if (!this.active || !this.visible) return;
+                if (!this.active) return;
+                if (this.pathType === 'human' && this.drawPullBeams) {
+                    drawBanshoPullVFX(this.owner, this.opponent);
+                }
+                if (!this.visible) return;
                 if (this.pathType === 'asura') {
                     drawPixelAsura(this);
                     if (this.rocket && this.rocket.active) {
@@ -12949,6 +13198,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     drawPixelAnimal(this);
                     if (this.bird && this.bird.active) {
                         drawPixelSummonBird(this.bird);
+                    }
+                } else if (this.pathType === 'human') {
+                    drawPixelHuman(this);
+                    if (this.soul && this.soul.active) {
+                        drawPixelSoul(this.soul, this.opponent);
                     }
                 }
             }
@@ -13684,7 +13938,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
         }
 
         function drawPixelSummonBird(bird) {
-            const P = 3;
+            const P = 4; // Scaled up to 4px blocks so the Giant Drill-Beaked Bird is huge and crystal clear!
             const bx = Math.round(bird.x / P) * P;
             const by = Math.round(bird.y / P) * P;
             const f = bird.facing || 1;
@@ -13703,83 +13957,285 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 ctx.fillStyle = col;
                 ctx.fillRect(gx * P, gy * P, gw * P, gh * P);
             };
-            const flap = Math.round(Math.sin(Date.now() * 0.028) * 2);
+            const flap = Math.round(Math.sin(Date.now() * 0.025) * 1.5);
 
             const out = '#090b10';
-            const featherDark = '#2f3542';
+            const featherDark = '#353b48';
             const featherMain = '#57606f';
-            const featherLight = '#747d8c';
-            const beakOut = '#3d3420';
+            const featherLight = '#8395a7';
+            const featherRim = '#c8d6e5';
+            const beakOut = '#2d2412';
             const beakDark = '#9c8d5e';
-            const beakMain = '#c7b887';
-            const beakLight = '#e3d5a5';
-            const talonCol = '#e1b12c';
-            const rinne = '#a55eea';
+            const beakMain = '#d1c292';
+            const beakLight = '#f0e5bc';
+            const talonCol = '#f1c40f';
+            const rinne = '#c56cf0';
 
-            // 1) Tucked Yellow-Bandaged Talons Under Belly
-            px(-5, 3, 4, 3, out);
-            px(-4, 4, 3, 2, talonCol);
-            px(-2, 5, 2, 2, out);
+            // 1) Far / Upper Cohesive Falcon Wing (solid layered raptor shape with bright sky contrast rim)
+            px(-7, -11 + flap, 10, 8, out);
+            px(-15, -16 + flap, 12, 8, out);
+            px(-22, -19 + flap, 11, 6, out);
+            px(-6, -10 + flap, 8, 6, featherMain);
+            px(-14, -15 + flap, 10, 6, featherMain);
+            px(-21, -18 + flap, 9, 4, featherDark);
+            px(-13, -15 + flap, 9, 2, featherLight);
+            px(-20, -18 + flap, 8, 1, featherRim);
+            px(-24, -19 + flap, 3, 2, featherDark);
+            px(-23, -15 + flap, 3, 2, featherLight);
 
-            // 2) Far / Upper Giant Falcon Wing (swept high & wide for unmistakable sky-dive silhouette!)
-            px(-8, -10 + flap, 9, 7, out);
-            px(-16, -15 + flap, 11, 6, out);
-            px(-22, -18 + flap, 10, 5, out);
-            px(-7, -9 + flap, 7, 5, featherMain);
-            px(-15, -14 + flap, 10, 4, featherMain);
-            px(-21, -17 + flap, 9, 3, featherDark);
-            px(-13, -13 + flap, 8, 2, featherLight);
-            // Serrated primary wingtips
-            px(-24, -19 + flap, 3, 2, out);
-            px(-23, -18 + flap, 2, 1, featherDark);
-            px(-23, -14 + flap, 3, 2, featherMain);
+            // 2) Tucked Yellow-Bandaged Talons Under Belly
+            px(-6, 4, 5, 4, out);
+            px(-5, 5, 3, 2, talonCol);
+            px(-3, 6, 3, 2, out);
+            px(-2, 7, 2, 1, talonCol);
 
-            // 3) Sleek Feathered Torso & Splayed Tail Feathers
-            px(-19, -2, 8, 5, out);
-            px(-22, -3, 5, 3, featherDark);
-            px(-22, 1, 5, 2, featherMain);
-            px(-10, -4, 15, 8, out);
-            px(-9, -3, 13, 6, featherMain);
-            px(-8, -3, 10, 2, featherLight);
-            px(-9, 1, 11, 2, featherDark);
+            // 3) Large Solid Feathered Body & Broad Splayed Tail Feathers
+            px(-22, -3, 12, 6, out);
+            px(-25, -4, 7, 3, out);
+            px(-24, -3, 6, 2, featherMain);
+            px(-24, 1, 6, 2, featherLight);
+            px(-11, -5, 16, 10, out);
+            px(-10, -4, 14, 8, featherMain);
+            px(-9, -4, 12, 3, featherLight);
+            px(-8, -4, 9, 1, featherRim);
+            px(-10, 2, 12, 2, featherDark);
 
-            // Twin Black Chakra Receiver Rods Pierced into Bird's Back/Neck (exact reference photo detail!)
-            px(-2, -7, 3, 4, out);
-            px(-1, -7, 1, 4, '#2c3e50');
-            px(2, -6, 3, 3, out);
-            px(3, -6, 1, 3, '#a55eea');
+            // Twin Black Chakra Receiver Rods Piercing Back of Neck
+            px(-2, -9, 3, 5, out);
+            px(-1, -8, 1, 4, '#2f3640');
+            px(0, -9, 1, 1, '#a55eea');
+            px(2, -8, 3, 4, out);
+            px(3, -7, 1, 3, '#2f3640');
+            px(4, -8, 1, 1, '#a55eea');
 
-            // 4) Head & Concentric Purple Rinnegan Eye
-            px(3, -5, 6, 7, out);
-            px(4, -4, 4, 5, featherMain);
-            px(5, -3, 3, 3, out);
-            px(5, -2, 2, 2, rinne);
-            px(6, -2, 1, 1, '#ffffff');
+            // 4) Large Skull & Bright Glowing Rinnegan Eye
+            px(3, -6, 7, 9, out);
+            px(4, -5, 5, 7, featherMain);
+            px(4, -5, 4, 2, featherLight);
+            px(5, -4, 4, 4, out);
+            px(6, -3, 2, 2, rinne);
+            px(7, -3, 1, 1, '#ffffff');
 
-            // 5) Massive Jagged Bone / Khaki Drill Beak Pointing Forward Toward Victim
-            px(7, -5, 7, 7, beakOut);
-            px(13, -4, 6, 5, beakOut);
-            px(18, -2, 5, 3, beakOut);
-            px(8, -4, 6, 5, beakMain);
-            px(13, -3, 5, 3, beakMain);
-            px(18, -1, 4, 1, beakLight);
-            px(9, -4, 5, 2, beakLight);
-            px(8, -1, 9, 2, beakDark);
-            // Horny beak ridge crests
-            px(9, -6, 4, 2, beakLight);
-            px(9, 2, 3, 2, beakDark);
+            // 5) Massive Gleaming Bone / Khaki Drill Beak with Serrated Horns
+            px(8, -6, 7, 9, beakOut);
+            px(14, -5, 6, 7, beakOut);
+            px(19, -3, 6, 4, beakOut);
+            px(24, -2, 3, 2, beakOut);
+            px(9, -5, 6, 7, beakMain);
+            px(14, -4, 5, 5, beakMain);
+            px(19, -2, 5, 2, beakLight);
+            px(10, -5, 7, 2, beakLight);
+            px(9, 0, 10, 2, beakDark);
+            // Jagged serrated bone crests on upper & lower beak
+            px(10, -7, 4, 2, beakLight);
+            px(10, 3, 4, 2, beakDark);
 
-            // 6) Near Giant Serrated Wing Extending Wide Below Torso
-            px(-9, 3 - flap, 10, 6, out);
-            px(-17, 7 - flap, 11, 6, out);
-            px(-22, 11 - flap, 9, 4, out);
-            px(-8, 4 - flap, 8, 4, featherDark);
-            px(-16, 8 - flap, 9, 4, featherMain);
-            px(-21, 12 - flap, 7, 2, featherDark);
-            px(-14, 7 - flap, 6, 2, featherLight);
+            // 6) Near Giant Raptor Wing Extending Swept Below Body
+            px(-8, 4 - flap, 11, 8, out);
+            px(-16, 8 - flap, 12, 7, out);
+            px(-22, 12 - flap, 10, 5, out);
+            px(-7, 5 - flap, 9, 6, featherDark);
+            px(-15, 9 - flap, 10, 5, featherMain);
+            px(-21, 13 - flap, 8, 3, featherDark);
+            px(-13, 9 - flap, 8, 2, featherLight);
+            px(-19, 13 - flap, 6, 1, featherRim);
 
             ctx.imageSmoothingEnabled = prevSmooth;
             ctx.restore();
+        }
+
+        function getFighterSoulPalette(fighter) {
+            const cls = (typeof CHARACTERS !== 'undefined') ? CHARACTERS.find(c => c.id === fighter.type) : null;
+            const id = fighter.id || 2;
+            const teamMain = (id === 1) ? '#2ecc71' : '#ff4757';
+            const teamGlow = (id === 1) ? '#7bed9f' : '#ff7f50';
+            const teamOut  = (id === 1) ? '#145a32' : '#78281f';
+
+            if (cls && cls.tier === 'special') {
+                const tones = {
+                    sixeye:  id === 1 ? ['#bf55ec', '#e0aaff', '#4a148c'] : ['#00d2ff', '#a8f0ff', '#01579b'],
+                    saiyan:  id === 1 ? ['#00d2ff', '#a8f0ff', '#01579b'] : ['#ff2e4c', '#ff9aa8', '#7f0019'],
+                    dio:     id === 1 ? ['#f1c40f', '#fff3a1', '#7d6608'] : ['#ff4757', '#ff9f43', '#78281f'],
+                    phantom: id === 1 ? ['#38bdf8', '#bae6fd', '#0c4a6e'] : ['#ff3366', '#ff9ebb', '#880e4f'],
+                    slasher: id === 1 ? ['#ff4757', '#ff9aa2', '#7f0000'] : ['#6c5ce7', '#a29bfe', '#2c2470'],
+                    deidara: id === 1 ? ['#f39c12', '#ffe082', '#7e5109'] : ['#e67e22', '#ffcc80', '#7e3d09'],
+                    pain:    id === 1 ? ['#ff793f', '#ffbe76', '#7b2d0c'] : ['#a55eea', '#e0aaff', '#4a148c']
+                };
+                const picked = tones[fighter.type] || [cls.color || teamMain, '#ffffff', '#1e272e'];
+                return { main: picked[0], glow: picked[1], outline: picked[2], core: '#ffffff' };
+            }
+            return { main: teamMain, glow: teamGlow, outline: teamOut, core: '#ffffff' };
+        }
+
+        function drawBanshoPullVFX(owner, opponent) {
+            if (!owner || !opponent) return;
+            const f = owner.facing || 1;
+            const ox = owner.x + f * 48;
+            const oy = owner.y - 46;
+            const tx = opponent.x;
+            const ty = opponent.y - 36;
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+            ctx.save();
+            // Gravitational Bansho Ten'in attraction lines converging from opponent to Pain's palm
+            const now = Date.now() * 0.015;
+            for (let k = 0; k < 4; k++) {
+                const frac = ((now + k * 0.25) % 1);
+                const lx = tx + (ox - tx) * frac;
+                const ly = ty + (oy - ty) * frac + (k - 1.5) * 9 * (1 - frac);
+                ctx.fillStyle = k % 2 === 0 ? 'rgba(165, 94, 234, 0.85)' : 'rgba(255, 255, 255, 0.85)';
+                ctx.fillRect(Math.round(lx) - 6, Math.round(ly) - 2, 12, 4);
+            }
+            // Pulling gravity aura rings around Pain's extended hand & around flying opponent
+            ctx.strokeStyle = 'rgba(165, 94, 234, 0.78)';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(ox, oy, 12 + Math.sin(now * 2) * 3, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.strokeStyle = 'rgba(224, 170, 255, 0.65)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(tx, ty, 22 - Math.sin(now * 2) * 4, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+            ctx.imageSmoothingEnabled = prevSmooth;
+        }
+
+        function drawPixelHuman(human) {
+            const P = 3;
+            const baseX = Math.round(human.x / P) * P;
+            const baseY = Math.round(human.y / P) * P;
+            const f = human.facing || 1;
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+            const { px, drawLimb } = createPixelGrid(baseX, baseY, f, P);
+            const C = PAIN_PALETTE;
+
+            let pose = {
+                bodyY: 0, torsoLean: 0, headX: 0, headY: -24, cloakHemOffset: 0, armMetal: false,
+                legB: [-3, -10, -4, -5, -5, 0],
+                legF: [ 2, -10,  3, -5,  4, 0],
+                armB: [-4, -18, -6, -15, -4, -13],
+                armF: [ 3, -18,  6, -15,  8, -13]
+            };
+
+            if (human.state === 'human_dash_palm') {
+                // High-speed dash intercept with chakra palm chambered then extended
+                pose.bodyY = 1; pose.torsoLean = 4; pose.headY = -23;
+                pose.legB = [-5, -10, -9, -6, -11, -1];
+                pose.legF = [ 3, -10,  7, -6,  10, -1];
+                pose.armB = [-4, -18, -9, -15, -12, -12];
+                pose.armF = [ 4, -18,  10, -17,  16, -17];
+                pose.cloakHemOffset = -5;
+            } else if (human.state === 'soul_out_and_return') {
+                // Explosive Open-Palm Strike (chưởng) hold pose
+                pose.bodyY = 1; pose.torsoLean = 3; pose.headY = -24;
+                pose.legB = [-4, -10, -6, -5, -7, 0];
+                pose.legF = [ 3, -10,  6, -5,  7, 0];
+                pose.armB = [-4, -18, -7, -14, -9, -11];
+                pose.armF = [ 4, -18, 12, -17, 19, -17];
+                pose.cloakHemOffset = -4;
+            }
+
+            const tx = pose.torsoLean, ty = pose.bodyY;
+            const hx = pose.headX + tx, hy = pose.headY;
+
+            // Signature Human Path (Ningendō): ultra-long flowing orange hair draping behind back & shoulder!
+            px(hx - 7, hy - 3, 5, 19, C.out);
+            px(hx - 6, hy - 2, 4, 17, C.hairDark);
+            px(hx - 5, hy - 1, 3, 15, C.hairMain);
+            px(hx - 7, hy + 12, 3, 6, C.out);
+            px(hx - 6, hy + 13, 2, 4, C.hairMain);
+
+            drawPainCanonicalBody(px, drawLimb, pose);
+
+            // Canonical 9x8 Face + Headband + Rinnegan
+            drawPainCanonicalHeadBase(px, hx, hy);
+
+            // Long sleek crown + sweeping long bangs across temple
+            px(hx - 5, hy - 6, 10, 4, C.out);
+            px(hx - 4, hy - 5, 8, 3, C.hairMain);
+            px(hx - 3, hy - 5, 5, 2, C.hairLight);
+            px(hx - 4, hy - 2, 3, 12, C.hairMain);
+            px(hx - 3, hy + 2, 2, 8, C.hairLight);
+            px(hx + 2, hy - 2, 3, 2, C.hairMain);
+
+            // Nose stud & cheek diagonal studs
+            px(hx + 2, hy + 1, 1, 1, C.piercing);
+            px(hx + 0, hy + 2, 1, 1, C.piercing);
+            px(hx + 0, hy + 4, 1, 1, C.piercing);
+            px(hx + 2, hy + 3, 2, 1, C.skinDark);
+
+            // Front Arm + Ningendō Violet Soul-Strike Palm Chakra Aura
+            drawLimb(pose.armF[0] + tx, pose.armF[1] + ty, pose.armF[2] + tx, pose.armF[3] + ty, 3, C.cloakMain, C.cloakShade);
+            drawLimb(pose.armF[2] + tx, pose.armF[3] + ty, pose.armF[4] + tx, pose.armF[5] + ty, 2, C.skin, C.skinDark);
+
+            if (human.state === 'human_dash_palm' || human.state === 'soul_out_and_return') {
+                const pxHand = pose.armF[4] + tx;
+                const pyHand = pose.armF[5] + ty;
+                px(pxHand - 1, pyHand - 2, 4, 4, '#a55eea');
+                px(pxHand, pyHand - 1, 2, 2, '#ffffff');
+            }
+
+            ctx.imageSmoothingEnabled = prevSmooth;
+            ctx.restore();
+        }
+
+        function drawPixelSoul(soul, opponent) {
+            if (!soul || !soul.active || !opponent) return;
+            const P = 3;
+            const pal = soul.palette;
+            const sx = Math.round(soul.x / P) * P;
+            const sy = Math.round(soul.y / P) * P;
+            const ox = Math.round(opponent.x / P) * P;
+            const oy = Math.round((opponent.y - 36) / P) * P;
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+            ctx.save();
+
+            // Subtle spiritual tether linking the knocked-out soul back to its body
+            ctx.strokeStyle = pal.main;
+            ctx.globalAlpha = 0.55;
+            ctx.lineWidth = 3;
+            ctx.setLineDash([6, 5]);
+            ctx.beginPath();
+            ctx.moveTo(ox, oy);
+            ctx.quadraticCurveTo((ox + sx) * 0.5, Math.min(oy, sy - 24) - 18, sx, sy - 26);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Spectral Phantom Humanoid Silhouette colored strictly in team/special-class tone!
+            ctx.translate(sx, sy);
+            ctx.scale(soul.facing || 1, 1);
+            ctx.globalAlpha = soul.alpha || 0.92;
+            const px = (gx, gy, gw, gh, col) => {
+                ctx.fillStyle = col;
+                ctx.fillRect(gx * P, gy * P, gw * P, gh * P);
+            };
+
+            // Outer aura glow silhouette
+            px(-5, -24, 10, 9, pal.outline);
+            px(-6, -15, 12, 11, pal.outline);
+            px(-4, -4, 8, 5, pal.outline);
+            // Main colored spectral body
+            px(-4, -23, 8, 7, pal.main);
+            px(-5, -14, 10, 9, pal.main);
+            px(-3, -4, 6, 4, pal.main);
+            // Lighter inner spiritual highlight + pure glowing core
+            px(-3, -22, 6, 5, pal.glow);
+            px(-3, -13, 6, 6, pal.glow);
+            px(-1, -12, 3, 4, pal.core);
+            // Spectral floating wispy legs/tail + flailing ghostly arms
+            px(-8, -14, 3, 3, pal.main);
+            px(5, -16, 3, 3, pal.glow);
+            px(-4, -1, 3, 4, pal.glow);
+            px(1, -2, 3, 3, pal.main);
+            // Bright white glowing eyes on the stunned soul!
+            px(-2, -20, 2, 2, pal.core);
+            px(1, -20, 2, 2, pal.core);
+
+            ctx.restore();
+            ctx.imageSmoothingEnabled = prevSmooth;
         }
 
         class Roadroller {
@@ -15505,6 +15961,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.isDead = false; this.isDashing = false;
                 this.jumpCount = 0; this.maxJumps = (type === 'martial' || type === 'shinobi' || type === 'sixeye' || type === 'saiyan' || type === 'dio' || type === 'raijin' || type === 'phantom' || type === 'slasher' || type === 'deidara' || type === 'hooper' || type === 'pain') ? 2 : 1;
                 this.painLevitating = false;
+                this.painBanshoPull = false;
                 this.painChargingUlt = false;
                 this.painUltChargeTimer = 0;
                 this.projectiles = []; this.hitOnce = false;
@@ -22081,6 +22538,18 @@ function drawPixelPain(fighter, frozenInDraw) {
         legF = [2, -10, 3, -5, 4, 0];
         cloakHemOffset = -1;
         cloakSpread = 2;
+    } else if (fighter.painBanshoPull) {
+        // TENDŌ PAIN BANSHŌ TEN'IN (UNIVERSAL PULL) POSE: Outstretched arm aiming toward pulled opponent!
+        expr = 'focus';
+        torsoLean = 1;
+        headX = 1; headY = -24;
+        bodyY = 0;
+        armB = [-4, -18, -7, -15, -8, -12];
+        armF = [3, -18, 10, -18, 17, -18];
+        legB = [-3, -10, -4, -5, -5, 0];
+        legF = [3, -10, 4, -5, 5, 0];
+        cloakSpread = 4;
+        cloakHemOffset = -2;
     } else if (drawAttacking && drawAttackType === 'kick') {
         // Akatsuki snap kick
         expr = 'focus';
@@ -22327,6 +22796,14 @@ function drawPixelPain(fighter, frozenInDraw) {
         px(hx_rod - 1, hy_rod - 1, 14, 2, '#111111');
         px(hx_rod, hy_rod - 1, 12, 1, '#2c3e50');
         px(hx_rod + 13, hy_rod - 1, 2, 1, '#a55eea');
+    }
+
+    // Bansho Ten'in Inward Gravity Vortex on Outstretched Palm
+    if (fighter.painBanshoPull) {
+        const hx_pull = armF[4] + tx + 2;
+        const hy_pull = armF[5] + ty;
+        px(hx_pull - 1, hy_pull - 1, 3, 3, '#a55eea');
+        px(hx_pull, hy_pull, 1, 1, '#ffffff');
     }
 
     // Divine Repulsion Shockwave Ripple on Palm Thrust
