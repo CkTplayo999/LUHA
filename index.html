@@ -12742,19 +12742,121 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             ctx.translate(baseX, baseY);
             ctx.scale(facing || 1, 1);
             const px = (gx, gy, gw, gh, col) => {
+                if (!col || gw <= 0 || gh <= 0) return;
                 ctx.fillStyle = col;
-                ctx.fillRect(gx * P, gy * P, gw * P, gh * P);
+                ctx.fillRect(Math.round(gx) * P, Math.round(gy) * P, Math.round(gw) * P, Math.round(gh) * P);
             };
-            const drawLimb = (x1, y1, x2, y2, thick, col, shade) => {
-                const steps = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1), 1);
+            const drawLimb = (x0, y0, x1, y1, thick, colMain, colShade) => {
+                const steps = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0)));
                 for (let s = 0; s <= steps; s++) {
                     const t = s / steps;
-                    const curX = Math.round(x1 + (x2 - x1) * t);
-                    const curY = Math.round(y1 + (y2 - y1) * t);
-                    px(curX - Math.floor(thick / 2), curY - Math.floor(thick / 2), thick, thick, s === 0 && shade ? shade : col);
+                    const gx = Math.round(x0 + (x1 - x0) * t);
+                    const gy = Math.round(y0 + (y1 - y0) * t);
+                    px(gx - 1, gy - 1, thick + 2, thick + 2, '#090b10');
+                }
+                for (let s = 0; s <= steps; s++) {
+                    const t = s / steps;
+                    const gx = Math.round(x0 + (x1 - x0) * t);
+                    const gy = Math.round(y0 + (y1 - y0) * t);
+                    px(gx, gy, thick, thick, colMain);
+                    if (colShade && thick >= 2) px(gx, gy, 1, thick, colShade);
                 }
             };
             return { px, drawLimb };
+        }
+
+        const PAIN_PALETTE = {
+            out: '#090b10',
+            cloakMain: '#111625',
+            cloakShade: '#090d17',
+            cloakHighlight: '#222b40',
+            collarIn: '#c0392b',
+            cloudRed: '#e74c3c',
+            cloudWhite: '#ffffff',
+            pantsMain: '#192030',
+            wrapMain: '#ecf0f1',
+            wrapShade: '#bdc3c7',
+            sandalCol: '#090b10',
+            skin: '#f5c69c',
+            skinDark: '#c98d63',
+            skinLight: '#ffe3c4',
+            bandCloth: '#2f3542',
+            bandMetal: '#bdc3c7',
+            rinneIris: '#a55eea',
+            rinneDark: '#574b90',
+            piercing: '#1e272e',
+            hairMain: '#ff793f',
+            hairDark: '#d63031',
+            hairLight: '#ffa86b'
+        };
+
+        // Shared canonical Akatsuki body (exact 1:1 scale & proportions with playable drawPixelPain!)
+        function drawPainCanonicalBody(px, drawLimb, pose) {
+            const C = PAIN_PALETTE;
+            const tx = pose.torsoLean;
+            const ty = pose.bodyY;
+
+            // Back leg & sandal
+            drawLimb(pose.legB[0] + tx, pose.legB[1] + ty, pose.legB[2] + tx, pose.legB[3] + ty, 2, C.pantsMain, C.out);
+            drawLimb(pose.legB[2] + tx, pose.legB[3] + ty, pose.legB[4] + tx, pose.legB[5], 2, C.wrapMain, C.wrapShade);
+            px(pose.legB[4] + tx - 1, pose.legB[5] - 1, 3, 2, C.sandalCol);
+
+            // Back sleeve & hand
+            drawLimb(pose.armB[0] + tx, pose.armB[1] + ty, pose.armB[2] + tx, pose.armB[3] + ty, 3, C.cloakMain, C.cloakShade);
+            drawLimb(pose.armB[2] + tx, pose.armB[3] + ty, pose.armB[4] + tx, pose.armB[5] + ty, 2, pose.armMetal ? '#7f8c8d' : C.skin, pose.armMetal ? '#2c3e50' : C.skinDark);
+
+            // Canonical 10x10 Akatsuki Cloak Torso
+            px(tx - 5, ty - 19, 10, 10, C.out);
+            px(tx - 4, ty - 18, 8, 9, C.cloakMain);
+            px(tx - 4, ty - 18, 3, 9, C.cloakShade);
+            px(tx + 1, ty - 18, 3, 2, C.cloakHighlight);
+
+            // Iconic Akatsuki Red Cloud Motif
+            px(tx - 2, ty - 15, 6, 4, C.cloudWhite);
+            px(tx - 3, ty - 14, 2, 2, C.cloudWhite);
+            px(tx + 3, ty - 14, 2, 2, C.cloudWhite);
+            px(tx - 1, ty - 14, 4, 2, C.cloudRed);
+            px(tx, ty - 15, 2, 1, C.cloudRed);
+
+            // Canonical 8x4 High Crimson Collar
+            px(tx - 4, ty - 22, 8, 4, C.out);
+            px(tx - 3, ty - 21, 6, 3, C.cloakMain);
+            px(tx - 1, ty - 21, 4, 2, C.collarIn);
+            px(tx - 4, ty - 22, 2, 3, C.collarIn);
+
+            // Canonical Cloak Hem
+            const hemX = tx - 4 + (pose.cloakHemOffset || 0);
+            px(hemX, ty - 9, 8, 5, C.out);
+            px(hemX + 1, ty - 8, 6, 4, C.cloakMain);
+            px(hemX + 1, ty - 8, 3, 4, C.cloakShade);
+
+            // Front leg & sandal
+            drawLimb(pose.legF[0] + tx, pose.legF[1] + ty, pose.legF[2] + tx, pose.legF[3] + ty, 2, C.pantsMain, C.out);
+            drawLimb(pose.legF[2] + tx, pose.legF[3] + ty, pose.legF[4] + tx, pose.legF[5] + ty, 2, C.wrapMain, C.wrapShade);
+            px(pose.legF[4] + tx - 1, pose.legF[5] + ty - 1, 4, 3, C.out);
+            px(pose.legF[4] + tx, pose.legF[5] + ty, 3, 2, C.sandalCol);
+            px(pose.legF[4] + tx + 1, pose.legF[5] + ty - 1, 2, 2, C.skin);
+        }
+
+        // Shared canonical 9x8 Pain face, rogue headband & Rinnegan eyes (exact match with drawPixelPain!)
+        function drawPainCanonicalHeadBase(px, hx, hy) {
+            const C = PAIN_PALETTE;
+            px(hx - 4, hy - 2, 9, 8, C.out);
+            px(hx - 3, hy - 1, 7, 6, C.skin);
+            px(hx - 3, hy - 1, 2, 6, C.skinDark);
+            px(hx + 1, hy, 3, 2, C.skinLight);
+
+            // Amegakure Rogue Headband
+            px(hx - 4, hy - 1, 9, 2, C.bandCloth);
+            px(hx - 1, hy - 1, 5, 2, C.bandMetal);
+            px(hx, hy - 1, 3, 1, '#ffffff');
+            px(hx - 1, hy - 1, 5, 1, C.out);
+
+            // Concentric Rinnegan Eye
+            px(hx, hy + 1, 3, 2, C.out);
+            px(hx + 1, hy + 1, 2, 2, C.rinneDark);
+            px(hx + 1, hy + 1, 2, 1, C.rinneIris);
+            px(hx + 2, hy + 1, 1, 1, C.out);
         }
 
         function drawPixelAsura(asura) {
@@ -12765,190 +12867,92 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             const prevSmooth = ctx.imageSmoothingEnabled;
             ctx.imageSmoothingEnabled = false;
             const { px, drawLimb } = createPixelGrid(baseX, baseY, f, P);
+            const C = PAIN_PALETTE;
 
-            // Palette
-            const out = '#0d0d0f';
-            const cloakMain = '#18181a';
-            const cloakShade = '#0a0a0c';
-            const cloakHighlight = '#2d3436';
-            const cloudRed = '#d63031';
-            const cloudWhite = '#ffffff';
-            const collarIn = '#8b0000';
-            const skin = '#f5cbb1';
-            const skinDark = '#cb8e5c';
-            const skinLight = '#fae1c8';
-            const metal = '#7f8c8d';
-            const metalDark = '#2c3e50';
-            const metalBright = '#e0e0e0';
-            const bandCloth = '#232b38';
-            const bandMetal = '#bdc3c7';
-            const rinneIris = '#9b59b6';
-            const rinneDark = '#8e44ad';
-            const piercing = '#050505';
+            const metal = '#7f8c8d', metalDark = '#2c3e50', metalBright = '#e0e0e0';
+            const flameCore = '#ffffff', flameMid = '#d980fa', flameOuter = '#a55eea', flameDark = '#8e44ad';
 
-            // INTENSE PURPLE CHAKRA ROCKET FLAMES
-            const flameCore = '#ffffff';
-            const flameMid = '#d980fa';
-            const flameOuter = '#a55eea';
-            const flameDark = '#8e44ad';
-
-            // Body Stance
-            let bodyY = 0;
-            let torsoLean = 0;
-            let headX = 0, headY = -24;
-            let legB = [-4, -10, -5, -5, -6, 0];
-            let legF = [ 3, -10,  4, -5,  5, 0];
-            let armB = [-5, -18, -8, -15, -6, -13];
-            let armF = [ 4, -18,  7, -15, 10, -13];
-            let cloakHemOffset = 0;
+            let pose = {
+                bodyY: 0, torsoLean: 0, headX: 0, headY: -24, cloakHemOffset: 0, armMetal: true,
+                legB: [-3, -10, -4, -5, -5, 0],
+                legF: [ 2, -10,  3, -5,  4, 0],
+                armB: [-4, -18, -6, -15, -4, -13],
+                armF: [ 3, -18,  7, -15, 10, -13]
+            };
 
             if (asura.state === 'jump_in') {
-                bodyY = 1; torsoLean = 3; headX = 2; headY = -23;
-                legB = [-6, -9, -8, -4, -9, 1];
-                legF = [ 3, -9,  5, -5,  6, 0];
-                armB = [-5, -17, -10, -14, -12, -11];
-                armF = [ 4, -17,   8, -14,  11, -12];
-                cloakHemOffset = -5;
+                pose.bodyY = 1; pose.torsoLean = 3; pose.headY = -23;
+                pose.legB = [-5, -9, -7, -4, -8, 1];
+                pose.legF = [ 3, -9,  5, -5,  6, 0];
+                pose.armB = [-4, -17, -9, -14, -11, -11];
+                pose.armF = [ 3, -17,  7, -14,  10, -12];
+                pose.cloakHemOffset = -4;
             } else if (asura.state === 'aim') {
-                // Wide grounded artillery crouch, locking cannon barrel on target
-                bodyY = 2; torsoLean = 2; headX = 2; headY = -22;
-                legB = [-6, -9, -9, -4, -10, 0];
-                legF = [ 4, -9,  6, -4,   8, 0];
-                armB = [-5, -16, -9, -15, -12, -16]; // Rear thruster stabilizer arm
-                armF = [ 4, -16, 11, -17,  18, -17]; // Heavy Cybernetic Rocket Cannon!
-                cloakHemOffset = -4;
+                pose.bodyY = 1; pose.torsoLean = 2; pose.headY = -23;
+                pose.legB = [-5, -9, -7, -4, -8, 0];
+                pose.legF = [ 3, -9,  5, -4,  7, 0];
+                pose.armB = [-4, -16, -8, -15, -11, -16];
+                pose.armF = [ 3, -16, 10, -17,  17, -17];
+                pose.cloakHemOffset = -3;
             } else if (asura.state === 'fire' || asura.state === 'recoil_vanish') {
-                // Heavy artillery firing & recoil brace stance
-                bodyY = 2; torsoLean = -2; headX = 0; headY = -22;
-                legB = [-6, -9, -9, -4, -11, 0];
-                legF = [ 4, -9,  6, -4,   9, 0];
-                armB = [-5, -16, -10, -16, -13, -16];
-                armF = [ 4, -17,  10, -17,  17, -17];
-                cloakHemOffset = -6;
+                pose.bodyY = 1; pose.torsoLean = -2; pose.headY = -23;
+                pose.legB = [-5, -9, -7, -4, -9, 0];
+                pose.legF = [ 3, -9,  5, -4,  8, 0];
+                pose.armB = [-4, -16, -9, -16, -12, -16];
+                pose.armF = [ 3, -17,  9, -17,  16, -17];
+                pose.cloakHemOffset = -5;
             }
 
-            const tx = torsoLean;
-            const ty = bodyY;
-            const hx = headX;
-            const hy = headY;
+            const tx = pose.torsoLean, ty = pose.bodyY;
+            const hx = pose.headX + tx, hy = pose.headY;
 
-            // Back booster jet flame when jumping or firing cannon recoil
+            // Back booster thruster flames
             if (asura.state === 'jump_in') {
-                px(legB[4] + tx - 7, legB[5] - 1, 7, 3, flameOuter);
-                px(legB[4] + tx - 4, legB[5], 4, 2, flameCore);
+                px(pose.legB[4] + tx - 6, pose.legB[5] - 1, 6, 3, flameOuter);
+                px(pose.legB[4] + tx - 3, pose.legB[5], 3, 2, flameCore);
             } else if (asura.state === 'fire') {
-                const ex = armB[4] + tx;
-                const ey = armB[5] + ty;
-                px(ex - 16, ey - 4, 16, 8, flameDark);
-                px(ex - 11, ey - 3, 11, 6, flameOuter);
-                px(ex - 6, ey - 2, 6, 4, flameMid);
-                px(ex - 3, ey - 1, 3, 2, flameCore);
+                const ex = pose.armB[4] + tx, ey = pose.armB[5] + ty;
+                px(ex - 14, ey - 3, 14, 7, flameDark);
+                px(ex - 9, ey - 2, 9, 5, flameOuter);
+                px(ex - 5, ey - 1, 5, 3, flameCore);
             }
 
-            // 1) Back Leg & Back Arm
-            drawLimb(legB[0] + tx, legB[1] + ty, legB[2] + tx, legB[3] + ty, 3, cloakMain, out);
-            drawLimb(legB[2] + tx, legB[3] + ty, legB[4] + tx, legB[5], 2, metalDark, metal);
-            px(legB[4] + tx - 1, legB[5] - 1, 4, 2, out);
+            drawPainCanonicalBody(px, drawLimb, pose);
 
-            drawLimb(armB[0] + tx, armB[1] + ty, armB[2] + tx, armB[3] + ty, 4, cloakMain, cloakShade);
-            drawLimb(armB[2] + tx, armB[3] + ty, armB[4] + tx, armB[5] + ty, 3, metal, metalDark);
+            // Bald Asura Skull Crown (exact 9x8 canonical Pain proportions, 100% bald)
+            px(hx - 2, hy - 5, 5, 1, C.out);
+            px(hx - 4, hy - 4, 9, 3, C.out);
+            px(hx - 2, hy - 4, 5, 1, C.skinLight);
+            px(hx - 3, hy - 3, 7, 2, C.skin);
+            drawPainCanonicalHeadBase(px, hx, hy);
 
-            // 2) Akatsuki Cloak Torso
-            px(tx - 6, ty - 19, 12, 11, out);
-            px(tx - 5, ty - 18, 10, 10, cloakMain);
-            px(tx - 5, ty - 18, 4, 10, cloakShade);
-            px(tx + 2, ty - 18, 3, 3, cloakHighlight);
-
-            // Akatsuki Red Cloud
-            px(tx - 3, ty - 15, 7, 5, cloudWhite);
-            px(tx - 4, ty - 14, 2, 3, cloudWhite);
-            px(tx + 4, ty - 14, 2, 3, cloudWhite);
-            px(tx - 2, ty - 14, 5, 3, cloudRed);
-            px(tx - 1, ty - 15, 3, 1, cloudRed);
-
-            // High Collar
-            px(tx - 5, ty - 23, 10, 5, out);
-            px(tx - 4, ty - 22, 8, 4, cloakMain);
-            px(tx - 1, ty - 22, 5, 3, collarIn);
-            px(tx - 5, ty - 23, 2, 4, collarIn);
-
-            // Cloak Hem
-            const hemX = tx - 5 + cloakHemOffset;
-            px(hemX - 2, ty - 9, 10, 6, out);
-            px(hemX - 1, ty - 8, 8, 5, cloakMain);
-            px(hemX - 1, ty - 8, 4, 5, cloakShade);
-
-            // 3) Front Leg
-            drawLimb(legF[0] + tx, legF[1] + ty, legF[2] + tx, legF[3] + ty, 3, cloakMain, out);
-            drawLimb(legF[2] + tx, legF[3] + ty, legF[4] + tx, legF[5] + ty, 2, metalDark, metal);
-            px(legF[4] + tx - 1, legF[5] + ty - 1, 4, 3, out);
-
-            // 4) BALD ASURA HEAD (100% Bald Cranium + Headband + Rinnegan)
-            px(hx - 2, hy - 7, 5, 1, out);
-            px(hx - 4, hy - 6, 9, 2, out);
-            px(hx - 5, hy - 4, 11, 3, out);
-            px(hx - 5, hy - 1, 11, 7, out);
-
-            px(hx - 1, hy - 6, 3, 1, skin);
-            px(hx - 3, hy - 5, 7, 2, skin);
-            px(hx - 4, hy - 3, 9, 2, skin);
-            px(hx - 4, hy - 1, 9, 6, skin);
-
-            px(hx - 4, hy - 5, 2, 10, skinDark);
-            px(hx, hy - 6, 2, 1, skinLight);
-            px(hx + 1, hy - 4, 3, 2, skinLight);
-            px(hx + 2, hy + 1, 2, 2, skinLight);
-
-            // Cybernetic Cranium & Face Studs
-            px(hx - 2, hy - 5, 1, 1, piercing);
-            px(hx, hy - 5, 1, 1, piercing);
-            px(hx + 2, hy - 4, 1, 1, piercing);
-            px(hx - 5, hy - 1, 1, 1, piercing);
-            px(hx - 5, hy + 2, 1, 1, piercing);
-
-            // Amegakure Rogue Headband
-            px(hx - 5, hy - 2, 11, 2, bandCloth);
-            px(hx - 2, hy - 2, 7, 2, bandMetal);
-            px(hx - 1, hy - 2, 4, 1, '#ffffff');
-            px(hx - 2, hy - 1, 7, 1, out);
-
-            // Rinnegan Eye
-            px(hx, hy + 1, 4, 2, out);
-            px(hx + 1, hy + 1, 3, 2, rinneDark);
-            px(hx + 1, hy + 1, 2, 1, rinneIris);
-            px(hx + 2, hy + 1, 1, 1, '#ffffff');
-
-            // Nose & Jaw Piercings
-            px(hx + 3, hy + 1, 1, 1, piercing);
-            px(hx + 4, hy + 2, 1, 1, piercing);
-            px(hx + 1, hy + 3, 4, 2, out);
+            // Cranium & jaw studs + bare teeth
+            px(hx - 1, hy - 3, 1, 1, C.piercing);
+            px(hx + 2, hy - 3, 1, 1, C.piercing);
+            px(hx - 4, hy, 1, 1, C.piercing);
+            px(hx - 4, hy + 2, 1, 1, C.piercing);
+            px(hx + 3, hy + 1, 1, 1, C.piercing);
             px(hx + 1, hy + 3, 3, 1, '#ffffff');
-            px(hx + 2, hy + 5, 1, 1, piercing);
+            px(hx + 2, hy + 5, 1, 1, C.piercing);
 
-            // 5) FRONT ARM: CYBERNETIC ARM ROCKET LAUNCHER CANNON
+            // Cybernetic Arm Rocket Launcher Cannon
             if (asura.state === 'aim' || asura.state === 'fire' || asura.state === 'recoil_vanish') {
-                drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 5, cloakMain, cloakShade);
-                const cx = armF[2] + tx;
-                const cy = armF[3] + ty;
-                // Heavy Pixel Arm Rocket Cannon Barrel
-                px(cx - 2, cy - 4, 15, 8, out);
-                px(cx - 1, cy - 3, 13, 6, metalDark);
-                px(cx, cy - 2, 11, 2, metal);
-                px(cx + 2, cy - 2, 7, 1, metalBright);
-                // Glowing Purple Chakra Coils along Cannon Barrel
+                drawLimb(pose.armF[0] + tx, pose.armF[1] + ty, pose.armF[2] + tx, pose.armF[3] + ty, 3, C.cloakMain, C.cloakShade);
+                const cx = pose.armF[2] + tx, cy = pose.armF[3] + ty;
+                px(cx - 1, cy - 3, 13, 6, C.out);
+                px(cx, cy - 2, 11, 4, metalDark);
+                px(cx + 1, cy - 2, 9, 1, metalBright);
                 px(cx + 2, cy, 2, 2, flameOuter);
                 px(cx + 6, cy, 2, 2, flameMid);
-                px(cx + 10, cy - 3, 3, 6, metal);
-                px(cx + 12, cy - 2, 2, 4, asura.state === 'aim' ? flameMid : flameCore);
-                // Muzzle blast cone on initial fire frames
+                px(cx + 9, cy - 2, 3, 4, metal);
+                px(cx + 11, cy - 1, 2, 2, asura.state === 'aim' ? flameMid : flameCore);
                 if (asura.state === 'fire' && asura.timer < 6) {
-                    px(cx + 13, cy - 4, 4, 8, flameOuter);
-                    px(cx + 14, cy - 2, 4, 4, flameCore);
+                    px(cx + 12, cy - 3, 4, 6, flameOuter);
+                    px(cx + 13, cy - 1, 3, 2, flameCore);
                 }
             } else {
-                drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 4, cloakMain, cloakShade);
-                drawLimb(armF[2] + tx, armF[3] + ty, armF[4] + tx, armF[5] + ty, 3, metal, metalDark);
-                px(armF[4] + tx, armF[5] + ty, 3, 3, out);
+                drawLimb(pose.armF[0] + tx, pose.armF[1] + ty, pose.armF[2] + tx, pose.armF[3] + ty, 3, C.cloakMain, C.cloakShade);
+                drawLimb(pose.armF[2] + tx, pose.armF[3] + ty, pose.armF[4] + tx, pose.armF[5] + ty, 2, metal, metalDark);
             }
 
             ctx.imageSmoothingEnabled = prevSmooth;
@@ -13007,137 +13011,66 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             const prevSmooth = ctx.imageSmoothingEnabled;
             ctx.imageSmoothingEnabled = false;
             const { px, drawLimb } = createPixelGrid(baseX, baseY, f, P);
+            const C = PAIN_PALETTE;
 
-            const out = '#0d0d0f';
-            const cloakMain = '#18181a';
-            const cloakShade = '#0a0a0c';
-            const cloakHighlight = '#2d3436';
-            const cloudRed = '#d63031';
-            const cloudWhite = '#ffffff';
-            const collarIn = '#8b0000';
-            const skin = '#f5cbb1';
-            const skinDark = '#cb8e5c';
-            const hairMain = '#e67e22';
-            const hairShade = '#d35400';
-            const hairLight = '#f39c12';
-            const bandCloth = '#232b38';
-            const bandMetal = '#bdc3c7';
-            const rinneIris = '#9b59b6';
-            const rinneDark = '#8e44ad';
-            const piercing = '#050505';
-
-            let bodyY = 0;
-            let torsoLean = 0;
-            let headX = 0, headY = -25; // Taller Naraka silhouette
-            let legB = [-4, -10, -5, -5, -6, 0];
-            let legF = [ 3, -10,  4, -5,  5, 0];
-            let armB = [-5, -19, -7, -15, -5, -12];
-            let armF = [ 4, -19,  8, -17, 10, -20]; // Summoning hand seal
-            let cloakHemOffset = 0;
+            let pose = {
+                bodyY: 0, torsoLean: 0, headX: 0, headY: -24, cloakHemOffset: 0, armMetal: false,
+                legB: [-3, -10, -4, -5, -5, 0],
+                legF: [ 2, -10,  3, -5,  4, 0],
+                armB: [-4, -18, -6, -15, -4, -12],
+                armF: [ 3, -18,  7, -16,  9, -19]
+            };
 
             if (naraka.state === 'jump_in') {
-                bodyY = 1; torsoLean = 2; headX = 1; headY = -24;
-                legB = [-5, -10, -7, -5, -8, 0];
-                legF = [ 3, -10,  5, -5,  6, 0];
-                armB = [-5, -18, -9, -15, -11, -12];
-                armF = [ 4, -18,  7, -15,   9, -13];
-                cloakHemOffset = -4;
+                pose.bodyY = 1; pose.torsoLean = 2; pose.headY = -23;
+                pose.legB = [-4, -10, -6, -5, -7, 0];
+                pose.legF = [ 3, -10,  5, -5,  6, 0];
+                pose.armB = [-4, -18, -8, -15, -10, -12];
+                pose.armF = [ 3, -18,  6, -15,   8, -13];
+                pose.cloakHemOffset = -3;
             } else if (naraka.state === 'open_gate') {
-                // Upright commanding summoning seal stance
-                armB = [-5, -19, -6, -15, -4, -13];
-                armF = [ 4, -19,  7, -17,  8, -21];
+                pose.armB = [-4, -18, -5, -15, -3, -13];
+                pose.armF = [ 3, -18,  6, -16,  7, -20];
             } else if (naraka.state === 'tongue_pull') {
-                // Commanding arm extended toward King of Hell & victim
-                torsoLean = 2; headX = 1; headY = -25;
-                armB = [-5, -19, -7, -15, -6, -12];
-                armF = [ 4, -19, 10, -18, 16, -18];
-                cloakHemOffset = -2;
+                pose.torsoLean = 2; pose.headY = -24;
+                pose.armB = [-4, -18, -6, -15, -5, -12];
+                pose.armF = [ 3, -18,  9, -17, 15, -17];
+                pose.cloakHemOffset = -2;
             } else if (naraka.state === 'judgment_crush') {
-                armB = [-5, -19, -6, -15, -5, -12];
-                armF = [ 4, -19,  9, -16, 12, -13];
+                pose.armB = [-4, -18, -5, -15, -4, -12];
+                pose.armF = [ 3, -18,  8, -15, 11, -12];
             }
 
-            const tx = torsoLean;
-            const ty = bodyY;
-            const hx = headX;
-            const hy = headY;
+            const tx = pose.torsoLean, ty = pose.bodyY;
+            const hx = pose.headX + tx, hy = pose.headY;
 
-            // Back Leg & Sleeve
-            drawLimb(legB[0] + tx, legB[1] + ty, legB[2] + tx, legB[3] + ty, 3, cloakMain, out);
-            drawLimb(legB[2] + tx, legB[3] + ty, legB[4] + tx, legB[5], 2, bandCloth, out);
-            px(legB[4] + tx - 1, legB[5] - 1, 4, 2, out);
-            drawLimb(armB[0] + tx, armB[1] + ty, armB[2] + tx, armB[3] + ty, 3, cloakMain, cloakShade);
-            drawLimb(armB[2] + tx, armB[3] + ty, armB[4] + tx, armB[5] + ty, 2, skin, skinDark);
+            drawPainCanonicalBody(px, drawLimb, pose);
 
-            // Tall Akatsuki Cloak Torso
-            px(tx - 5, ty - 20, 10, 12, out);
-            px(tx - 4, ty - 19, 8, 11, cloakMain);
-            px(tx - 4, ty - 19, 3, 11, cloakShade);
-            px(tx + 1, ty - 19, 3, 3, cloakHighlight);
+            // Canonical 9x8 Face + Headband + Rinnegan
+            drawPainCanonicalHeadBase(px, hx, hy);
 
-            // Akatsuki Red Cloud
-            px(tx - 2, ty - 15, 6, 4, cloudWhite);
-            px(tx - 3, ty - 14, 2, 2, cloudWhite);
-            px(tx - 1, ty - 14, 4, 2, cloudRed);
+            // Naraka Upright Brushed-Up Spiky Orange Hair (canonical height!)
+            px(hx - 4, hy - 5, 9, 4, C.out);
+            px(hx - 2, hy - 7, 5, 3, C.out);
+            px(hx - 3, hy - 4, 7, 3, C.hairMain);
+            px(hx - 1, hy - 6, 3, 4, C.hairMain);
+            px(hx, hy - 6, 1, 2, C.hairLight);
+            px(hx - 4, hy - 3, 2, 2, C.hairDark);
 
-            // High Crimson Collar
-            px(tx - 4, ty - 24, 9, 5, out);
-            px(tx - 3, ty - 23, 7, 4, cloakMain);
-            px(tx, ty - 23, 4, 3, collarIn);
-            px(tx - 4, ty - 24, 2, 4, collarIn);
+            // Naraka Diagonal Cheek/Nose/Chin Piercings
+            px(hx + 3, hy + 1, 1, 1, C.piercing);
+            px(hx - 1, hy + 2, 1, 1, C.piercing);
+            px(hx, hy + 3, 1, 1, C.piercing);
+            px(hx + 2, hy + 5, 1, 1, C.piercing);
+            px(hx + 1, hy + 3, 2, 1, C.skinDark);
 
-            // Flowing Cloak Hem
-            const hemX = tx - 4 + cloakHemOffset;
-            px(hemX - 2, ty - 9, 9, 7, out);
-            px(hemX - 1, ty - 8, 7, 6, cloakMain);
-            px(hemX - 1, ty - 8, 3, 6, cloakShade);
-
-            // Front Leg
-            drawLimb(legF[0] + tx, legF[1] + ty, legF[2] + tx, legF[3] + ty, 3, cloakMain, out);
-            drawLimb(legF[2] + tx, legF[3] + ty, legF[4] + tx, legF[5] + ty, 2, bandCloth, out);
-            px(legF[4] + tx - 1, legF[5] + ty - 1, 4, 3, out);
-
-            // Naraka Head & Distinct Swept-Up Spiky Orange Hair
-            px(hx - 4, hy - 5, 9, 10, out);
-            px(hx - 3, hy - 4, 7, 8, skin);
-            px(hx - 3, hy - 4, 2, 8, skinDark);
-
-            // Upright brushed-up spiky orange hair (distinct from Deva & Asura)
-            px(hx - 5, hy - 8, 10, 4, out);
-            px(hx - 4, hy - 10, 3, 3, out);
-            px(hx - 1, hy - 11, 3, 4, out);
-            px(hx + 2, hy - 9, 3, 3, out);
-            px(hx - 4, hy - 7, 8, 3, hairMain);
-            px(hx - 3, hy - 9, 2, 3, hairMain);
-            px(hx, hy - 10, 2, 4, hairMain);
-            px(hx + 2, hy - 8, 2, 2, hairShade);
-            px(hx, hy - 9, 1, 2, hairLight);
-            px(hx - 4, hy - 5, 2, 4, hairShade);
-
-            // Amegakure Headband
-            px(hx - 4, hy - 3, 9, 2, bandCloth);
-            px(hx - 1, hy - 3, 6, 2, bandMetal);
-            px(hx, hy - 3, 3, 1, '#ffffff');
-            px(hx - 1, hy - 2, 6, 1, out);
-
-            // Rinnegan Eye & Naraka Diagonal Cheek/Nose Piercings
-            px(hx + 1, hy, 3, 2, out);
-            px(hx + 2, hy, 2, 2, rinneDark);
-            px(hx + 2, hy, 1, 1, rinneIris);
-            px(hx + 3, hy + 1, 1, 1, piercing); // Nose bridge
-            px(hx - 1, hy + 1, 1, 1, piercing); // Diagonal cheek studs
-            px(hx, hy + 2, 1, 1, piercing);
-            px(hx + 2, hy + 4, 1, 1, piercing); // Chin stud
-            px(hx + 1, hy + 3, 2, 1, skinDark); // Stern mouth
-
-            // Front Arm & Glowing Purple Summoning Aura at Hand
-            drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 3, cloakMain, cloakShade);
-            drawLimb(armF[2] + tx, armF[3] + ty, armF[4] + tx, armF[5] + ty, 2, skin, skinDark);
+            // Front Arm + Purple Summoning Seal Glow
+            drawLimb(pose.armF[0] + tx, pose.armF[1] + ty, pose.armF[2] + tx, pose.armF[3] + ty, 3, C.cloakMain, C.cloakShade);
+            drawLimb(pose.armF[2] + tx, pose.armF[3] + ty, pose.armF[4] + tx, pose.armF[5] + ty, 2, C.skin, C.skinDark);
             if (naraka.state === 'open_gate' || naraka.state === 'tongue_pull') {
-                const sx = armF[4] + tx;
-                const sy = armF[5] + ty;
-                px(sx - 1, sy - 2, 4, 4, '#a55eea');
-                px(sx, sy - 1, 2, 2, '#ffffff');
+                const sx = pose.armF[4] + tx, sy = pose.armF[5] + ty;
+                px(sx - 1, sy - 2, 3, 3, '#a55eea');
+                px(sx, sy - 1, 1, 1, '#ffffff');
             }
 
             ctx.imageSmoothingEnabled = prevSmooth;
@@ -13323,150 +13256,96 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             const prevSmooth = ctx.imageSmoothingEnabled;
             ctx.imageSmoothingEnabled = false;
             const { px, drawLimb } = createPixelGrid(baseX, baseY, f, P);
+            const C = PAIN_PALETTE;
 
-            // Palette — Bulky Preta Path (Gakidō): broad torso & lighter amber-blonde spiky cropped hair
-            const out = '#0d0d0f';
-            const cloakMain = '#18181a';
-            const cloakShade = '#0a0a0c';
-            const cloakHighlight = '#2d3436';
-            const cloudRed = '#d63031';
-            const cloudWhite = '#ffffff';
-            const collarIn = '#8b0000';
-            const skin = '#f5cbb1';
-            const skinDark = '#cb8e5c';
-            const hairMain = '#f1a950';
-            const hairShade = '#cc7a29';
-            const hairLight = '#fad390';
-            const bandCloth = '#232b38';
-            const bandMetal = '#bdc3c7';
-            const rinneIris = '#9b59b6';
-            const rinneDark = '#8e44ad';
-            const piercing = '#050505';
-
-            let bodyY = 0;
-            let torsoLean = 0;
-            let headX = 0, headY = -24;
-            let legB = [-5, -10, -7, -5, -8, 0];
-            let legF = [ 4, -10,  6, -5,  7, 0];
-            let armB = [-6, -18, -9, -15, -7, -13];
-            let armF = [ 5, -18, 10, -14, 14, -10];
-            let cloakHemOffset = 0;
+            let pose = {
+                bodyY: 0, torsoLean: 0, headX: 0, headY: -24, cloakHemOffset: 0, armMetal: false,
+                legB: [-3, -10, -4, -5, -5, 0],
+                legF: [ 2, -10,  3, -5,  4, 0],
+                armB: [-4, -18, -6, -15, -4, -13],
+                armF: [ 3, -18,  8, -14, 12, -10]
+            };
 
             if (preta.state === 'sky_dive') {
-                // Head-first / spear-downward sky plunge pose holding the Black Rod
-                bodyY = 1; torsoLean = 5; headX = 4; headY = -23;
-                legB = [-6, -11, -10, -15, -13, -18];
-                legF = [ 2, -10,  -2, -14,  -5, -17];
-                armB = [-4, -18,  -7, -21,  -4, -22];
-                armF = [ 5, -17,   8, -11,  10,  -5];
-                cloakHemOffset = -6;
+                pose.bodyY = 1; pose.torsoLean = 4; pose.headY = -23;
+                pose.legB = [-5, -11, -8, -15, -10, -18];
+                pose.legF = [ 1, -10, -2, -14,  -4, -17];
+                pose.armB = [-4, -18, -6, -21,  -4, -22];
+                pose.armF = [ 4, -17,  7, -11,   9,  -6];
+                pose.cloakHemOffset = -4;
             } else if (preta.state === 'impale_pin') {
-                // Heavy wide crouched slam pinning the Black Rod straight down into opponent
-                bodyY = 3; torsoLean = 3; headX = 3; headY = -21;
-                legB = [-6, -8, -9, -4, -10, 0];
-                legF = [ 5, -8,  7, -4,   9, 0];
-                armB = [-6, -15, -8, -12, -5, -10];
-                armF = [ 5, -16,  9, -12, 11,  -7];
-                cloakHemOffset = -3;
+                pose.bodyY = 2; pose.torsoLean = 3; pose.headY = -22;
+                pose.legB = [-5, -8, -7, -4, -8, 0];
+                pose.legF = [ 3, -8,  5, -4,  7, 0];
+                pose.armB = [-4, -15, -6, -12, -4, -10];
+                pose.armF = [ 4, -16,  7, -12,  9,  -7];
+                pose.cloakHemOffset = -3;
             }
 
-            const tx = torsoLean;
-            const ty = bodyY;
-            const hx = headX;
-            const hy = headY;
+            const tx = pose.torsoLean, ty = pose.bodyY;
+            const hx = pose.headX + tx, hy = pose.headY;
 
-            // Back Sky-Dive Chakra Aura Trail
             if (preta.state === 'sky_dive') {
-                px(tx - 6, ty - 28, 3, 8, '#a55eea');
-                px(tx + 1, ty - 31, 2, 9, '#d980fa');
-                px(tx - 2, ty - 34, 2, 7, '#ffffff');
+                px(tx - 5, ty - 28, 3, 7, '#a55eea');
+                px(tx + 1, ty - 31, 2, 8, '#d980fa');
+                px(tx - 1, ty - 34, 2, 6, '#ffffff');
             }
 
-            // Back Leg & Back Arm
-            drawLimb(legB[0] + tx, legB[1] + ty, legB[2] + tx, legB[3] + ty, 4, cloakMain, out);
-            drawLimb(legB[2] + tx, legB[3] + ty, legB[4] + tx, legB[5], 3, bandCloth, out);
-            px(legB[4] + tx - 1, legB[5] - 1, 4, 2, out);
-            drawLimb(armB[0] + tx, armB[1] + ty, armB[2] + tx, armB[3] + ty, 4, cloakMain, cloakShade);
-            drawLimb(armB[2] + tx, armB[3] + ty, armB[4] + tx, armB[5] + ty, 3, skin, skinDark);
+            drawPainCanonicalBody(px, drawLimb, pose);
 
-            // Broader Bulky Akatsuki Torso (14 logical px wide!)
-            px(tx - 7, ty - 20, 14, 12, out);
-            px(tx - 6, ty - 19, 12, 11, cloakMain);
-            px(tx - 6, ty - 19, 5, 11, cloakShade);
-            px(tx + 2, ty - 19, 3, 3, cloakHighlight);
+            // Canonical 9x8 Face + Rogue Headband + Rinnegan
+            drawPainCanonicalHeadBase(px, hx, hy);
 
-            // Akatsuki Red Cloud
-            px(tx - 3, ty - 15, 7, 5, cloudWhite);
-            px(tx - 4, ty - 14, 2, 3, cloudWhite);
-            px(tx + 4, ty - 14, 2, 3, cloudWhite);
-            px(tx - 2, ty - 14, 5, 3, cloudRed);
+            // Reference Preta Hair: Sleek Combed-Back Orange Crown with Vertical Comb Grooves
+            px(hx - 4, hy - 5, 9, 4, C.out);
+            px(hx - 2, hy - 6, 5, 1, C.out);
+            px(hx - 3, hy - 4, 7, 3, C.hairMain);
+            px(hx - 1, hy - 5, 3, 2, C.hairMain);
+            px(hx, hy - 5, 1, 2, C.hairLight);
+            // Vertical comb grooves matching reference screenshot
+            px(hx - 2, hy - 4, 1, 2, C.hairDark);
+            px(hx + 2, hy - 4, 1, 2, C.hairDark);
 
-            // High Crimson Collar
-            px(tx - 6, ty - 24, 12, 5, out);
-            px(tx - 5, ty - 23, 10, 4, cloakMain);
-            px(tx - 1, ty - 23, 6, 3, collarIn);
-            px(tx - 6, ty - 24, 2, 4, collarIn);
+            // Signature Preta Twin Diagonal Chakra Needles Shooting Up Behind Both Sides of Headband
+            // Left ear diagonal spike upward-back
+            px(hx - 4, hy - 2, 1, 2, C.out);
+            px(hx - 5, hy - 4, 1, 2, C.piercing);
+            px(hx - 6, hy - 6, 1, 2, '#95a5a6');
+            // Front/right ear diagonal spike upward-forward
+            px(hx + 3, hy - 2, 1, 2, C.out);
+            px(hx + 4, hy - 4, 1, 2, C.piercing);
+            px(hx + 5, hy - 6, 1, 2, '#95a5a6');
 
-            // Flowing Cloak Hem
-            const hemX = tx - 6 + cloakHemOffset;
-            px(hemX - 2, ty - 9, 12, 6, out);
-            px(hemX - 1, ty - 8, 10, 5, cloakMain);
-            px(hemX - 1, ty - 8, 5, 5, cloakShade);
-
-            // Front Leg
-            drawLimb(legF[0] + tx, legF[1] + ty, legF[2] + tx, legF[3] + ty, 4, cloakMain, out);
-            drawLimb(legF[2] + tx, legF[3] + ty, legF[4] + tx, legF[5] + ty, 3, bandCloth, out);
-            px(legF[4] + tx - 1, legF[5] + ty - 1, 4, 3, out);
-
-            // Broad Jaw & Face
-            px(hx - 5, hy - 5, 11, 11, out);
-            px(hx - 4, hy - 4, 9, 9, skin);
-            px(hx - 4, hy - 4, 2, 9, skinDark);
-
-            // Blonde-Amber Cropped Flat-Top Hair above Headband (Signature Preta Look)
-            px(hx - 5, hy - 8, 11, 4, out);
-            px(hx - 4, hy - 7, 9, 3, hairMain);
-            px(hx - 3, hy - 8, 3, 2, hairLight);
-            px(hx + 2, hy - 8, 2, 2, hairLight);
-            px(hx - 4, hy - 6, 2, 3, hairShade);
-
-            // Amegakure Headband
-            px(hx - 5, hy - 3, 11, 2, bandCloth);
-            px(hx - 2, hy - 3, 7, 2, bandMetal);
-            px(hx - 1, hy - 3, 4, 1, '#ffffff');
-            px(hx - 2, hy - 2, 7, 1, out);
-
-            // Rinnegan Eye & Heavy Jaw Piercings
-            px(hx, hy, 4, 2, out);
-            px(hx + 1, hy, 3, 2, rinneDark);
-            px(hx + 1, hy, 2, 1, rinneIris);
-            px(hx + 2, hy, 1, 1, '#ffffff');
-            px(hx + 4, hy + 1, 1, 1, piercing);
-            px(hx - 1, hy + 2, 1, 1, piercing);
-            px(hx + 1, hy + 4, 1, 1, piercing);
-            px(hx + 3, hy + 4, 1, 1, piercing);
-            px(hx + 1, hy + 3, 3, 1, skinDark);
+            // Exact Preta Facial Piercings (2 nose bridge studs, cheek cone spike, chin row studs)
+            px(hx + 2, hy + 1, 1, 1, C.piercing);
+            px(hx + 3, hy + 2, 1, 1, C.piercing);
+            px(hx - 2, hy + 2, 2, 1, C.piercing); // Cheek cone spike
+            px(hx + 1, hy + 5, 3, 1, C.piercing); // Chin row of studs
+            px(hx + 1, hy + 3, 2, 1, C.skinDark);
 
             // Front Arm
-            drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 4, cloakMain, cloakShade);
-            drawLimb(armF[2] + tx, armF[3] + ty, armF[4] + tx, armF[5] + ty, 3, skin, skinDark);
+            drawLimb(pose.armF[0] + tx, pose.armF[1] + ty, pose.armF[2] + tx, pose.armF[3] + ty, 3, C.cloakMain, C.cloakShade);
+            drawLimb(pose.armF[2] + tx, pose.armF[3] + ty, pose.armF[4] + tx, pose.armF[5] + ty, 2, C.skin, C.skinDark);
 
-            // GIANT BLACK CHAKRA RECEIVER ROD (HẮC CÔN) Held on Dive & Slammed into Ground
+            // Giant Black Receiver Rod (Hắc Côn) Held Vertically Downward During Sky Dive
             if (preta.state === 'sky_dive') {
-                const rx1 = armF[4] + tx - 2;
-                const ry1 = armF[5] + ty - 14;
-                const rx2 = armF[4] + tx + 2;
-                const ry2 = armF[5] + ty + 14;
-                drawLimb(rx1, ry1, rx2, ry2, 3, '#0d0d0f', '#2c3e50');
-                drawLimb(rx1, ry1, rx2, ry2, 1, '#576574', '#a55eea');
-                // Glowing purple chakra tip at bottom spear point
+                const rx1 = pose.armF[4] + tx - 1, ry1 = pose.armF[5] + ty - 14;
+                const rx2 = pose.armF[4] + tx + 2, ry2 = pose.armF[5] + ty + 14;
+                const rSteps = 28;
+                for (let s = 0; s <= rSteps; s++) {
+                    const t = s / rSteps;
+                    const gx = Math.round(rx1 + (rx2 - rx1) * t);
+                    const gy = Math.round(ry1 + (ry2 - ry1) * t);
+                    px(gx - 1, gy, 3, 1, '#090b10');
+                    px(gx, gy, 1, 1, '#576574');
+                }
                 px(rx2 - 1, ry2, 3, 3, '#a55eea');
                 px(rx2, ry2 + 1, 1, 2, '#ffffff');
             }
             ctx.imageSmoothingEnabled = prevSmooth;
             ctx.restore();
 
-            // When impaled in the ground: draw giant vertical/angled Hắc Côn embedded in arena & victim!
+            // When impaled in the ground: draw giant vertical Hắc Côn embedded in arena & victim!
             if (preta.state === 'impale_pin' && preta.rodImpaled) {
                 const rx = Math.round(preta.rodX / P) * P;
                 const ry = Math.round(config.groundY / P) * P;
@@ -13478,16 +13357,13 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     ctx.fillStyle = col;
                     ctx.fillRect(gx * P, gy * P, gw * P, gh * P);
                 };
-                // Outer Purple Chakra Impulse Halo around Black Rod
                 const pulse = Math.floor(Date.now() / 60) % 2;
                 rpx(-2, -23, 4, 23, '#8e44ad');
                 rpx(-3, -18 + pulse * 2, 6, 3, '#a55eea');
                 rpx(-3, -10 - pulse * 2, 6, 3, '#d980fa');
-                // Solid Black Receiver Iron Rod (Hắc Côn) driven deep into the ground
                 rpx(-2, -26, 4, 26, '#0d0d0f');
                 rpx(0, -23, 1, 22, '#2c3e50');
                 rpx(0, -24, 1, 3, '#a55eea');
-                // Cracked ground stones at impale point
                 rpx(-4, -2, 3, 2, '#7f8c8d');
                 rpx(2, -2, 3, 2, '#7f8c8d');
                 rpx(-2, -1, 5, 1, '#ffffff');
