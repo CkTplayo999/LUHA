@@ -3852,6 +3852,8 @@
             p2 = new Stickman(650, p2Class === 'mage' ? '#00b4d8' : (p2Class === 'taichi' ? '#000000' : (p2Class === 'sixeye' ? '#3498db' : (p2Class === 'saiyan' ? '#ff2e4c' : (p2Class === 'dio' ? '#8b0000' : (p2Class === 'phantom' ? '#a82452' : (p2Class === 'slasher' ? '#5352ed' : (p2Class === 'deidara' ? '#e67e22' : (p2Class === 'hooper' ? '#00d2ff' : '#e74c3c')))))))), 2, p2Class);
             
             // Inventor color adjustment based on player id
+            p1.painPinnedDown = false;
+            p2.painPinnedDown = false;
             if (p1Class === 'raijin') p1.color = '#2ecc71';
             if (p2Class === 'raijin') p2.color = '#e74c3c';
             if (p1Class === 'taichi') p1.color = '#ffffff';
@@ -12268,11 +12270,22 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     this.visible = false;
                     this.drawPullBeams = false;
                     this.humanHitDealt = false;
+                    this.finaleSpawned = false;
                     this.soul = null;
                     this.pullStartX = opponent.x;
                     this.pullStartY = opponent.y;
                     this.pullStopX = opponent.x;
                     this.x = owner.x;
+                    this.y = config.groundY;
+                } else if (pathType === 'six_paths_finale') {
+                    // Iconic 5-Pain surround: all 5 Paths spawn, leap up together, dive down & pin victim with 5 Black Rods (75% total HP combo)
+                    this.state = 'wait_drop';
+                    this.visible = false;
+                    this.squad = [];
+                    this.impaledRods = [];
+                    this.finaleHitDealt = false;
+                    this.pinX = opponent.x;
+                    this.x = opponent.x;
                     this.y = config.groundY;
                 }
             }
@@ -12292,6 +12305,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     this.updateAnimal();
                 } else if (this.pathType === 'human') {
                     this.updateHuman();
+                } else if (this.pathType === 'six_paths_finale') {
+                    this.updateSixPathsFinale();
                 }
             }
 
@@ -13100,12 +13115,17 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             s.active = false;
                             gameState.pixelEffects.push(new PixelVFX('air_ring', this.opponent.x, this.opponent.y - 36, this.facing, s.palette.main));
                             gameState.pixelEffects.push(new PixelVFX('impact_burst', this.opponent.x, this.opponent.y - 36, this.facing, s.palette.glow, { maxFrames: 14, P: 3 }));
-                            this.opponent.velX = this.facing * 7;
-                            this.opponent.velY = -3.8;
+                            this.opponent.velX = this.facing * 5;
+                            this.opponent.velY = -2.2;
                         }
                     }
 
-                    if (this.timer >= 33) {
+                    if (this.timer >= 28 && !this.finaleSpawned && this.opponent.health > 0 && !gameState.gameOver) {
+                        this.finaleSpawned = true;
+                        gameState.painAssists.push(new PainAssistPath('six_paths_finale', this.owner, this.opponent));
+                    }
+
+                    if (this.timer >= 30) {
                         this.vanishNow();
                     }
                 }
@@ -13169,8 +13189,207 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
             }
 
+            updateSixPathsFinale() {
+                if (this.owner && this.owner.isDead) {
+                    if (this.opponent) this.opponent.painPinnedDown = false;
+                    this.active = false;
+                    return;
+                }
+
+                if (this.state === 'wait_drop') {
+                    if (this.opponent.isStunned) {
+                        this.opponent.stunTimer = Math.max(this.opponent.stunTimer, 90);
+                    }
+                    this.opponent.velX *= 0.65;
+                    if (this.timer >= 5) {
+                        if (this.opponent.health <= 0 || gameState.gameOver) {
+                            this.active = false;
+                            return;
+                        }
+                        this.pinX = Math.max(85, Math.min(canvas.width - 85, this.opponent.x));
+                        this.opponent.x = this.pinX;
+                        this.opponent.y = config.groundY;
+                        this.opponent.velX = 0;
+                        this.opponent.velY = 0;
+                        this.opponent.isStunned = true;
+                        this.opponent.stunTimer = 95;
+
+                        // Build the 5 Pain Paths ring flanking & surrounding the opponent (matching Jiraiya scene!)
+                        const sidePreta = (this.pinX < canvas.width * 0.5) ? 162 : -162;
+                        const specs = [
+                            { type: 'naraka', dx: -62,  ringY: config.groundY - 10, layer: 'back',  diveOffX: -24 },
+                            { type: 'human',  dx:  62,  ringY: config.groundY - 10, layer: 'back',  diveOffX:  24 },
+                            { type: 'animal', dx: -114, ringY: config.groundY,      layer: 'front', diveOffX: -40 },
+                            { type: 'asura',  dx:  114, ringY: config.groundY,      layer: 'front', diveOffX:  40 },
+                            { type: 'preta',  dx: sidePreta, ringY: config.groundY + 2, layer: 'front', diveOffX: 0 }
+                        ];
+                        this.squad = specs.map(sp => {
+                            let rx = this.pinX + sp.dx;
+                            if (rx > canvas.width - 32) rx = Math.max(32, this.pinX - Math.abs(sp.dx) - 24);
+                            if (rx < 32) rx = Math.min(canvas.width - 32, this.pinX + Math.abs(sp.dx) + 24);
+                            const fIn = (this.pinX >= rx) ? 1 : -1;
+                            // Smoke & summon burst for all 5 together
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', rx, config.groundY, fIn, '#ffffff'));
+                            gameState.pixelEffects.push(new PixelVFX('air_ring', rx, config.groundY - 34, fIn, '#a55eea'));
+                            return {
+                                type: sp.type,
+                                layer: sp.layer,
+                                x: rx,
+                                y: sp.ringY,
+                                ringX: rx,
+                                ringY: sp.ringY,
+                                startY: sp.ringY,
+                                apexY: config.groundY - 165,
+                                diveTargetX: this.pinX + sp.diveOffX,
+                                diveStartX: rx,
+                                facing: fIn,
+                                state: 'jump_in',
+                                timer: 0,
+                                rodHeld: true
+                            };
+                        });
+
+                        this.visible = true;
+                        this.state = 'jump_up';
+                        this.timer = 0;
+                        announceText('SIX PATHS OF PAIN!', '#a55eea');
+                        gameState.shake = 16;
+                    }
+                } else if (this.state === 'jump_up') {
+                    // All 5 Pain Paths leap up high into the air together holding Black Rods!
+                    const t = Math.min(1, this.timer / 13);
+                    const easeOut = 1 - Math.pow(1 - t, 2);
+                    this.opponent.velX = 0;
+                    this.opponent.velY = 0;
+                    this.opponent.y = config.groundY;
+                    this.opponent.isStunned = true;
+                    this.opponent.stunTimer = 85;
+
+                    this.squad.forEach(m => {
+                        m.y = m.startY + (m.apexY - m.startY) * easeOut;
+                        m.facing = (this.pinX >= m.x) ? 1 : -1;
+                        m.state = 'jump_in';
+                        m.rodHeld = true;
+                        m.diveStartX = m.x;
+                        if (Math.floor(this.timer) % 3 === 0) {
+                            gameState.particles.push(new Particle(m.x + (Math.random() - 0.5) * 14, m.y - 28, '#a55eea', 0.6));
+                        }
+                    });
+
+                    if (t >= 1) {
+                        this.state = 'dive_impale';
+                        this.timer = 0;
+                        announceText('KOKUSHIN SIX-STRIKE!', '#ffffff');
+                    }
+                } else if (this.state === 'dive_impale') {
+                    // All 5 plummet straight down together plunging 5 Black Rods into the opponent!
+                    const d = Math.min(1, this.timer / 8);
+                    const easeIn = d * d;
+                    this.opponent.velX = 0;
+                    this.opponent.velY = 0;
+                    this.opponent.y = config.groundY;
+                    this.opponent.isStunned = true;
+                    this.opponent.stunTimer = 75;
+
+                    this.squad.forEach(m => {
+                        m.x = m.diveStartX + (m.diveTargetX - m.diveStartX) * easeIn;
+                        m.y = m.apexY + (config.groundY - m.apexY) * easeIn;
+                        m.facing = (this.pinX >= m.x) ? 1 : -1;
+                        m.state = 'jump_in';
+                        m.rodHeld = true;
+                        if (Math.floor(this.timer) % 2 === 0) {
+                            gameState.particles.push(new Particle(m.x, m.y - 36, '#dfe6e9', 0.5));
+                        }
+                    });
+
+                    if (d >= 1) {
+                        this.applyFinaleImpale();
+                        this.state = 'impale_hold';
+                        this.timer = 0;
+                    }
+                } else if (this.state === 'impale_hold') {
+                    this.opponent.x = this.pinX;
+                    this.opponent.y = config.groundY;
+                    this.opponent.velX = 0;
+                    this.opponent.velY = 0;
+                    this.opponent.isStunned = true;
+                    this.opponent.stunTimer = 25;
+                    this.opponent.painPinnedDown = true;
+
+                    // Frames 0..5: the 5 Pain Paths fan cleanly out to surround the pinned opponent in a calm semi-circle!
+                    const stepT = Math.min(1, this.timer / 5);
+                    this.squad.forEach(m => {
+                        m.x = m.diveTargetX + (m.ringX - m.diveTargetX) * stepT;
+                        m.y = config.groundY + (m.ringY - config.groundY) * stepT;
+                        m.facing = (this.pinX >= m.x) ? 1 : -1;
+                        m.state = 'idle';
+                        m.rodHeld = false;
+                    });
+
+                    if (this.timer >= 34) {
+                        this.opponent.painPinnedDown = false;
+                        if (this.opponent.health > 0) {
+                            this.opponent.velY = -3.0;
+                            this.opponent.velX = (this.opponent.x >= this.owner.x ? 1 : -1) * 4;
+                        } else {
+                            this.opponent.health = 0;
+                            triggerWin(this.owner);
+                        }
+                        this.squad.forEach(m => {
+                            gameState.pixelEffects.push(new PixelVFX('dust_puff', m.x, config.groundY, m.facing, '#ffffff'));
+                            gameState.pixelEffects.push(new PixelVFX('air_ring', m.x, m.y - 30, m.facing, '#a55eea'));
+                        });
+                        this.active = false;
+                    }
+                }
+            }
+
+            applyFinaleImpale() {
+                if (this.finaleHitDealt) return;
+                this.finaleHitDealt = true;
+
+                if (this.opponent.isParrying) {
+                    this.opponent.reflectedThisFrame = true;
+                    return;
+                }
+                if ((this.opponent.type === 'sixeye' && this.opponent.isInfinityShieldActive) || this.opponent.isSaiyanDodging) {
+                    return;
+                }
+
+                // Total full-combo damage equals 75% of max HP bar (100 * 0.75 = 75 -> prior 46 + final 29 = 75!)
+                const fullMax = this.opponent.maxHealth || 100;
+                const finalUnblocked = Math.max(1, Math.round(fullMax * 0.75) - 46);
+                const dmg = this.opponent.isBlocking ? Math.round(finalUnblocked * 0.48) : finalUnblocked;
+                this.opponent.health = Math.max(0, this.opponent.health - dmg);
+                this.opponent.painPinnedDown = true;
+
+                // 5 Black Receiver Rods embedded side-by-side in the downed opponent's back!
+                this.impaledRods = [
+                    { dx: -16, dy: -12, tilt: -0.22 },
+                    { dx:  -8, dy: -15, tilt: -0.10 },
+                    { dx:   0, dy: -13, tilt:  0.04 },
+                    { dx:   9, dy: -16, tilt:  0.14 },
+                    { dx:  17, dy: -11, tilt:  0.24 }
+                ];
+
+                gameState.shake = 34;
+                gameState.flashAlpha = 0.55;
+                gameState.flashColor = '#ffffff';
+                gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', this.pinX, config.groundY - 12, 1, '#a55eea', { maxFrames: 26, maxRadius: 210 }));
+                gameState.pixelEffects.push(new PixelVFX('impact_burst', this.pinX, config.groundY - 12, 1, '#ffffff', { maxFrames: 22, P: 4 }));
+                createExplosion(this.pinX, config.groundY - 12, '#c0392b', 20, 1.5);
+                createExplosion(this.pinX, config.groundY - 12, '#a55eea', 16, 1.3);
+
+                for (let k = -2; k <= 2; k++) {
+                    gameState.pixelEffects.push(new PixelVFX('dust_puff', this.pinX + k * 28, config.groundY, k < 0 ? -1 : 1, '#dfe6e9'));
+                }
+            }
+
             vanishNow() {
                 if (this.owner) this.owner.painBanshoPull = false;
+                if (this.pathType === 'six_paths_finale' && this.opponent) {
+                    this.opponent.painPinnedDown = false;
+                }
                 gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, this.facing, '#ffffff'));
                 gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 30, this.facing, '#a55eea'));
                 this.active = false;
@@ -13204,6 +13423,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     if (this.soul && this.soul.active) {
                         drawPixelSoul(this.soul, this.opponent);
                     }
+                } else if (this.pathType === 'six_paths_finale') {
+                    drawSixPathsFinaleScene(this);
                 }
             }
         }
@@ -14235,6 +14456,83 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             px(1, -20, 2, 2, pal.core);
 
             ctx.restore();
+            ctx.imageSmoothingEnabled = prevSmooth;
+        }
+
+        function drawPainSquadPath(member) {
+            if (member.type === 'asura') drawPixelAsura(member);
+            else if (member.type === 'naraka') drawPixelNaraka(member);
+            else if (member.type === 'preta') drawPixelPreta(member);
+            else if (member.type === 'animal') drawPixelAnimal(member);
+            else if (member.type === 'human') drawPixelHuman(member);
+
+            if (member.rodHeld) {
+                const f = member.facing || 1;
+                ctx.save();
+                ctx.translate(Math.round(member.x + f * 18), Math.round(member.y - 42));
+                ctx.rotate(f * 0.95);
+                ctx.fillStyle = '#090b10';
+                ctx.fillRect(-3, -24, 6, 48);
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(-1, -22, 2, 44);
+                ctx.fillStyle = '#a55eea';
+                ctx.fillRect(-1, 20, 2, 5);
+                ctx.restore();
+            }
+        }
+
+        function drawSixPathsFinaleScene(finale) {
+            const pxCenter = Math.round(finale.pinX);
+            const gY = Math.round(config.groundY);
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+
+            // 1) Draw back-row Pains (Naraka, Human) first so they stand slightly behind the pinned victim
+            if (finale.squad) {
+                finale.squad.filter(m => m.layer === 'back').forEach(m => drawPainSquadPath(m));
+            }
+
+            // 2) Impact ground crater cracks, crimson splatter, and 5 Black Rods impaled in opponent's back!
+            if (finale.impaledRods && finale.impaledRods.length > 0) {
+                ctx.save();
+                // Stone impact crack streaks & crimson splatter under victim
+                ctx.fillStyle = 'rgba(192, 57, 43, 0.78)';
+                ctx.fillRect(pxCenter - 26, gY - 5, 52, 5);
+                ctx.fillRect(pxCenter - 36, gY - 3, 14, 3);
+                ctx.fillRect(pxCenter + 22, gY - 3, 16, 3);
+                ctx.fillStyle = '#090b10';
+                ctx.fillRect(pxCenter - 44, gY - 1, 88, 2);
+
+                // Draw all 5 gleaming Black Receiver Rods (Kokushin) sticking cleanly out of victim's back!
+                finale.impaledRods.forEach(rod => {
+                    const rx = pxCenter + rod.dx;
+                    const ry = gY + rod.dy;
+                    ctx.save();
+                    ctx.translate(rx, ry);
+                    ctx.rotate(rod.tilt);
+                    // Crimson entry wound glow
+                    ctx.fillStyle = '#c0392b';
+                    ctx.fillRect(-3, -2, 6, 4);
+                    // Dark steel Kokushin rod body rising up out of back
+                    ctx.fillStyle = '#090b10';
+                    ctx.fillRect(-2, -32, 5, 32);
+                    ctx.fillStyle = '#353b48';
+                    ctx.fillRect(-1, -31, 2, 30);
+                    ctx.fillStyle = '#7f8c8d';
+                    ctx.fillRect(0, -29, 1, 22);
+                    // Rinnegan violet top glint
+                    ctx.fillStyle = '#a55eea';
+                    ctx.fillRect(-1, -33, 2, 3);
+                    ctx.restore();
+                });
+                ctx.restore();
+            }
+
+            // 3) Draw front-row flanking Pains (Animal, Asura, Preta)
+            if (finale.squad) {
+                finale.squad.filter(m => m.layer === 'front').forEach(m => drawPainSquadPath(m));
+            }
+
             ctx.imageSmoothingEnabled = prevSmooth;
         }
 
@@ -15962,6 +16260,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.jumpCount = 0; this.maxJumps = (type === 'martial' || type === 'shinobi' || type === 'sixeye' || type === 'saiyan' || type === 'dio' || type === 'raijin' || type === 'phantom' || type === 'slasher' || type === 'deidara' || type === 'hooper' || type === 'pain') ? 2 : 1;
                 this.painLevitating = false;
                 this.painBanshoPull = false;
+                this.painPinnedDown = false;
                 this.painChargingUlt = false;
                 this.painUltChargeTimer = 0;
                 this.projectiles = []; this.hitOnce = false;
@@ -16099,6 +16398,21 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             }
 
             draw() {
+                if (this.painPinnedDown && !this._inPinTransform) {
+                    this._inPinTransform = true;
+                    const f = this.facing || 1;
+                    const cx = Math.round(this.x);
+                    const cy = Math.round(config.groundY - 13);
+                    ctx.save();
+                    // Flatten ANY opponent character horizontally face-down onto ground during Six Paths Finale
+                    ctx.translate(cx - f * 38, cy);
+                    ctx.rotate(f * Math.PI * 0.5);
+                    ctx.translate(-this.x, -this.y);
+                    this.draw();
+                    ctx.restore();
+                    this._inPinTransform = false;
+                    return;
+                }
                 if (this.type === 'martial') {
                     const frozenInDraw = gameState.timestopActive && this !== gameState.timestopCaster;
                     drawPixelBrawler(this, frozenInDraw);
