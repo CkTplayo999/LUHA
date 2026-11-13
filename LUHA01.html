@@ -14406,75 +14406,98 @@ function drawPixelSwapper(fighter, frozenInDraw) {
         let _chibakuOffscreen = null;
         let _chibakuOffCtx = null;
 
+        function isInsidePixelChibakuMask(dx, dy, logR) {
+            if (logR <= 1) return Math.abs(dx) <= 1 && Math.abs(dy) <= 1;
+            const euclid = Math.hypot(dx, dy);
+            // Flatten cardinal poles slightly (~7%) for a subtly squared-off retro pixel rock planetoid silhouette
+            const boxFlat = Math.max(Math.abs(dx), Math.abs(dy)) * 1.075;
+            return Math.max(euclid, boxFlat) <= logR + 0.15;
+        }
+
         function drawAnimeChibakuPlanetoid(ctx, cx, cy, radius, age, isDetonating, pass) {
             const R = Math.round(radius);
             if (R <= 0) return;
 
-            const P = 3; // 16-bit pixel size (matches Pain and game pixel engine)
-            const pad = 45; // Extra padding for gravitational rings and falling shards
+            const P = 4; // Crisp chunky 4x4 screen pixels per block for true 16-bit retro silhouette
+            const pad = 48;
             const totalSize = (R + pad) * 2;
             const logW = Math.ceil(totalSize / P);
             const logH = Math.ceil(totalSize / P);
 
             if (!_chibakuOffscreen) {
                 _chibakuOffscreen = document.createElement('canvas');
-                _chibakuOffCtx = _chibakuOffscreen.getContext('2d');
+                _chibakuOffCtx = _chibakuOffscreen.getContext('2d', { willReadFrequently: true });
             }
             if (_chibakuOffscreen.width < logW || _chibakuOffscreen.height < logH) {
-                _chibakuOffscreen.width = Math.max(logW, 256);
-                _chibakuOffscreen.height = Math.max(logH, 256);
+                _chibakuOffscreen.width = Math.max(logW, 200);
+                _chibakuOffscreen.height = Math.max(logH, 200);
             }
 
             const octx = _chibakuOffCtx;
             octx.clearRect(0, 0, _chibakuOffscreen.width, _chibakuOffscreen.height);
             octx.imageSmoothingEnabled = false;
 
-            const logCX = logW / 2;
-            const logCY = logH / 2 - 10;
-            const logR = R / P;
+            const logCX = Math.floor(logW / 2);
+            const logCY = Math.floor(logH / 2) - 4;
+            const logR = Math.max(2, Math.round(R / P));
 
             if (pass === 'back') {
-                // 1. Purple Gravitational Distortion Space-Time Rings (Pixelated)
+                // 1. Crisp stepped-pixel Purple Gravitational Space-Time Rings
                 octx.save();
-                octx.globalAlpha = 0.35 + Math.sin(age * 0.15) * 0.15;
-                for (let r = 50 / P; r <= logR + 60 / P; r += 28 / P) {
-                    const ringR = (r + age * (2.2 / P)) % (logR + 70 / P);
-                    octx.strokeStyle = '#a55eea';
-                    octx.lineWidth = 1;
-                    octx.beginPath();
-                    octx.arc(logCX, logCY, ringR, 0, Math.PI * 2);
-                    octx.stroke();
+                octx.globalAlpha = 0.42 + Math.sin(age * 0.15) * 0.14;
+                octx.fillStyle = '#a55eea';
+                for (let r = Math.floor(48 / P); r <= logR + Math.floor(56 / P); r += Math.max(4, Math.floor(28 / P))) {
+                    const ringR = Math.round((r + age * (2.2 / P)) % (logR + Math.floor(64 / P)));
+                    if (ringR < 3) continue;
+                    // Integer midpoint pixel circle rasterization (no blurry stroke!)
+                    let rx = ringR, ry = 0, err = 1 - rx;
+                    while (rx >= ry) {
+                        octx.fillRect(logCX + rx, logCY + ry, 1, 1);
+                        octx.fillRect(logCX + ry, logCY + rx, 1, 1);
+                        octx.fillRect(logCX - ry, logCY + rx, 1, 1);
+                        octx.fillRect(logCX - rx, logCY + ry, 1, 1);
+                        octx.fillRect(logCX - rx, logCY - ry, 1, 1);
+                        octx.fillRect(logCX - ry, logCY - rx, 1, 1);
+                        octx.fillRect(logCX + ry, logCY - rx, 1, 1);
+                        octx.fillRect(logCX + rx, logCY - ry, 1, 1);
+                        ry++;
+                        if (err < 0) err += 2 * ry + 1;
+                        else { rx--; err += 2 * (ry - rx + 1); }
+                    }
                 }
                 octx.restore();
 
-                // 2. Base Solid Rock Foundation (Rear hemisphere behind trapped fighter)
-                octx.fillStyle = '#181410';
-                octx.beginPath();
-                octx.arc(logCX, logCY, logR + 1, 0, Math.PI * 2);
-                octx.fill();
-
-                octx.fillStyle = '#3a342c';
-                octx.beginPath();
-                octx.arc(logCX, logCY, logR, 0, Math.PI * 2);
-                octx.fill();
+                // 2. Solid Rear Pixel Hemisphere matching the blocky planetoid silhouette
+                const minY = Math.max(0, logCY - logR - 1);
+                const maxY = Math.min(logH - 1, logCY + logR + 1);
+                const minX = Math.max(0, logCX - logR - 1);
+                const maxX = Math.min(logW - 1, logCX + logR + 1);
+                for (let py = minY; py <= maxY; py++) {
+                    for (let px = minX; px <= maxX; px++) {
+                        const dx = px - logCX;
+                        const dy = py - logCY;
+                        if (isInsidePixelChibakuMask(dx, dy, logR)) {
+                            const border =
+                                !isInsidePixelChibakuMask(dx + 1, dy, logR) ||
+                                !isInsidePixelChibakuMask(dx - 1, dy, logR) ||
+                                !isInsidePixelChibakuMask(dx, dy + 1, logR) ||
+                                !isInsidePixelChibakuMask(dx, dy - 1, logR);
+                            octx.fillStyle = border ? '#14100c' : '#3a342c';
+                            octx.fillRect(px, py, 1, 1);
+                        }
+                    }
+                }
             } else if (pass === 'front') {
-                // 3. Jigsaw Interlocking Voronoi Rock Slabs (Authentic 16-bit pixel art!)
-                octx.save();
-                octx.beginPath();
-                octx.arc(logCX, logCY, logR, 0, Math.PI * 2);
-                octx.clip();
-
-                // Solid base earth underlayer
+                // 3. Draw Voronoi rock slabs cleanly inside logical grid, then snap to hard pixel rock silhouette
                 octx.fillStyle = '#3a342c';
-                octx.fillRect(logCX - logR, logCY - logR, logR * 2, logR * 2);
+                octx.fillRect(logCX - logR - 1, logCY - logR - 1, (logR + 1) * 2 + 1, (logR + 1) * 2 + 1);
 
                 const basePalette = [
-                    '#6d6255', '#7d7263', '#5d5347', '#8e8271', 
+                    '#6d6255', '#7d7263', '#5d5347', '#8e8271',
                     '#766b5d', '#544c41', '#847868', '#645a4e',
                     '#7b7061', '#5a5144', '#8a7d6d', '#6f6456'
                 ];
 
-                // Render each Voronoi rock plate
                 for (let i = 0; i < VORONOI_ROCK_CELLS.length; i++) {
                     const poly = VORONOI_ROCK_CELLS[i];
                     if (poly.length < 3) continue;
@@ -14486,8 +14509,6 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                     const midX = sumX / poly.length;
                     const midY = sumY / poly.length;
-
-                    // 3D Directional Lighting: Sun from top-left (-0.65, -0.65)
                     const lightDot = (-midX * 0.65 - midY * 0.65);
 
                     const colHex = basePalette[i % basePalette.length];
@@ -14517,12 +14538,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     octx.fillStyle = 'rgb(' + Math.round(cr) + ',' + Math.round(cg) + ',' + Math.round(cb) + ')';
                     octx.fill();
 
-                    // Dark deep rock crevice crack outline between plates (1px on offscreen = 3px on screen)
+                    // Sharp dark rock crevice seams between plates
                     octx.strokeStyle = '#181410';
-                    octx.lineWidth = 1;
+                    octx.lineWidth = 1.15;
                     octx.stroke();
 
-                    // Subtle internal fracture line inside some slabs
                     if (i % 3 === 0) {
                         octx.strokeStyle = '#221c17';
                         octx.lineWidth = 1;
@@ -14534,61 +14554,42 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
 
                 if (isDetonating) {
-                    // Blinding white shatter cracks
                     octx.strokeStyle = '#ffffff';
                     octx.lineWidth = 1.5;
                     for (let s = 0; s < 12; s++) {
                         const sAngle = (s / 12) * Math.PI * 2;
                         octx.beginPath();
                         octx.moveTo(logCX, logCY);
-                        octx.lineTo(logCX + Math.cos(sAngle) * logR * 1.15, logCY + Math.sin(sAngle) * logR * 1.15);
+                        octx.lineTo(logCX + Math.cos(sAngle) * logR * 1.1, logCY + Math.sin(sAngle) * logR * 1.1);
                         octx.stroke();
                     }
                 }
 
-                octx.restore(); // end clip
-
-                // 4. Heavy rugged bedrock perimeter ring
-                octx.strokeStyle = '#14100c';
-                octx.lineWidth = 1.5;
-                octx.beginPath();
-                octx.arc(logCX, logCY, logR, 0, Math.PI * 2);
-                octx.stroke();
-
-                // 5. Cloud deck removed as requested by user
-
-                // 6. Shower of Falling / Rising Rock Shards Beneath (Chunky 16-bit pixel blocks)
-                octx.save();
-                const shards = [
-                    { dx: -logR * 0.65, dy: logR * 0.80, w: 2.5, h: 4, ang: 0.3 },
-                    { dx: -logR * 0.52, dy: logR * 1.02, w: 2, h: 3.5, ang: -0.4 },
-                    { dx: -logR * 0.42, dy: logR * 1.22, w: 2.8, h: 4.8, ang: 0.6 },
-                    { dx: -logR * 0.32, dy: logR * 0.86, w: 2, h: 3, ang: -0.2 },
-                    { dx: -logR * 0.20, dy: logR * 1.12, w: 2.5, h: 4, ang: 0.5 },
-                    { dx: -logR * 0.10, dy: logR * 1.32, w: 2, h: 3.5, ang: -0.3 },
-                    { dx: -logR * 0.02, dy: logR * 0.95, w: 2.8, h: 4.5, ang: 0.1 },
-                    { dx: logR * 0.10, dy: logR * 1.25, w: 2.5, h: 4, ang: -0.5 },
-                    { dx: logR * 0.22, dy: logR * 0.90, w: 2, h: 3, ang: 0.4 },
-                    { dx: logR * 0.32, dy: logR * 1.18, w: 2.8, h: 4.8, ang: -0.2 },
-                    { dx: logR * 0.45, dy: logR * 0.98, w: 2, h: 3.5, ang: 0.7 },
-                    { dx: logR * 0.58, dy: logR * 1.20, w: 2.5, h: 4, ang: -0.4 },
-                    { dx: logR * 0.68, dy: logR * 0.85, w: 2, h: 3, ang: 0.2 }
-                ];
-
-                octx.fillStyle = '#221c17';
-                for (let sh of shards) {
-                    const sx = logCX + sh.dx;
-                    const sy = logCY + sh.dy;
-                    octx.save();
-                    octx.translate(sx, sy);
-                    octx.rotate(sh.ang);
-                    octx.fillRect(-sh.w / 2, -sh.h / 2, sh.w, sh.h);
-                    octx.strokeStyle = '#120f0c';
-                    octx.lineWidth = 1;
-                    octx.strokeRect(-sh.w / 2, -sh.h / 2, sh.w, sh.h);
-                    octx.restore();
+                // 4. Hard Pixel Quantization + Chunky Stepped Perimeter Outline (Zero anti-alias blur, No falling shards!)
+                const imgData = octx.getImageData(0, 0, logW, logH);
+                const d = imgData.data;
+                for (let py = 0; py < logH; py++) {
+                    for (let px = 0; px < logW; px++) {
+                        const idx = (py * logW + px) * 4;
+                        const dx = px - logCX;
+                        const dy = py - logCY;
+                        if (!isInsidePixelChibakuMask(dx, dy, logR)) {
+                            d[idx + 3] = 0;
+                            continue;
+                        }
+                        const isRim =
+                            !isInsidePixelChibakuMask(dx + 1, dy, logR) ||
+                            !isInsidePixelChibakuMask(dx - 1, dy, logR) ||
+                            !isInsidePixelChibakuMask(dx, dy + 1, logR) ||
+                            !isInsidePixelChibakuMask(dx, dy - 1, logR);
+                        if (isRim) {
+                            d[idx] = 20; d[idx + 1] = 16; d[idx + 2] = 12; d[idx + 3] = 255; // #14100c crisp pixel outline
+                        } else {
+                            d[idx + 3] = 255; // 100% solid interior block
+                        }
+                    }
                 }
-                octx.restore();
+                octx.putImageData(imgData, 0, 0);
             }
 
             // Blit pixelated offscreen canvas to main canvas with nearest-neighbor scaling
