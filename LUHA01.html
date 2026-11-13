@@ -13217,10 +13217,10 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         // Build the 5 Pain Paths ring flanking & surrounding the opponent (matching Jiraiya scene!)
                         const sidePreta = (this.pinX < canvas.width * 0.5) ? 162 : -162;
                         const specs = [
-                            { type: 'naraka', dx: -62,  ringY: config.groundY - 10, layer: 'back',  diveOffX: -24 },
-                            { type: 'human',  dx:  62,  ringY: config.groundY - 10, layer: 'back',  diveOffX:  24 },
-                            { type: 'animal', dx: -114, ringY: config.groundY,      layer: 'front', diveOffX: -40 },
-                            { type: 'asura',  dx:  114, ringY: config.groundY,      layer: 'front', diveOffX:  40 },
+                            { type: 'naraka', dx: -62,  ringY: config.groundY - 10, layer: 'back',  diveOffX: -46 },
+                            { type: 'human',  dx:  62,  ringY: config.groundY - 10, layer: 'back',  diveOffX:  46 },
+                            { type: 'animal', dx: -114, ringY: config.groundY,      layer: 'front', diveOffX: -78 },
+                            { type: 'asura',  dx:  114, ringY: config.groundY,      layer: 'front', diveOffX:  78 },
                             { type: 'preta',  dx: sidePreta, ringY: config.groundY + 2, layer: 'front', diveOffX: 0 }
                         ];
                         this.squad = specs.map(sp => {
@@ -13240,7 +13240,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                                 ringY: sp.ringY,
                                 startY: sp.ringY,
                                 apexY: config.groundY - 165,
-                                diveTargetX: this.pinX + sp.diveOffX,
+                                diveTargetX: Math.max(32, Math.min(canvas.width - 32, this.pinX + sp.diveOffX)),
                                 diveStartX: rx,
                                 facing: fIn,
                                 state: 'jump_in',
@@ -13303,41 +13303,21 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     });
 
                     if (d >= 1) {
+                        // Impale 5 Black Rods and immediately leap straight into the sky (ninja Shunshin) without backing away!
                         this.applyFinaleImpale();
-                        this.state = 'impale_hold';
-                        this.timer = 0;
-                    }
-                } else if (this.state === 'impale_hold') {
-                    this.opponent.x = this.pinX;
-                    this.opponent.y = config.groundY;
-                    this.opponent.velX = 0;
-                    this.opponent.velY = 0;
-                    this.opponent.isStunned = true;
-                    this.opponent.stunTimer = 25;
-                    this.opponent.painPinnedDown = true;
+                        this.opponent.x = this.pinX;
+                        this.opponent.y = config.groundY;
+                        this.opponent.velX = 0;
+                        this.opponent.velY = 0;
+                        this.opponent.isStunned = true;
+                        this.opponent.stunTimer = 25;
+                        this.opponent.painPinnedDown = true;
 
-                    // Frames 0..5: the 5 Pain Paths fan cleanly out to surround the pinned opponent in a calm semi-circle!
-                    const stepT = Math.min(1, this.timer / 5);
-                    this.squad.forEach(m => {
-                        m.x = m.diveTargetX + (m.ringX - m.diveTargetX) * stepT;
-                        m.y = config.groundY + (m.ringY - config.groundY) * stepT;
-                        m.facing = (this.pinX >= m.x) ? 1 : -1;
-                        m.state = 'idle';
-                        m.rodHeld = false;
-                    });
-
-                    if (this.timer >= 32) {
-                        // Release pinned victim and launch all 5 Pain Paths straight into the sky like ninja Shunshin!
-                        this.opponent.painPinnedDown = false;
-                        this.impaledRods = [];
-                        if (this.opponent.health > 0) {
-                            this.opponent.velY = -3.0;
-                            this.opponent.velX = (this.opponent.x >= this.owner.x ? 1 : -1) * 4;
-                        } else {
-                            this.opponent.health = 0;
-                            triggerWin(this.owner);
-                        }
                         this.squad.forEach(m => {
+                            m.x = m.diveTargetX;
+                            m.y = config.groundY;
+                            m.facing = (this.pinX >= m.x) ? 1 : -1;
+                            m.rodHeld = false;
                             m.shunshinStartX = m.x;
                             m.shunshinStartY = m.y;
                             m.shunshinDriftX = (m.x - this.pinX) * 0.04;
@@ -13351,7 +13331,14 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         this.timer = 0;
                     }
                 } else if (this.state === 'sky_vanish') {
-                    // Ninja Shunshin ascent: all 5 Pain Paths rocket upward into the sky and vanish with speed streaks!
+                    // Ninja Shunshin ascent: all 5 Pain Paths rocket upward into the sky right after impaling!
+                    this.opponent.x = this.pinX;
+                    this.opponent.y = config.groundY;
+                    this.opponent.velX = 0;
+                    this.opponent.velY = 0;
+                    this.opponent.isStunned = true;
+                    this.opponent.painPinnedDown = true;
+
                     const t = Math.min(1, this.timer / 11);
                     const climb = t * t * 440;
                     this.squad.forEach(m => {
@@ -13365,6 +13352,15 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         }
                     });
                     if (this.timer >= 12) {
+                        this.opponent.painPinnedDown = false;
+                        this.impaledRods = [];
+                        if (this.opponent.health > 0) {
+                            this.opponent.velY = -3.0;
+                            this.opponent.velX = (this.opponent.x >= this.owner.x ? 1 : -1) * 4;
+                        } else {
+                            this.opponent.health = 0;
+                            triggerWin(this.owner);
+                        }
                         this.active = false;
                     }
                 }
