@@ -20540,16 +20540,21 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                                     const airBaseDmgTable = [0, 3.0, 3.2, 3.8, 4.5];
                                     const airCritDmgTable = [0, 7.5, 8.0, 9.0, 10.5];
 
-                                    let currentChance = this.blackFlashChance;
-                                    const bfRoll = (typeof window._testBlackFlashRoll === 'number') ? window._testBlackFlashRoll : Math.random();
-                                    const isCrit = (bfRoll < currentChance);
-                                    if (isCrit) {
-                                        dmg = opponent.isBlocking ? ((airCritDmgTable[hitNum] || 8.75) * 0.35) : (airCritDmgTable[hitNum] || 8.75);
-                                        isBlackFlashHit = true;
-                                        this.blackFlashChance = Math.min(0.70, currentChance + 0.36);
+                                    // Nerf: First 3 hits of the 4-hit aerial combo cannot trigger Black Flash; only Hit 4 rolls Black Flash!
+                                    if (hitNum === 4) {
+                                        let currentChance = this.blackFlashChance;
+                                        const bfRoll = (typeof window._testBlackFlashRoll === 'number') ? window._testBlackFlashRoll : Math.random();
+                                        const isCrit = (bfRoll < currentChance);
+                                        if (isCrit) {
+                                            dmg = opponent.isBlocking ? ((airCritDmgTable[hitNum] || 10.5) * 0.35) : (airCritDmgTable[hitNum] || 10.5);
+                                            isBlackFlashHit = true;
+                                            this.blackFlashChance = Math.min(0.70, currentChance + 0.36);
+                                        } else {
+                                            dmg = opponent.isBlocking ? ((airBaseDmgTable[hitNum] || 4.5) * 0.35) : (airBaseDmgTable[hitNum] || 4.5);
+                                            this.blackFlashChance = 0.19;
+                                        }
                                     } else {
                                         dmg = opponent.isBlocking ? ((airBaseDmgTable[hitNum] || 3.5) * 0.35) : (airBaseDmgTable[hitNum] || 3.5);
-                                        this.blackFlashChance = 0.19;
                                     }
                                     // Guaranteed hard cap: cumulative air combo damage can never exceed 35% HP (35 HP)
                                     const currentAirDmg = this.airComboTotalDmg || 0;
