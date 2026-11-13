@@ -12199,130 +12199,409 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
         class PainAssistPath {
             constructor(pathType, owner, opponent) {
-                this.pathType = pathType; // 'asura'
+                this.pathType = pathType; // 'asura' | 'naraka'
                 this.owner = owner;
                 this.opponent = opponent;
-                this.facing = owner.facing || 1;
+                this.facing = (opponent && owner) ? (opponent.x >= owner.x ? 1 : -1) : (owner.facing || 1);
                 this.active = true;
-                this.state = 'summon_burst'; // 'summon_burst' -> 'charge' -> 'strike' -> 'vanish'
                 this.timer = 0;
                 this.hitLanded = false;
 
-                // Summon slightly behind owner on the ground
-                this.x = owner.x - this.facing * 35;
-                this.y = config.groundY;
-                this.vx = 0;
-                this.vy = 0;
-
-                // Purple chakra summoning burst
-                gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, this.facing, '#ffffff'));
-                gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 35, this.facing, '#a55eea'));
-                for (let i = 0; i < 9; i++) {
-                    gameState.particles.push(new Particle(this.x + (Math.random() - 0.5) * 25, config.groundY - 10 - Math.random() * 35, Math.random() > 0.4 ? '#a55eea' : '#ffffff', 0.8));
+                if (pathType === 'asura') {
+                    // Wait while starter knockback pushes opponent ~1/3 across arena
+                    this.state = 'wait_knockback';
+                    this.visible = false;
+                    this.x = owner.x - this.facing * 45;
+                    this.y = config.groundY - 120;
+                    this.startX = this.x;
+                    this.startY = this.y;
+                    this.targetLandX = this.x;
+                    this.rocket = null;
+                    this.spawnedNext = false;
+                } else if (pathType === 'naraka') {
+                    // Wait brief beat after Asura rocket impact, then jump out & open King of Hell
+                    this.state = 'wait_follow';
+                    this.visible = false;
+                    this.gateFacing = (opponent.x > canvas.width * 0.5) ? 1 : -1;
+                    this.facing = this.gateFacing;
+                    this.gateX = Math.max(78, Math.min(canvas.width - 78, opponent.x - this.gateFacing * 98));
+                    this.targetLandX = Math.max(40, Math.min(canvas.width - 40, this.gateX - this.gateFacing * 56));
+                    this.startX = Math.max(35, Math.min(canvas.width - 35, this.targetLandX - this.gateFacing * 45));
+                    this.startY = config.groundY - 120;
+                    this.x = this.startX;
+                    this.y = this.startY;
+                    this.gateRise = 0;
+                    this.jawOpen = 0;
+                    this.reachFrac = 0;
+                    this.tongueFrac = 0;
+                    this.crushDealt = false;
                 }
             }
 
             update() {
                 if (!this.active) return;
                 if (gameState.timestopActive && this.owner !== gameState.timestopCaster) return;
-
                 this.timer += 1 * config.timeScale;
 
-                if (this.state === 'summon_burst') {
-                    // Crouched entrance landing, locking eyes with opponent
-                    this.facing = this.opponent.x >= this.x ? 1 : -1;
-                    if (this.timer >= 8) {
-                        this.state = 'charge';
-                        this.timer = 0;
-                        this.vx = this.facing * 20;
-                        announceText('SHURADŌ: ASURA ROCKET RUSH!', '#a55eea');
-                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 28, this.facing, '#a55eea'));
-                        gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, -this.facing, '#ffffff'));
-                    }
-                } else if (this.state === 'charge') {
-                    this.x += this.vx * config.timeScale;
-                    // Dense purple chakra jet flame particles streaming behind
-                    for (let i = 0; i < 3; i++) {
-                        gameState.particles.push(new Particle(
-                            this.x - this.facing * 26 + (Math.random() - 0.5) * 6,
-                            this.y - 25 + (Math.random() - 0.5) * 16,
-                            Math.random() > 0.4 ? '#a55eea' : (Math.random() > 0.3 ? '#d980fa' : '#ffffff'),
-                            0.7, false, -this.facing * (3 + Math.random() * 3), (Math.random() - 0.5) * 2
-                        ));
-                    }
-
-                    // Check impact range with opponent
-                    const dist = Math.abs(this.x - this.opponent.x);
-                    if (dist <= 50 && Math.abs(this.y - this.opponent.y) < 70) {
-                        this.state = 'strike';
-                        this.timer = 0;
-                        this.vx = 0;
-                        this.hitLanded = true;
-
-                        // Crushing Asura Rocket Fist impact with massive purple chakra blast!
-                        const dmg = this.opponent.isBlocking ? 6 : 16;
-                        this.opponent.health = Math.max(0, this.opponent.health - dmg);
-                        this.opponent.velX = this.facing * (this.opponent.isBlocking ? 8 : 19);
-                        this.opponent.velY = -4.2;
-                        this.opponent.isStunned = true;
-                        this.opponent.stunTimer = 35;
-
-                        gameState.shake = 26;
-                        gameState.flashAlpha = 0.55;
-                        gameState.flashColor = '#a55eea';
-
-                        // SPECTACULAR 100% PURPLE CHAKRA IMPACT VISUALS:
-                        gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', this.opponent.x, this.opponent.y - 45, this.facing, '#a55eea', { maxFrames: 24, maxRadius: 210 }));
-                        gameState.pixelEffects.push(new PixelVFX('impact_burst', this.opponent.x, this.opponent.y - 45, this.facing, '#a55eea', { maxFrames: 26, P: 4 }));
-                        createExplosion(this.opponent.x, this.opponent.y - 42, '#a55eea', 24, 1.9);
-                        createExplosion(this.opponent.x, this.opponent.y - 42, '#d980fa', 18, 1.5);
-                        createExplosion(this.opponent.x, this.opponent.y - 42, '#ffffff', 12, 1.1);
-                        gameState.slashes.push(new SlashEffect(this.opponent.x - 35 * this.facing, this.opponent.y - 70, this.opponent.x + 35 * this.facing, this.opponent.y - 18, '#a55eea', 7, true, true));
-                        gameState.slashes.push(new SlashEffect(this.opponent.x + 30 * this.facing, this.opponent.y - 65, this.opponent.x - 30 * this.facing, this.opponent.y - 22, '#ffffff', 5, true, true));
-
-                        if (this.opponent.health <= 0) {
-                            this.opponent.health = 0;
-                            triggerWin(this.owner);
-                        }
-                    } else if (this.timer >= 22) {
-                        this.state = 'vanish';
-                        this.timer = 0;
-                    }
-                } else if (this.state === 'strike') {
-                    // Strike follow-through
-                    if (this.timer >= 18) {
-                        this.state = 'vanish';
-                        this.timer = 0;
-                    }
-                } else if (this.state === 'vanish') {
-                    gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, this.facing, '#ffffff'));
-                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 30, this.facing, '#a55eea'));
-                    this.active = false;
+                if (this.pathType === 'asura') {
+                    this.updateAsura();
+                } else if (this.pathType === 'naraka') {
+                    this.updateNaraka();
                 }
             }
 
+            updateAsura() {
+                if (this.state === 'wait_knockback') {
+                    // Emit ground skid dust while opponent slides ~1/3 across the arena
+                    if (Math.floor(this.timer) % 4 === 0 && Math.abs(this.opponent.velX) > 3) {
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', this.opponent.x, config.groundY, -this.facing, '#dfe6e9'));
+                    }
+                    if (this.opponent.isStunned) {
+                        this.opponent.stunTimer = Math.max(this.opponent.stunTimer, 28);
+                    }
+                    const atWall = this.opponent.x <= 34 || this.opponent.x >= canvas.width - 34;
+                    const donePush = this.timer >= 18 || (this.timer >= 14 && (Math.abs(this.opponent.velX) < 3.5 || atWall));
+                    if (donePush) {
+                        const dir = (this.opponent.x >= this.owner.x) ? 1 : -1;
+                        this.facing = dir;
+                        this.startX = Math.max(40, Math.min(canvas.width - 40, this.owner.x - dir * 55));
+                        this.startY = config.groundY - 120;
+                        let landX = Math.max(55, Math.min(canvas.width - 55, this.owner.x + dir * 56));
+                        if (Math.abs(this.opponent.x - landX) < 85) {
+                            landX = Math.max(50, Math.min(canvas.width - 50, this.opponent.x - dir * 150));
+                        }
+                        this.targetLandX = landX;
+                        this.x = this.startX;
+                        this.y = this.startY;
+                        this.visible = true;
+                        this.state = 'jump_in';
+                        this.timer = 0;
+
+                        announceText('SHURADŌ: ASURA MISSILE!', '#a55eea');
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y, this.facing, '#a55eea'));
+                        for (let i = 0; i < 8; i++) {
+                            gameState.particles.push(new Particle(this.x + (Math.random() - 0.5) * 24, this.y + (Math.random() - 0.5) * 24, Math.random() > 0.4 ? '#a55eea' : '#ffffff', 0.8));
+                        }
+                    }
+                } else if (this.state === 'jump_in') {
+                    const t = Math.min(1, this.timer / 12);
+                    this.x = this.startX + (this.targetLandX - this.startX) * t;
+                    this.y = this.startY + (config.groundY - this.startY) * t - Math.sin(t * Math.PI) * 28;
+                    this.facing = (this.opponent.x >= this.x) ? 1 : -1;
+                    if (this.opponent.isStunned) {
+                        this.opponent.stunTimer = Math.max(this.opponent.stunTimer, 24);
+                    }
+                    if (t >= 1) {
+                        this.y = config.groundY;
+                        this.state = 'aim';
+                        this.timer = 0;
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, -this.facing, '#ffffff'));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 28, this.facing, '#a55eea'));
+                    }
+                } else if (this.state === 'aim') {
+                    this.facing = (this.opponent.x >= this.x) ? 1 : -1;
+                    if (this.opponent.isStunned) {
+                        this.opponent.stunTimer = Math.max(this.opponent.stunTimer, 22);
+                    }
+                    // Purple chakra gather sparks at cannon muzzle
+                    if (Math.random() > 0.25) {
+                        gameState.particles.push(new Particle(
+                            this.x + this.facing * 46 + (Math.random() - 0.5) * 14,
+                            this.y - 50 + (Math.random() - 0.5) * 14,
+                            Math.random() > 0.4 ? '#a55eea' : '#ffffff', 0.5
+                        ));
+                    }
+                    if (this.timer >= 7) {
+                        const rx = this.x + this.facing * 52;
+                        const ry = this.y - 52;
+                        const tx = this.opponent.x;
+                        const ty = this.opponent.y - 42;
+                        const dx = tx - rx;
+                        const dy = ty - ry;
+                        const len = Math.max(1, Math.hypot(dx, dy));
+                        const speed = 23;
+                        this.rocket = {
+                            x: rx,
+                            y: ry,
+                            vx: (dx / len) * speed,
+                            vy: (dy / len) * speed,
+                            facing: this.facing,
+                            angle: Math.atan2(dy, dx),
+                            active: true
+                        };
+                        // Muzzle flash & heavy cannon recoil step back
+                        gameState.pixelEffects.push(new PixelVFX('impact_burst', rx, ry, this.facing, '#a55eea', { maxFrames: 14, P: 3 }));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', rx, ry, this.facing, '#d980fa'));
+                        this.x = Math.max(40, Math.min(canvas.width - 40, this.x - this.facing * 8));
+                        gameState.shake = Math.max(gameState.shake || 0, 8);
+                        this.state = 'fire';
+                        this.timer = 0;
+                    }
+                } else if (this.state === 'fire') {
+                    if (this.rocket && this.rocket.active) {
+                        const r = this.rocket;
+                        const ty = this.opponent.y - 42;
+                        const dx = this.opponent.x - r.x;
+                        const dy = ty - r.y;
+                        const dist = Math.hypot(dx, dy);
+                        if (dist > 1) {
+                            const spd = 23;
+                            r.vx = (dx / dist) * spd;
+                            r.vy = (dy / dist) * spd;
+                            r.angle = Math.atan2(r.vy, r.vx);
+                        }
+                        r.x += r.vx * config.timeScale;
+                        r.y += r.vy * config.timeScale;
+
+                        // Roaring purple chakra jet flame particles behind rocket
+                        for (let i = 0; i < 3; i++) {
+                            gameState.particles.push(new Particle(
+                                r.x - Math.cos(r.angle) * 18 + (Math.random() - 0.5) * 6,
+                                r.y - Math.sin(r.angle) * 18 + (Math.random() - 0.5) * 6,
+                                Math.random() > 0.35 ? '#a55eea' : (Math.random() > 0.3 ? '#d980fa' : '#ffffff'),
+                                0.65, false, -Math.cos(r.angle) * 3, -Math.sin(r.angle) * 3 + (Math.random() - 0.5) * 1.5
+                            ));
+                        }
+
+                        const hitDist = Math.hypot(r.x - this.opponent.x, r.y - (this.opponent.y - 42));
+                        if (hitDist <= 38) {
+                            r.active = false;
+                            this.hitLanded = true;
+                            this.onRocketImpact();
+                            this.state = 'recoil_vanish';
+                            this.timer = 0;
+                        } else if (this.timer >= 35) {
+                            r.active = false;
+                            this.state = 'recoil_vanish';
+                            this.timer = 0;
+                        }
+                    } else {
+                        this.state = 'recoil_vanish';
+                        this.timer = 0;
+                    }
+                } else if (this.state === 'recoil_vanish') {
+                    if (this.timer >= 9) {
+                        this.vanishNow();
+                    }
+                }
+            }
+
+            onRocketImpact() {
+                if (this.opponent.isParrying) {
+                    this.opponent.reflectedThisFrame = true;
+                    createExplosion(this.opponent.x, this.opponent.y - 42, '#ffffff', 16, 1.4);
+                    return;
+                }
+                if ((this.opponent.type === 'sixeye' && this.opponent.isInfinityShieldActive) || this.opponent.isSaiyanDodging) {
+                    createExplosion(this.opponent.x, this.opponent.y - 42, '#a55eea', 12, 1.0);
+                    return;
+                }
+
+                const dmg = this.opponent.isBlocking ? 5 : 10;
+                this.opponent.health = Math.max(0, this.opponent.health - dmg);
+                this.opponent.velX = this.facing * (this.opponent.isBlocking ? 4 : 6);
+                this.opponent.velY = -5.2;
+                this.opponent.isStunned = true;
+                this.opponent.stunTimer = 95;
+
+                gameState.shake = 24;
+                gameState.flashAlpha = 0.45;
+                gameState.flashColor = '#a55eea';
+
+                gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', this.opponent.x, this.opponent.y - 42, this.facing, '#a55eea', { maxFrames: 22, maxRadius: 190 }));
+                gameState.pixelEffects.push(new PixelVFX('impact_burst', this.opponent.x, this.opponent.y - 42, this.facing, '#a55eea', { maxFrames: 24, P: 4 }));
+                createExplosion(this.opponent.x, this.opponent.y - 42, '#a55eea', 22, 1.8);
+                createExplosion(this.opponent.x, this.opponent.y - 42, '#d980fa', 16, 1.4);
+                createExplosion(this.opponent.x, this.opponent.y - 42, '#ffffff', 10, 1.0);
+                gameState.slashes.push(new SlashEffect(this.opponent.x - 32 * this.facing, this.opponent.y - 68, this.opponent.x + 32 * this.facing, this.opponent.y - 18, '#a55eea', 6, true, true));
+                gameState.slashes.push(new SlashEffect(this.opponent.x + 28 * this.facing, this.opponent.y - 62, this.opponent.x - 28 * this.facing, this.opponent.y - 20, '#ffffff', 4, true, true));
+
+                if (this.opponent.health <= 0) {
+                    this.opponent.health = 0;
+                    triggerWin(this.owner);
+                } else if (!gameState.gameOver && !this.spawnedNext) {
+                    this.spawnedNext = true;
+                    gameState.painAssists.push(new PainAssistPath('naraka', this.owner, this.opponent));
+                }
+            }
+
+            updateNaraka() {
+                if (this.state === 'wait_follow') {
+                    if (this.opponent.isStunned) {
+                        this.opponent.stunTimer = Math.max(this.opponent.stunTimer, 65);
+                    }
+                    if (this.timer >= 8) {
+                        if (this.opponent.health <= 0 || gameState.gameOver) {
+                            this.active = false;
+                            return;
+                        }
+                        this.gateFacing = (this.opponent.x > canvas.width * 0.5) ? 1 : -1;
+                        this.facing = this.gateFacing;
+                        this.gateX = Math.max(78, Math.min(canvas.width - 78, this.opponent.x - this.gateFacing * 98));
+                        this.targetLandX = Math.max(40, Math.min(canvas.width - 40, this.gateX - this.gateFacing * 56));
+                        this.startX = Math.max(35, Math.min(canvas.width - 35, this.targetLandX - this.gateFacing * 45));
+                        this.startY = config.groundY - 120;
+                        this.x = this.startX;
+                        this.y = this.startY;
+                        this.visible = true;
+                        this.state = 'jump_in';
+                        this.timer = 0;
+
+                        announceText('JIGOKUDŌ: KING OF HELL!', '#a55eea');
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y, this.facing, '#a55eea'));
+                    }
+                } else if (this.state === 'jump_in') {
+                    const t = Math.min(1, this.timer / 12);
+                    this.x = this.startX + (this.targetLandX - this.startX) * t;
+                    this.y = this.startY + (config.groundY - this.startY) * t - Math.sin(t * Math.PI) * 26;
+                    this.facing = this.gateFacing;
+                    if (this.opponent.isStunned) {
+                        this.opponent.stunTimer = Math.max(this.opponent.stunTimer, 65);
+                    }
+                    if (t >= 1) {
+                        this.y = config.groundY;
+                        this.state = 'open_gate';
+                        this.timer = 0;
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, -this.facing, '#ffffff'));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.gateX, config.groundY - 12, this.gateFacing, '#a55eea'));
+                        createExplosion(this.gateX, config.groundY - 8, '#8e44ad', 14, 1.2);
+                    }
+                } else if (this.state === 'open_gate') {
+                    this.gateRise = Math.min(1, this.timer / 11);
+                    this.jawOpen = this.timer > 7 ? Math.min(1, (this.timer - 7) / 10) : 0;
+                    this.opponent.velX *= 0.8;
+                    if (this.opponent.isStunned) {
+                        this.opponent.stunTimer = Math.max(this.opponent.stunTimer, 55);
+                    }
+                    gameState.shake = Math.max(gameState.shake || 0, 3);
+                    if (Math.random() > 0.2) {
+                        gameState.particles.push(new Particle(
+                            this.gateX + (Math.random() - 0.5) * 60,
+                            config.groundY - 6 - Math.random() * 26,
+                            Math.random() > 0.45 ? '#a55eea' : (Math.random() > 0.4 ? '#d63031' : '#d980fa'),
+                            0.7, false, (Math.random() - 0.5) * 2, -2.5 - Math.random() * 2
+                        ));
+                    }
+                    if (this.timer >= 18) {
+                        this.gateRise = 1;
+                        this.jawOpen = 1;
+                        this.state = 'tongue_pull';
+                        this.timer = 0;
+                        this.reachFrac = 0;
+                        this.tongueFrac = 0;
+                        announceText('JIGOKUDŌ: SOUL INTERROGATION!', '#fd79a8');
+                    }
+                } else if (this.state === 'tongue_pull') {
+                    this.gateRise = 1;
+                    this.jawOpen = 1;
+                    this.opponent.isStunned = true;
+                    this.opponent.stunTimer = Math.max(this.opponent.stunTimer, 40);
+
+                    if (this.timer <= 5) {
+                        this.reachFrac = Math.min(1, this.timer / 5);
+                        this.tongueFrac = 0;
+                    } else {
+                        if (this.tongueFrac === 0) {
+                            // Grab sparks at opponent's mouth when ghostly hands latch onto tongue
+                            createExplosion(this.opponent.x - this.gateFacing * 4, this.opponent.y - 68, '#fd79a8', 10, 0.9);
+                            gameState.pixelEffects.push(new PixelVFX('impact_burst', this.opponent.x - this.gateFacing * 4, this.opponent.y - 68, -this.gateFacing, '#a55eea', { maxFrames: 12, P: 2 }));
+                        }
+                        this.reachFrac = 1;
+                        this.tongueFrac = Math.min(1, (this.timer - 5) / 18);
+                        this.opponent.velX = -this.gateFacing * 0.4;
+                        if (Math.random() > 0.35) {
+                            gameState.particles.push(new Particle(
+                                this.opponent.x - this.gateFacing * (10 + Math.random() * 35),
+                                this.opponent.y - 58 + (Math.random() - 0.5) * 18,
+                                Math.random() > 0.5 ? '#fd79a8' : '#a55eea', 0.5
+                            ));
+                        }
+                    }
+
+                    if (this.timer >= 24) {
+                        this.state = 'judgment_crush';
+                        this.timer = 0;
+                        this.jawOpen = 0;
+                        this.applyNarakaJudgment();
+                    }
+                } else if (this.state === 'judgment_crush') {
+                    this.jawOpen = 0;
+                    this.reachFrac = Math.max(0, 1 - this.timer / 4);
+                    this.tongueFrac = Math.max(0, 1 - this.timer / 4);
+                    this.gateRise = Math.max(0, 1 - Math.max(0, this.timer - 4) / 12);
+                    if (this.timer >= 16) {
+                        this.vanishNow();
+                    }
+                }
+            }
+
+            applyNarakaJudgment() {
+                if (this.crushDealt) return;
+                this.crushDealt = true;
+                announceText('JIGOKUDŌ: JUDGMENT!', '#d63031');
+
+                if (this.opponent.isParrying) {
+                    this.opponent.reflectedThisFrame = true;
+                    return;
+                }
+                if ((this.opponent.type === 'sixeye' && this.opponent.isInfinityShieldActive) || this.opponent.isSaiyanDodging) {
+                    return;
+                }
+
+                const dmg = this.opponent.isBlocking ? 6 : 14;
+                this.opponent.health = Math.max(0, this.opponent.health - dmg);
+                this.opponent.velX = this.gateFacing * (this.opponent.isBlocking ? 5 : 11);
+                this.opponent.velY = -7.2;
+                this.opponent.isStunned = true;
+                this.opponent.stunTimer = 28;
+
+                gameState.shake = 26;
+                gameState.flashAlpha = 0.48;
+                gameState.flashColor = '#a55eea';
+
+                gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', this.opponent.x, this.opponent.y - 45, this.gateFacing, '#d980fa', { maxFrames: 22, maxRadius: 175 }));
+                gameState.pixelEffects.push(new PixelVFX('impact_burst', this.opponent.x, this.opponent.y - 48, this.gateFacing, '#ff4757', { maxFrames: 22, P: 4 }));
+                createExplosion(this.opponent.x, this.opponent.y - 48, '#a55eea', 20, 1.6);
+                createExplosion(this.opponent.x, this.opponent.y - 48, '#ff4757', 16, 1.3);
+                createExplosion(this.opponent.x, this.opponent.y - 48, '#ffffff', 10, 1.0);
+                gameState.slashes.push(new SlashEffect(this.opponent.x - 28, this.opponent.y - 72, this.opponent.x + 28, this.opponent.y - 20, '#ff4757', 6, true, true));
+
+                if (this.opponent.health <= 0) {
+                    this.opponent.health = 0;
+                    triggerWin(this.owner);
+                }
+            }
+
+            vanishNow() {
+                gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, this.facing, '#ffffff'));
+                gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 30, this.facing, '#a55eea'));
+                this.active = false;
+            }
+
             draw() {
-                if (!this.active) return;
-                drawPixelAsura(this);
+                if (!this.active || !this.visible) return;
+                if (this.pathType === 'asura') {
+                    drawPixelAsura(this);
+                    if (this.rocket && this.rocket.active) {
+                        drawPixelAsuraRocket(this.rocket);
+                    }
+                } else if (this.pathType === 'naraka') {
+                    drawPixelNaraka(this);
+                    if (this.gateRise > 0.02) {
+                        drawKingOfHell(this);
+                    }
+                }
             }
         }
 
-        function drawPixelAsura(asura) {
-            const P = 3;
-            const baseX = Math.round(asura.x / P) * P;
-            const baseY = Math.round(asura.y / P) * P;
-            const f = asura.facing || 1;
-            const prevSmooth = ctx.imageSmoothingEnabled;
-            ctx.imageSmoothingEnabled = false;
+        function createPixelGrid(baseX, baseY, facing, P = 3) {
             ctx.save();
             ctx.translate(baseX, baseY);
-            ctx.scale(f, 1);
-
+            ctx.scale(facing || 1, 1);
             const px = (gx, gy, gw, gh, col) => {
                 ctx.fillStyle = col;
                 ctx.fillRect(gx * P, gy * P, gw * P, gh * P);
             };
-
             const drawLimb = (x1, y1, x2, y2, thick, col, shade) => {
                 const steps = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1), 1);
                 for (let s = 0; s <= steps; s++) {
@@ -12332,6 +12611,17 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     px(curX - Math.floor(thick / 2), curY - Math.floor(thick / 2), thick, thick, s === 0 && shade ? shade : col);
                 }
             };
+            return { px, drawLimb };
+        }
+
+        function drawPixelAsura(asura) {
+            const P = 3;
+            const baseX = Math.round(asura.x / P) * P;
+            const baseY = Math.round(asura.y / P) * P;
+            const f = asura.facing || 1;
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+            const { px, drawLimb } = createPixelGrid(baseX, baseY, f, P);
 
             // Palette
             const out = '#0d0d0f';
@@ -12341,9 +12631,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             const cloudRed = '#d63031';
             const cloudWhite = '#ffffff';
             const collarIn = '#8b0000';
-            const skin = '#f5cbb1';       // Pale skin tone
-            const skinDark = '#cb8e5c';   // Shaded contour
-            const skinLight = '#fae1c8';  // Bald dome sheen highlight
+            const skin = '#f5cbb1';
+            const skinDark = '#cb8e5c';
+            const skinLight = '#fae1c8';
             const metal = '#7f8c8d';
             const metalDark = '#2c3e50';
             const metalBright = '#e0e0e0';
@@ -12354,10 +12644,10 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             const piercing = '#050505';
 
             // INTENSE PURPLE CHAKRA ROCKET FLAMES
-            const flameCore = '#ffffff';     // White-hot plasma core
-            const flameMid = '#d980fa';      // Electric lilac
-            const flameOuter = '#a55eea';    // Vibrant chakra violet
-            const flameDark = '#8e44ad';     // Deep royal purple edge
+            const flameCore = '#ffffff';
+            const flameMid = '#d980fa';
+            const flameOuter = '#a55eea';
+            const flameDark = '#8e44ad';
 
             // Body Stance
             let bodyY = 0;
@@ -12369,34 +12659,29 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             let armF = [ 4, -18,  7, -15, 10, -13];
             let cloakHemOffset = 0;
 
-            if (asura.state === 'summon_burst') {
-                // Crouched 3-point landing pose
-                bodyY = 3; torsoLean = 3; headX = 2; headY = -21;
-                legB = [-5, -8, -7, -4, -8, 0];
-                legF = [ 3, -8,  5, -4,  6, 0];
-                armB = [-4, -15, -6, -12, -5, -9];
-                armF = [ 3, -15,  4, -10,  5, 0];
-                cloakHemOffset = -3;
-            } else if (asura.state === 'charge') {
-                // Low rocket sprint dive
-                bodyY = 1; torsoLean = 7; headX = 5; headY = -23;
-                legB = [-6, -9, -10, -5, -12, -1];
-                legF = [ 4, -9,   7, -6,   9, 0];
-                armB = [-4, -16, -10, -15, -16, -14]; // Rear rocket thruster arm
-                armF = [ 4, -16,   8, -15,  13, -14]; // Coiled heavy cyborg fist
-                cloakHemOffset = -6;
-            } else if (asura.state === 'strike') {
-                // Full Rocket Cyborg Punch extension
-                bodyY = 0; torsoLean = 5; headX = 3; headY = -24;
-                legB = [-6, -10, -10, -5, -11, 0];
-                legF = [ 4, -10,   8, -6,  10, 0];
-                armB = [-5, -17,  -8, -13,  -9, -11];
-                armF = [ 5, -17,  16, -17,  27, -17]; // Elongated Rocket Cyborg Fist!
+            if (asura.state === 'jump_in') {
+                bodyY = 1; torsoLean = 3; headX = 2; headY = -23;
+                legB = [-6, -9, -8, -4, -9, 1];
+                legF = [ 3, -9,  5, -5,  6, 0];
+                armB = [-5, -17, -10, -14, -12, -11];
+                armF = [ 4, -17,   8, -14,  11, -12];
                 cloakHemOffset = -5;
-            } else if (asura.state === 'vanish') {
-                torsoLean = 1; headX = 1; headY = -24;
-                armB = [-5, -17, -6, -14, -5, -12];
-                armF = [ 4, -17,  6, -14,  7, -12];
+            } else if (asura.state === 'aim') {
+                // Wide grounded artillery crouch, locking cannon barrel on target
+                bodyY = 2; torsoLean = 2; headX = 2; headY = -22;
+                legB = [-6, -9, -9, -4, -10, 0];
+                legF = [ 4, -9,  6, -4,   8, 0];
+                armB = [-5, -16, -9, -15, -12, -16]; // Rear thruster stabilizer arm
+                armF = [ 4, -16, 11, -17,  18, -17]; // Heavy Cybernetic Rocket Cannon!
+                cloakHemOffset = -4;
+            } else if (asura.state === 'fire' || asura.state === 'recoil_vanish') {
+                // Heavy artillery firing & recoil brace stance
+                bodyY = 2; torsoLean = -2; headX = 0; headY = -22;
+                legB = [-6, -9, -9, -4, -11, 0];
+                legF = [ 4, -9,  6, -4,   9, 0];
+                armB = [-5, -16, -10, -16, -13, -16];
+                armF = [ 4, -17,  10, -17,  17, -17];
+                cloakHemOffset = -6;
             }
 
             const tx = torsoLean;
@@ -12404,34 +12689,17 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             const hx = headX;
             const hy = headY;
 
-            // ── DRAMATIC PURPLE CHAKRA ROCKET FLAMES ──────────────────────────────
-            if (asura.state === 'charge') {
-                // Rocket thruster jet blasting backward from rear arm
-                const rx = armB[4] + tx;
-                const ry = armB[5] + ty;
-                px(rx - 18, ry - 4, 18, 9, flameDark);
-                px(rx - 13, ry - 3, 13, 7, flameOuter);
-                px(rx - 8, ry - 2, 8, 5, flameMid);
-                px(rx - 4, ry - 1, 4, 3, flameCore);
-
-                // Trailing exhaust motes
-                px(rx - 24, ry - 2, 4, 4, flameOuter);
-                px(rx - 30, ry, 3, 3, flameMid);
-
-                // Boot rocket jets
-                px(legB[4] + tx - 10, legB[5] - 2, 10, 4, flameOuter);
-                px(legB[4] + tx - 6, legB[5] - 1, 6, 2, flameCore);
-            } else if (asura.state === 'strike') {
-                // MASSIVE PURPLE ROCKET EXHAUST BLASTING BACKWARDS FROM CYBORG ELBOW
-                const ex = armF[2] + tx - 4;
-                const ey = armF[3] + ty;
-                px(ex - 20, ey - 5, 20, 11, flameDark);
-                px(ex - 15, ey - 4, 15, 9, flameOuter);
-                px(ex - 10, ey - 2, 10, 5, flameMid);
-                px(ex - 5, ey - 1, 5, 3, flameCore);
-                // Trailing exhaust bursts
-                px(ex - 26, ey - 3, 5, 5, flameOuter);
-                px(ex - 32, ey - 1, 3, 3, flameMid);
+            // Back booster jet flame when jumping or firing cannon recoil
+            if (asura.state === 'jump_in') {
+                px(legB[4] + tx - 7, legB[5] - 1, 7, 3, flameOuter);
+                px(legB[4] + tx - 4, legB[5], 4, 2, flameCore);
+            } else if (asura.state === 'fire') {
+                const ex = armB[4] + tx;
+                const ey = armB[5] + ty;
+                px(ex - 16, ey - 4, 16, 8, flameDark);
+                px(ex - 11, ey - 3, 11, 6, flameOuter);
+                px(ex - 6, ey - 2, 6, 4, flameMid);
+                px(ex - 3, ey - 1, 3, 2, flameCore);
             }
 
             // 1) Back Leg & Back Arm
@@ -12439,24 +12707,23 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             drawLimb(legB[2] + tx, legB[3] + ty, legB[4] + tx, legB[5], 2, metalDark, metal);
             px(legB[4] + tx - 1, legB[5] - 1, 4, 2, out);
 
-            // Back Sleeve & Arm
             drawLimb(armB[0] + tx, armB[1] + ty, armB[2] + tx, armB[3] + ty, 4, cloakMain, cloakShade);
             drawLimb(armB[2] + tx, armB[3] + ty, armB[4] + tx, armB[5] + ty, 3, metal, metalDark);
 
-            // 2) Akatsuki Cloak Torso (Broader build: 12 px wide)
+            // 2) Akatsuki Cloak Torso
             px(tx - 6, ty - 19, 12, 11, out);
             px(tx - 5, ty - 18, 10, 10, cloakMain);
             px(tx - 5, ty - 18, 4, 10, cloakShade);
             px(tx + 2, ty - 18, 3, 3, cloakHighlight);
 
-            // Large Akatsuki Red Cloud Motif with crisp white border
+            // Akatsuki Red Cloud
             px(tx - 3, ty - 15, 7, 5, cloudWhite);
             px(tx - 4, ty - 14, 2, 3, cloudWhite);
             px(tx + 4, ty - 14, 2, 3, cloudWhite);
             px(tx - 2, ty - 14, 5, 3, cloudRed);
             px(tx - 1, ty - 15, 3, 1, cloudRed);
 
-            // High Standing Flared Collar framing bald neck and chin (Crimson inner lining)
+            // High Collar
             px(tx - 5, ty - 23, 10, 5, out);
             px(tx - 4, ty - 22, 8, 4, cloakMain);
             px(tx - 1, ty - 22, 5, 3, collarIn);
@@ -12473,77 +12740,68 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             drawLimb(legF[2] + tx, legF[3] + ty, legF[4] + tx, legF[5] + ty, 2, metalDark, metal);
             px(legF[4] + tx - 1, legF[5] + ty - 1, 4, 3, out);
 
-            // ── 4) PERFECT PROPORTIONATE BALD ASURA HEAD (100% BALD CRANIUM) ─────
-            // Smooth rounded bald dome (outline):
-            px(hx - 2, hy - 7, 5, 1, out); // Top rounded apex
-            px(hx - 4, hy - 6, 9, 2, out); // Upper skull dome
-            px(hx - 5, hy - 4, 11, 3, out); // Brow and temple width
-            px(hx - 5, hy - 1, 11, 7, out); // Lower face and jaw
+            // 4) BALD ASURA HEAD (100% Bald Cranium + Headband + Rinnegan)
+            px(hx - 2, hy - 7, 5, 1, out);
+            px(hx - 4, hy - 6, 9, 2, out);
+            px(hx - 5, hy - 4, 11, 3, out);
+            px(hx - 5, hy - 1, 11, 7, out);
 
-            // Flesh base (no hair!):
             px(hx - 1, hy - 6, 3, 1, skin);
             px(hx - 3, hy - 5, 7, 2, skin);
             px(hx - 4, hy - 3, 9, 2, skin);
             px(hx - 4, hy - 1, 9, 6, skin);
 
-            // Natural 3D dome highlights & contours:
-            px(hx - 4, hy - 5, 2, 10, skinDark);  // Rear shadow contour
-            px(hx, hy - 6, 2, 1, skinLight);     // Top apex glint
-            px(hx + 1, hy - 4, 3, 2, skinLight); // Forehead sheen
-            px(hx + 2, hy + 1, 2, 2, skinLight); // Cheek glint
+            px(hx - 4, hy - 5, 2, 10, skinDark);
+            px(hx, hy - 6, 2, 1, skinLight);
+            px(hx + 1, hy - 4, 3, 2, skinLight);
+            px(hx + 2, hy + 1, 2, 2, skinLight);
 
-            // Cybernetic Chakra Receiver Studs embedded across the bald dome:
+            // Cybernetic Cranium & Face Studs
             px(hx - 2, hy - 5, 1, 1, piercing);
             px(hx, hy - 5, 1, 1, piercing);
             px(hx + 2, hy - 4, 1, 1, piercing);
             px(hx - 5, hy - 1, 1, 1, piercing);
             px(hx - 5, hy + 2, 1, 1, piercing);
 
-            // Amegakure Rogue Headband wrapped across lower brow:
+            // Amegakure Rogue Headband
             px(hx - 5, hy - 2, 11, 2, bandCloth);
             px(hx - 2, hy - 2, 7, 2, bandMetal);
-            px(hx - 1, hy - 2, 4, 1, '#ffffff');  // Metal plate glint
-            px(hx - 2, hy - 1, 7, 1, out);        // Rogue cross-scratch line!
+            px(hx - 1, hy - 2, 4, 1, '#ffffff');
+            px(hx - 2, hy - 1, 7, 1, out);
 
-            // Concentric Rinnegan Eye (Purple divine ripple rings):
+            // Rinnegan Eye
             px(hx, hy + 1, 4, 2, out);
             px(hx + 1, hy + 1, 3, 2, rinneDark);
             px(hx + 1, hy + 1, 2, 1, rinneIris);
-            px(hx + 2, hy + 1, 1, 1, '#ffffff'); // Glint
+            px(hx + 2, hy + 1, 1, 1, '#ffffff');
 
-            // Nose bridge chakra studs:
+            // Nose & Jaw Piercings
             px(hx + 3, hy + 1, 1, 1, piercing);
             px(hx + 4, hy + 2, 1, 1, piercing);
-
-            // Broad square cybernetic jaw with bare teeth:
             px(hx + 1, hy + 3, 4, 2, out);
-            px(hx + 1, hy + 3, 3, 1, '#ffffff'); // Bare teeth
-            px(hx + 2, hy + 5, 1, 1, piercing);  // Chin chakra spike
+            px(hx + 1, hy + 3, 3, 1, '#ffffff');
+            px(hx + 2, hy + 5, 1, 1, piercing);
 
-            // ── 5) FRONT ARM: COLOSSAL CYBERNETIC ROCKET CANNON / FIST ─────────────
-            if (asura.state === 'strike') {
-                // High-velocity rocket cannon arm fully launched forward!
+            // 5) FRONT ARM: CYBERNETIC ARM ROCKET LAUNCHER CANNON
+            if (asura.state === 'aim' || asura.state === 'fire' || asura.state === 'recoil_vanish') {
                 drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 5, cloakMain, cloakShade);
-                // Cylindrical rocket exhaust chamber at elbow
-                px(armF[2] + tx - 3, armF[3] + ty - 3, 6, 6, metalDark);
-                px(armF[2] + tx - 2, armF[3] + ty - 2, 4, 4, metalBright);
-
-                // Extended mechanical piston shaft
-                drawLimb(armF[2] + tx, armF[3] + ty, armF[4] + tx - 5, armF[5] + ty, 4, metal, metalDark);
-                px(armF[4] + tx - 7, armF[5] + ty - 2, 4, 3, metalBright);
-
-                // Heavy Armored Cybernetic Rocket Fist:
-                px(armF[4] + tx - 4, armF[5] + ty - 4, 8, 8, out);
-                px(armF[4] + tx - 3, armF[5] + ty - 3, 7, 7, metalDark);
-                px(armF[4] + tx - 2, armF[5] + ty - 2, 5, 4, metalBright);
-
-                // RADIANT PURPLE CHAKRA CORONA & KNUCKLE SPIKES
-                px(armF[4] + tx + 2, armF[5] + ty - 3, 3, 5, flameMid);
-                px(armF[4] + tx + 4, armF[5] + ty - 2, 2, 3, flameCore);
-
-                // Purple chakra energy arcs around fist
-                px(armF[4] + tx - 2, armF[5] + ty - 5, 4, 1, flameOuter);
-                px(armF[4] + tx - 2, armF[5] + ty + 4, 4, 1, flameOuter);
+                const cx = armF[2] + tx;
+                const cy = armF[3] + ty;
+                // Heavy Pixel Arm Rocket Cannon Barrel
+                px(cx - 2, cy - 4, 15, 8, out);
+                px(cx - 1, cy - 3, 13, 6, metalDark);
+                px(cx, cy - 2, 11, 2, metal);
+                px(cx + 2, cy - 2, 7, 1, metalBright);
+                // Glowing Purple Chakra Coils along Cannon Barrel
+                px(cx + 2, cy, 2, 2, flameOuter);
+                px(cx + 6, cy, 2, 2, flameMid);
+                px(cx + 10, cy - 3, 3, 6, metal);
+                px(cx + 12, cy - 2, 2, 4, asura.state === 'aim' ? flameMid : flameCore);
+                // Muzzle blast cone on initial fire frames
+                if (asura.state === 'fire' && asura.timer < 6) {
+                    px(cx + 13, cy - 4, 4, 8, flameOuter);
+                    px(cx + 14, cy - 2, 4, 4, flameCore);
+                }
             } else {
                 drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 4, cloakMain, cloakShade);
                 drawLimb(armF[2] + tx, armF[3] + ty, armF[4] + tx, armF[5] + ty, 3, metal, metalDark);
@@ -12552,6 +12810,366 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
             ctx.imageSmoothingEnabled = prevSmooth;
             ctx.restore();
+        }
+
+        function drawPixelAsuraRocket(rocket) {
+            const P = 3;
+            const bx = Math.round(rocket.x / P) * P;
+            const by = Math.round(rocket.y / P) * P;
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+            ctx.save();
+            ctx.translate(bx, by);
+            ctx.rotate(rocket.angle || 0);
+
+            const px = (gx, gy, gw, gh, col) => {
+                ctx.fillStyle = col;
+                ctx.fillRect(gx * P, gy * P, gw * P, gh * P);
+            };
+            const flicker = Math.floor(Date.now() / 45) % 2;
+
+            // Trailing Roaring Purple Chakra Jet Plume
+            px(-16 - flicker * 2, -2, 8, 4, '#8e44ad');
+            px(-12 - flicker, -3, 7, 6, '#a55eea');
+            px(-9, -2, 5, 4, '#d980fa');
+            px(-7, -1, 4, 2, '#ffffff');
+
+            // Tail Stabilizer Fins
+            px(-5, -4, 3, 8, '#0d0d0f');
+            px(-4, -3, 2, 6, '#2c3e50');
+
+            // Main Steel Missile Chassis
+            px(-4, -3, 10, 6, '#0d0d0f');
+            px(-3, -2, 8, 4, '#7f8c8d');
+            px(-2, -2, 6, 2, '#e0e0e0');
+
+            // Glowing Purple Chakra Power Core Bands
+            px(-1, -2, 2, 4, '#a55eea');
+            px(2, -2, 1, 4, '#d980fa');
+
+            // Pointed Nosecone Warhead
+            px(5, -2, 3, 4, '#0d0d0f');
+            px(5, -1, 3, 2, '#d63031');
+            px(7, -1, 2, 2, '#ffffff');
+
+            ctx.imageSmoothingEnabled = prevSmooth;
+            ctx.restore();
+        }
+
+        function drawPixelNaraka(naraka) {
+            const P = 3;
+            const baseX = Math.round(naraka.x / P) * P;
+            const baseY = Math.round(naraka.y / P) * P;
+            const f = naraka.facing || 1;
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+            const { px, drawLimb } = createPixelGrid(baseX, baseY, f, P);
+
+            const out = '#0d0d0f';
+            const cloakMain = '#18181a';
+            const cloakShade = '#0a0a0c';
+            const cloakHighlight = '#2d3436';
+            const cloudRed = '#d63031';
+            const cloudWhite = '#ffffff';
+            const collarIn = '#8b0000';
+            const skin = '#f5cbb1';
+            const skinDark = '#cb8e5c';
+            const hairMain = '#e67e22';
+            const hairShade = '#d35400';
+            const hairLight = '#f39c12';
+            const bandCloth = '#232b38';
+            const bandMetal = '#bdc3c7';
+            const rinneIris = '#9b59b6';
+            const rinneDark = '#8e44ad';
+            const piercing = '#050505';
+
+            let bodyY = 0;
+            let torsoLean = 0;
+            let headX = 0, headY = -25; // Taller Naraka silhouette
+            let legB = [-4, -10, -5, -5, -6, 0];
+            let legF = [ 3, -10,  4, -5,  5, 0];
+            let armB = [-5, -19, -7, -15, -5, -12];
+            let armF = [ 4, -19,  8, -17, 10, -20]; // Summoning hand seal
+            let cloakHemOffset = 0;
+
+            if (naraka.state === 'jump_in') {
+                bodyY = 1; torsoLean = 2; headX = 1; headY = -24;
+                legB = [-5, -10, -7, -5, -8, 0];
+                legF = [ 3, -10,  5, -5,  6, 0];
+                armB = [-5, -18, -9, -15, -11, -12];
+                armF = [ 4, -18,  7, -15,   9, -13];
+                cloakHemOffset = -4;
+            } else if (naraka.state === 'open_gate') {
+                // Upright commanding summoning seal stance
+                armB = [-5, -19, -6, -15, -4, -13];
+                armF = [ 4, -19,  7, -17,  8, -21];
+            } else if (naraka.state === 'tongue_pull') {
+                // Commanding arm extended toward King of Hell & victim
+                torsoLean = 2; headX = 1; headY = -25;
+                armB = [-5, -19, -7, -15, -6, -12];
+                armF = [ 4, -19, 10, -18, 16, -18];
+                cloakHemOffset = -2;
+            } else if (naraka.state === 'judgment_crush') {
+                armB = [-5, -19, -6, -15, -5, -12];
+                armF = [ 4, -19,  9, -16, 12, -13];
+            }
+
+            const tx = torsoLean;
+            const ty = bodyY;
+            const hx = headX;
+            const hy = headY;
+
+            // Back Leg & Sleeve
+            drawLimb(legB[0] + tx, legB[1] + ty, legB[2] + tx, legB[3] + ty, 3, cloakMain, out);
+            drawLimb(legB[2] + tx, legB[3] + ty, legB[4] + tx, legB[5], 2, bandCloth, out);
+            px(legB[4] + tx - 1, legB[5] - 1, 4, 2, out);
+            drawLimb(armB[0] + tx, armB[1] + ty, armB[2] + tx, armB[3] + ty, 3, cloakMain, cloakShade);
+            drawLimb(armB[2] + tx, armB[3] + ty, armB[4] + tx, armB[5] + ty, 2, skin, skinDark);
+
+            // Tall Akatsuki Cloak Torso
+            px(tx - 5, ty - 20, 10, 12, out);
+            px(tx - 4, ty - 19, 8, 11, cloakMain);
+            px(tx - 4, ty - 19, 3, 11, cloakShade);
+            px(tx + 1, ty - 19, 3, 3, cloakHighlight);
+
+            // Akatsuki Red Cloud
+            px(tx - 2, ty - 15, 6, 4, cloudWhite);
+            px(tx - 3, ty - 14, 2, 2, cloudWhite);
+            px(tx - 1, ty - 14, 4, 2, cloudRed);
+
+            // High Crimson Collar
+            px(tx - 4, ty - 24, 9, 5, out);
+            px(tx - 3, ty - 23, 7, 4, cloakMain);
+            px(tx, ty - 23, 4, 3, collarIn);
+            px(tx - 4, ty - 24, 2, 4, collarIn);
+
+            // Flowing Cloak Hem
+            const hemX = tx - 4 + cloakHemOffset;
+            px(hemX - 2, ty - 9, 9, 7, out);
+            px(hemX - 1, ty - 8, 7, 6, cloakMain);
+            px(hemX - 1, ty - 8, 3, 6, cloakShade);
+
+            // Front Leg
+            drawLimb(legF[0] + tx, legF[1] + ty, legF[2] + tx, legF[3] + ty, 3, cloakMain, out);
+            drawLimb(legF[2] + tx, legF[3] + ty, legF[4] + tx, legF[5] + ty, 2, bandCloth, out);
+            px(legF[4] + tx - 1, legF[5] + ty - 1, 4, 3, out);
+
+            // Naraka Head & Distinct Swept-Up Spiky Orange Hair
+            px(hx - 4, hy - 5, 9, 10, out);
+            px(hx - 3, hy - 4, 7, 8, skin);
+            px(hx - 3, hy - 4, 2, 8, skinDark);
+
+            // Upright brushed-up spiky orange hair (distinct from Deva & Asura)
+            px(hx - 5, hy - 8, 10, 4, out);
+            px(hx - 4, hy - 10, 3, 3, out);
+            px(hx - 1, hy - 11, 3, 4, out);
+            px(hx + 2, hy - 9, 3, 3, out);
+            px(hx - 4, hy - 7, 8, 3, hairMain);
+            px(hx - 3, hy - 9, 2, 3, hairMain);
+            px(hx, hy - 10, 2, 4, hairMain);
+            px(hx + 2, hy - 8, 2, 2, hairShade);
+            px(hx, hy - 9, 1, 2, hairLight);
+            px(hx - 4, hy - 5, 2, 4, hairShade);
+
+            // Amegakure Headband
+            px(hx - 4, hy - 3, 9, 2, bandCloth);
+            px(hx - 1, hy - 3, 6, 2, bandMetal);
+            px(hx, hy - 3, 3, 1, '#ffffff');
+            px(hx - 1, hy - 2, 6, 1, out);
+
+            // Rinnegan Eye & Naraka Diagonal Cheek/Nose Piercings
+            px(hx + 1, hy, 3, 2, out);
+            px(hx + 2, hy, 2, 2, rinneDark);
+            px(hx + 2, hy, 1, 1, rinneIris);
+            px(hx + 3, hy + 1, 1, 1, piercing); // Nose bridge
+            px(hx - 1, hy + 1, 1, 1, piercing); // Diagonal cheek studs
+            px(hx, hy + 2, 1, 1, piercing);
+            px(hx + 2, hy + 4, 1, 1, piercing); // Chin stud
+            px(hx + 1, hy + 3, 2, 1, skinDark); // Stern mouth
+
+            // Front Arm & Glowing Purple Summoning Aura at Hand
+            drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 3, cloakMain, cloakShade);
+            drawLimb(armF[2] + tx, armF[3] + ty, armF[4] + tx, armF[5] + ty, 2, skin, skinDark);
+            if (naraka.state === 'open_gate' || naraka.state === 'tongue_pull') {
+                const sx = armF[4] + tx;
+                const sy = armF[5] + ty;
+                px(sx - 1, sy - 2, 4, 4, '#a55eea');
+                px(sx, sy - 1, 2, 2, '#ffffff');
+            }
+
+            ctx.imageSmoothingEnabled = prevSmooth;
+            ctx.restore();
+        }
+
+        function drawKingOfHell(naraka) {
+            const P = 3;
+            const gxBase = Math.round(naraka.gateX / P) * P;
+            const gyBase = Math.round(config.groundY / P) * P;
+            const f = naraka.gateFacing || 1;
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+            const flicker = Math.floor(Date.now() / 60) % 2;
+
+            // 1) Swirling Ground Hell Gate Portal & Flames
+            ctx.save();
+            ctx.translate(gxBase, gyBase);
+            ctx.scale(f, 1);
+            const pxGate = (gx, gy, gw, gh, col) => {
+                ctx.fillStyle = col;
+                ctx.fillRect(gx * P, gy * P, gw * P, gh * P);
+            };
+            pxGate(-14, -2, 28, 3, '#0d0d0f');
+            pxGate(-12, -3, 24, 2, '#8e44ad');
+            pxGate(-9, -2, 18, 2, '#d63031');
+            pxGate(-6, -1, 12, 1, '#d980fa');
+            // Flickering Hellfire Flame Pillars around the Gate
+            pxGate(-14, -9 - flicker * 2, 3, 8 + flicker * 2, '#8e44ad');
+            pxGate(-13, -6 - flicker, 2, 5 + flicker, '#ff4757');
+            pxGate(11, -8 - ((flicker + 1) % 2) * 2, 3, 7 + ((flicker + 1) % 2) * 2, '#8e44ad');
+            pxGate(11, -5, 2, 4, '#d980fa');
+
+            // 2) Towering 3/4 Profile King of Hell Statue Head Rising from Floor
+            ctx.beginPath();
+            ctx.rect(-32 * P, -48 * P, 64 * P, 48 * P);
+            ctx.clip();
+
+            const riseY = Math.round((1 - (naraka.gateRise || 0)) * 34);
+            const jawDrop = Math.round((naraka.jawOpen || 0) * 8);
+            const stoneOut = '#0d0d0f';
+            const stoneDark = '#241a38';
+            const stoneMid = '#3e2d5e';
+            const stoneLight = '#654b96';
+            const crownGold = '#a55eea';
+            const flameAbyss = '#160529';
+
+            const pyHead = (gx, gy, gw, gh, col) => pxGate(gx, gy + riseY, gw, gh, col);
+
+            // Spiky Demon Crown (3/4 shifted forward toward victim)
+            pyHead(-6, -34, 2, 5, stoneOut);
+            pyHead(0, -37, 3, 7, stoneOut);
+            pyHead(6, -34, 2, 5, stoneOut);
+            pyHead(-10, -31, 20, 5, stoneOut);
+            pyHead(-5, -33, 1, 3, crownGold);
+            pyHead(1, -36, 2, 6, '#d980fa');
+            pyHead(6, -33, 1, 3, crownGold);
+            pyHead(-9, -30, 18, 4, stoneDark);
+            pyHead(-7, -29, 15, 2, crownGold);
+            pyHead(1, -29, 3, 3, '#ff4757'); // Glowing 王 forehead gem
+
+            // Sculpted Skull & Cheekbones (dark shaded left, lit right toward victim)
+            pyHead(-11, -26, 22, 13, stoneOut);
+            pyHead(-10, -25, 20, 11, stoneDark);
+            pyHead(-7, -24, 17, 9, stoneMid);
+            pyHead(-2, -24, 11, 3, stoneLight);
+            pyHead(8, -23, 2, 8, stoneLight); // Highlight ridge facing opponent
+
+            // Fierce Angled Brow & Glowing Purple Rinnegan Eyes (3/4 turned)
+            pyHead(-6, -21, 5, 1, stoneOut);
+            pyHead(3, -21, 5, 1, stoneOut);
+            pyHead(-5, -20, 4, 3, stoneOut);
+            pyHead(-4, -20, 3, 2, '#d980fa');
+            pyHead(-3, -19, 2, 1, '#ffffff');
+            pyHead(4, -20, 4, 3, stoneOut);
+            pyHead(5, -20, 3, 2, '#d980fa');
+            pyHead(6, -19, 2, 1, '#ffffff');
+
+            // Sculpted Nose Bridge & Upper Snarling Cheek
+            pyHead(2, -18, 3, 4, stoneLight);
+            pyHead(-10, -15, 20, 3, stoneOut);
+            pyHead(-8, -15, 17, 2, stoneMid);
+
+            // Deep Glowing Abyss Void Inside Open Mouth
+            if (jawDrop > 0) {
+                pyHead(-9, -13, 18, jawDrop + 3, flameAbyss);
+                pyHead(-6, -12, 14, Math.max(1, jawDrop + 1), '#5f27cd');
+                pyHead(-2, -11, 10, Math.max(1, jawDrop - 1), '#a55eea');
+            }
+
+            // Sharp Upper & Lower Fangs framing the open maw
+            pyHead(-7, -12, 2, 2, '#ffffff');
+            pyHead(-3, -12, 2, 2, '#ffffff');
+            pyHead(2, -12, 2, 2, '#ffffff');
+            pyHead(6, -12, 2, 3, '#ffffff'); // Longer front canine fang!
+
+            // Hinged Lower Jaw
+            const jY = -10 + jawDrop;
+            pyHead(-10, jY, 20, 7, stoneOut);
+            pyHead(-9, jY + 1, 18, 5, stoneDark);
+            pyHead(-6, jY + 2, 15, 3, stoneMid);
+            pyHead(-6, jY - 1, 2, 2, '#dfe6e9');
+            pyHead(-2, jY - 1, 2, 2, '#dfe6e9');
+            pyHead(3, jY - 1, 2, 2, '#dfe6e9');
+            pyHead(7, jY - 2, 2, 3, '#ffffff');
+            ctx.restore();
+
+            // 3) Spectral Ghostly Chakra Claw + Stretched Tongue Pull (RÚT LƯỠI)
+            if (naraka.state === 'tongue_pull' && naraka.reachFrac > 0 && naraka.opponent) {
+                const hellX = Math.round((naraka.gateX + f * 18) / P) * P;
+                const hellY = Math.round((config.groundY - 34) / P) * P;
+                // Target exact victim mouth level (opponent.y - 60)
+                const vicX = Math.round((naraka.opponent.x - f * 5) / P) * P;
+                const vicY = Math.round((naraka.opponent.y - 60) / P) * P;
+
+                const tFrac = naraka.tongueFrac || 0;
+                const rFrac = naraka.reachFrac || 0;
+
+                let handX, handY;
+                if (tFrac <= 0) {
+                    handX = hellX + (vicX - hellX) * rFrac;
+                    handY = hellY + (vicY - hellY) * rFrac;
+                } else {
+                    const pull = tFrac * 0.78;
+                    handX = vicX + (hellX - vicX) * pull;
+                    handY = vicY + (hellY - vicY) * pull;
+
+                    // Vivid 16-bit Pixel Stretched Tongue emerging cleanly from opponent's mouth!
+                    const steps = Math.max(4, Math.ceil(Math.hypot(handX - vicX, handY - vicY) / P));
+                    for (let s = 0; s <= steps; s++) {
+                        const t = s / steps;
+                        const wave = Math.round(Math.sin(t * Math.PI * 2 + Date.now() * 0.02) * 1) * P;
+                        const tx = Math.round((vicX + (handX - vicX) * t) / P) * P;
+                        const ty = Math.round((vicY + (handY - vicY) * t) / P) * P + wave;
+                        ctx.fillStyle = '#0d0d0f';
+                        ctx.fillRect(tx - P, ty - 2 * P, 2 * P, 4 * P);
+                        ctx.fillStyle = '#d980fa';
+                        ctx.fillRect(tx - P, ty - P - 1, 2 * P, 3 * P);
+                        ctx.fillStyle = '#ff4757';
+                        ctx.fillRect(tx - P, ty - P, 2 * P, 2 * P);
+                        ctx.fillStyle = '#fd79a8';
+                        ctx.fillRect(tx - P, ty - P, P, P);
+                    }
+                }
+
+                // Ghostly Purple Chakra Tendril Arm from Hell Mouth to Claw
+                const armSteps = Math.max(3, Math.ceil(Math.hypot(handX - hellX, handY - hellY) / (P * 2)));
+                for (let s = 0; s <= armSteps; s++) {
+                    const t = s / armSteps;
+                    const ax = Math.round((hellX + (handX - hellX) * t) / P) * P;
+                    const ay = Math.round((hellY + (handY - hellY) * t) / P) * P;
+                    ctx.fillStyle = '#6c2bd9';
+                    ctx.fillRect(ax - P, ay - 2 * P, 2 * P, 4 * P);
+                    ctx.fillStyle = '#a55eea';
+                    ctx.fillRect(ax - P, ay - P, 2 * P, 2 * P);
+                }
+
+                // Sleek Spectral Purple Pixel Claw Hand Gripping the Pulled Tongue Tip
+                const hx = Math.round(handX / P) * P;
+                const hy = Math.round(handY / P) * P;
+                ctx.fillStyle = '#6c2bd9';
+                ctx.fillRect(hx - 2 * P, hy - 2 * P, 4 * P, 4 * P);
+                ctx.fillStyle = '#a55eea';
+                ctx.fillRect(hx - P, hy - P, 3 * P, 3 * P);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(hx, hy - P, P, P);
+                // Grasping spectral fingers around tongue
+                ctx.fillStyle = '#d980fa';
+                ctx.fillRect(hx + f * 2 * P, hy - 3 * P, 3 * P, P);
+                ctx.fillRect(hx + f * 3 * P, hy - P, 3 * P, P);
+                ctx.fillRect(hx + f * 3 * P, hy + P, 3 * P, P);
+                ctx.fillRect(hx + f * 2 * P, hy + 2 * P, 3 * P, P);
+            }
+
+            ctx.imageSmoothingEnabled = prevSmooth;
         }
 
         class Roadroller {
@@ -18548,20 +19166,22 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             return;
                         }
 
-                        // Clean Hit! Opponent is pierced & pinned by Kokushin rod
-                        const starterDmg = 8;
+                        // Clean Hit! Kokushin strike blasts opponent ~1/3 across the arena before Asura jumps out
+                        const starterDmg = 6;
                         opponent.health = Math.max(0, opponent.health - starterDmg);
                         this.velX = 0;
-                        opponent.velX = this.facing * 1.5;
-                        opponent.velY = 0;
+                        opponent.velX = this.facing * 36; // ~36 / 0.12 = ~300px (~1/3 of 850px arena)
+                        opponent.velY = -3.8;
                         opponent.isStunned = true;
-                        opponent.stunTimer = 65; // Pin opponent for the assist rush
+                        opponent.stunTimer = 70;
 
-                        gameState.shake = 16;
+                        gameState.shake = 18;
                         gameState.flashAlpha = 0.35;
                         gameState.flashColor = '#a55eea';
 
                         gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 45, this.facing, '#a55eea', { maxFrames: 20, P: 3 }));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', opponent.x, opponent.y - 40, this.facing, '#a55eea'));
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', opponent.x, config.groundY, -this.facing, '#ffffff'));
                         gameState.slashes.push(new SlashEffect(opponent.x - 22 * this.facing, opponent.y - 45, opponent.x + 22 * this.facing, opponent.y - 45, '#a55eea', 4, true, false));
 
                         if (opponent.health <= 0) {
