@@ -3694,6 +3694,7 @@
             deidaraBugs: [],
             deidaraDragons: [],
             deidaraBombs: [],
+            painAssists: [],
             announcementText: "",
             announcementColor: "",
             announcementTimer: 0,
@@ -3807,6 +3808,7 @@
             gameState.deidaraBugs = [];
             gameState.deidaraDragons = [];
             gameState.deidaraBombs = [];
+            gameState.painAssists = [];
             gameState.particles = [];
             gameState.slashes = [];
             gameState.vortexes = [];
@@ -12195,6 +12197,363 @@ function drawPixelSwapper(fighter, frozenInDraw) {
             }
         }
 
+        class PainAssistPath {
+            constructor(pathType, owner, opponent) {
+                this.pathType = pathType; // 'asura'
+                this.owner = owner;
+                this.opponent = opponent;
+                this.facing = owner.facing || 1;
+                this.active = true;
+                this.state = 'summon_burst'; // 'summon_burst' -> 'charge' -> 'strike' -> 'vanish'
+                this.timer = 0;
+                this.hitLanded = false;
+
+                // Summon slightly behind owner on the ground
+                this.x = owner.x - this.facing * 35;
+                this.y = config.groundY;
+                this.vx = 0;
+                this.vy = 0;
+
+                // Purple chakra summoning burst
+                gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, this.facing, '#ffffff'));
+                gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 35, this.facing, '#a55eea'));
+                for (let i = 0; i < 9; i++) {
+                    gameState.particles.push(new Particle(this.x + (Math.random() - 0.5) * 25, config.groundY - 10 - Math.random() * 35, Math.random() > 0.4 ? '#a55eea' : '#ffffff', 0.8));
+                }
+            }
+
+            update() {
+                if (!this.active) return;
+                if (gameState.timestopActive && this.owner !== gameState.timestopCaster) return;
+
+                this.timer += 1 * config.timeScale;
+
+                if (this.state === 'summon_burst') {
+                    // Crouched entrance landing, locking eyes with opponent
+                    this.facing = this.opponent.x >= this.x ? 1 : -1;
+                    if (this.timer >= 8) {
+                        this.state = 'charge';
+                        this.timer = 0;
+                        this.vx = this.facing * 20;
+                        announceText('SHURADŌ: ASURA ROCKET RUSH!', '#a55eea');
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 28, this.facing, '#a55eea'));
+                        gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, -this.facing, '#ffffff'));
+                    }
+                } else if (this.state === 'charge') {
+                    this.x += this.vx * config.timeScale;
+                    // Dense purple chakra jet flame particles streaming behind
+                    for (let i = 0; i < 3; i++) {
+                        gameState.particles.push(new Particle(
+                            this.x - this.facing * 26 + (Math.random() - 0.5) * 6,
+                            this.y - 25 + (Math.random() - 0.5) * 16,
+                            Math.random() > 0.4 ? '#a55eea' : (Math.random() > 0.3 ? '#d980fa' : '#ffffff'),
+                            0.7, false, -this.facing * (3 + Math.random() * 3), (Math.random() - 0.5) * 2
+                        ));
+                    }
+
+                    // Check impact range with opponent
+                    const dist = Math.abs(this.x - this.opponent.x);
+                    if (dist <= 50 && Math.abs(this.y - this.opponent.y) < 70) {
+                        this.state = 'strike';
+                        this.timer = 0;
+                        this.vx = 0;
+                        this.hitLanded = true;
+
+                        // Crushing Asura Rocket Fist impact with massive purple chakra blast!
+                        const dmg = this.opponent.isBlocking ? 6 : 16;
+                        this.opponent.health = Math.max(0, this.opponent.health - dmg);
+                        this.opponent.velX = this.facing * (this.opponent.isBlocking ? 8 : 19);
+                        this.opponent.velY = -4.2;
+                        this.opponent.isStunned = true;
+                        this.opponent.stunTimer = 35;
+
+                        gameState.shake = 26;
+                        gameState.flashAlpha = 0.55;
+                        gameState.flashColor = '#a55eea';
+
+                        // SPECTACULAR 100% PURPLE CHAKRA IMPACT VISUALS:
+                        gameState.pixelEffects.push(new PixelVFX('shinra_tensei_ring', this.opponent.x, this.opponent.y - 45, this.facing, '#a55eea', { maxFrames: 24, maxRadius: 210 }));
+                        gameState.pixelEffects.push(new PixelVFX('impact_burst', this.opponent.x, this.opponent.y - 45, this.facing, '#a55eea', { maxFrames: 26, P: 4 }));
+                        createExplosion(this.opponent.x, this.opponent.y - 42, '#a55eea', 24, 1.9);
+                        createExplosion(this.opponent.x, this.opponent.y - 42, '#d980fa', 18, 1.5);
+                        createExplosion(this.opponent.x, this.opponent.y - 42, '#ffffff', 12, 1.1);
+                        gameState.slashes.push(new SlashEffect(this.opponent.x - 35 * this.facing, this.opponent.y - 70, this.opponent.x + 35 * this.facing, this.opponent.y - 18, '#a55eea', 7, true, true));
+                        gameState.slashes.push(new SlashEffect(this.opponent.x + 30 * this.facing, this.opponent.y - 65, this.opponent.x - 30 * this.facing, this.opponent.y - 22, '#ffffff', 5, true, true));
+
+                        if (this.opponent.health <= 0) {
+                            this.opponent.health = 0;
+                            triggerWin(this.owner);
+                        }
+                    } else if (this.timer >= 22) {
+                        this.state = 'vanish';
+                        this.timer = 0;
+                    }
+                } else if (this.state === 'strike') {
+                    // Strike follow-through
+                    if (this.timer >= 18) {
+                        this.state = 'vanish';
+                        this.timer = 0;
+                    }
+                } else if (this.state === 'vanish') {
+                    gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, this.facing, '#ffffff'));
+                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, config.groundY - 30, this.facing, '#a55eea'));
+                    this.active = false;
+                }
+            }
+
+            draw() {
+                if (!this.active) return;
+                drawPixelAsura(this);
+            }
+        }
+
+        function drawPixelAsura(asura) {
+            const P = 3;
+            const baseX = Math.round(asura.x / P) * P;
+            const baseY = Math.round(asura.y / P) * P;
+            const f = asura.facing || 1;
+            const prevSmooth = ctx.imageSmoothingEnabled;
+            ctx.imageSmoothingEnabled = false;
+            ctx.save();
+            ctx.translate(baseX, baseY);
+            ctx.scale(f, 1);
+
+            const px = (gx, gy, gw, gh, col) => {
+                ctx.fillStyle = col;
+                ctx.fillRect(gx * P, gy * P, gw * P, gh * P);
+            };
+
+            const drawLimb = (x1, y1, x2, y2, thick, col, shade) => {
+                const steps = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1), 1);
+                for (let s = 0; s <= steps; s++) {
+                    const t = s / steps;
+                    const curX = Math.round(x1 + (x2 - x1) * t);
+                    const curY = Math.round(y1 + (y2 - y1) * t);
+                    px(curX - Math.floor(thick / 2), curY - Math.floor(thick / 2), thick, thick, s === 0 && shade ? shade : col);
+                }
+            };
+
+            // Palette
+            const out = '#0d0d0f';
+            const cloakMain = '#18181a';
+            const cloakShade = '#0a0a0c';
+            const cloakHighlight = '#2d3436';
+            const cloudRed = '#d63031';
+            const cloudWhite = '#ffffff';
+            const collarIn = '#8b0000';
+            const skin = '#f5cbb1';       // Pale skin tone
+            const skinDark = '#cb8e5c';   // Shaded contour
+            const skinLight = '#fae1c8';  // Bald dome sheen highlight
+            const metal = '#7f8c8d';
+            const metalDark = '#2c3e50';
+            const metalBright = '#e0e0e0';
+            const bandCloth = '#232b38';
+            const bandMetal = '#bdc3c7';
+            const rinneIris = '#9b59b6';
+            const rinneDark = '#8e44ad';
+            const piercing = '#050505';
+
+            // INTENSE PURPLE CHAKRA ROCKET FLAMES
+            const flameCore = '#ffffff';     // White-hot plasma core
+            const flameMid = '#d980fa';      // Electric lilac
+            const flameOuter = '#a55eea';    // Vibrant chakra violet
+            const flameDark = '#8e44ad';     // Deep royal purple edge
+
+            // Body Stance
+            let bodyY = 0;
+            let torsoLean = 0;
+            let headX = 0, headY = -24;
+            let legB = [-4, -10, -5, -5, -6, 0];
+            let legF = [ 3, -10,  4, -5,  5, 0];
+            let armB = [-5, -18, -8, -15, -6, -13];
+            let armF = [ 4, -18,  7, -15, 10, -13];
+            let cloakHemOffset = 0;
+
+            if (asura.state === 'summon_burst') {
+                // Crouched 3-point landing pose
+                bodyY = 3; torsoLean = 3; headX = 2; headY = -21;
+                legB = [-5, -8, -7, -4, -8, 0];
+                legF = [ 3, -8,  5, -4,  6, 0];
+                armB = [-4, -15, -6, -12, -5, -9];
+                armF = [ 3, -15,  4, -10,  5, 0];
+                cloakHemOffset = -3;
+            } else if (asura.state === 'charge') {
+                // Low rocket sprint dive
+                bodyY = 1; torsoLean = 7; headX = 5; headY = -23;
+                legB = [-6, -9, -10, -5, -12, -1];
+                legF = [ 4, -9,   7, -6,   9, 0];
+                armB = [-4, -16, -10, -15, -16, -14]; // Rear rocket thruster arm
+                armF = [ 4, -16,   8, -15,  13, -14]; // Coiled heavy cyborg fist
+                cloakHemOffset = -6;
+            } else if (asura.state === 'strike') {
+                // Full Rocket Cyborg Punch extension
+                bodyY = 0; torsoLean = 5; headX = 3; headY = -24;
+                legB = [-6, -10, -10, -5, -11, 0];
+                legF = [ 4, -10,   8, -6,  10, 0];
+                armB = [-5, -17,  -8, -13,  -9, -11];
+                armF = [ 5, -17,  16, -17,  27, -17]; // Elongated Rocket Cyborg Fist!
+                cloakHemOffset = -5;
+            } else if (asura.state === 'vanish') {
+                torsoLean = 1; headX = 1; headY = -24;
+                armB = [-5, -17, -6, -14, -5, -12];
+                armF = [ 4, -17,  6, -14,  7, -12];
+            }
+
+            const tx = torsoLean;
+            const ty = bodyY;
+            const hx = headX;
+            const hy = headY;
+
+            // ── DRAMATIC PURPLE CHAKRA ROCKET FLAMES ──────────────────────────────
+            if (asura.state === 'charge') {
+                // Rocket thruster jet blasting backward from rear arm
+                const rx = armB[4] + tx;
+                const ry = armB[5] + ty;
+                px(rx - 18, ry - 4, 18, 9, flameDark);
+                px(rx - 13, ry - 3, 13, 7, flameOuter);
+                px(rx - 8, ry - 2, 8, 5, flameMid);
+                px(rx - 4, ry - 1, 4, 3, flameCore);
+
+                // Trailing exhaust motes
+                px(rx - 24, ry - 2, 4, 4, flameOuter);
+                px(rx - 30, ry, 3, 3, flameMid);
+
+                // Boot rocket jets
+                px(legB[4] + tx - 10, legB[5] - 2, 10, 4, flameOuter);
+                px(legB[4] + tx - 6, legB[5] - 1, 6, 2, flameCore);
+            } else if (asura.state === 'strike') {
+                // MASSIVE PURPLE ROCKET EXHAUST BLASTING BACKWARDS FROM CYBORG ELBOW
+                const ex = armF[2] + tx - 4;
+                const ey = armF[3] + ty;
+                px(ex - 20, ey - 5, 20, 11, flameDark);
+                px(ex - 15, ey - 4, 15, 9, flameOuter);
+                px(ex - 10, ey - 2, 10, 5, flameMid);
+                px(ex - 5, ey - 1, 5, 3, flameCore);
+                // Trailing exhaust bursts
+                px(ex - 26, ey - 3, 5, 5, flameOuter);
+                px(ex - 32, ey - 1, 3, 3, flameMid);
+            }
+
+            // 1) Back Leg & Back Arm
+            drawLimb(legB[0] + tx, legB[1] + ty, legB[2] + tx, legB[3] + ty, 3, cloakMain, out);
+            drawLimb(legB[2] + tx, legB[3] + ty, legB[4] + tx, legB[5], 2, metalDark, metal);
+            px(legB[4] + tx - 1, legB[5] - 1, 4, 2, out);
+
+            // Back Sleeve & Arm
+            drawLimb(armB[0] + tx, armB[1] + ty, armB[2] + tx, armB[3] + ty, 4, cloakMain, cloakShade);
+            drawLimb(armB[2] + tx, armB[3] + ty, armB[4] + tx, armB[5] + ty, 3, metal, metalDark);
+
+            // 2) Akatsuki Cloak Torso (Broader build: 12 px wide)
+            px(tx - 6, ty - 19, 12, 11, out);
+            px(tx - 5, ty - 18, 10, 10, cloakMain);
+            px(tx - 5, ty - 18, 4, 10, cloakShade);
+            px(tx + 2, ty - 18, 3, 3, cloakHighlight);
+
+            // Large Akatsuki Red Cloud Motif with crisp white border
+            px(tx - 3, ty - 15, 7, 5, cloudWhite);
+            px(tx - 4, ty - 14, 2, 3, cloudWhite);
+            px(tx + 4, ty - 14, 2, 3, cloudWhite);
+            px(tx - 2, ty - 14, 5, 3, cloudRed);
+            px(tx - 1, ty - 15, 3, 1, cloudRed);
+
+            // High Standing Flared Collar framing bald neck and chin (Crimson inner lining)
+            px(tx - 5, ty - 23, 10, 5, out);
+            px(tx - 4, ty - 22, 8, 4, cloakMain);
+            px(tx - 1, ty - 22, 5, 3, collarIn);
+            px(tx - 5, ty - 23, 2, 4, collarIn);
+
+            // Cloak Hem
+            const hemX = tx - 5 + cloakHemOffset;
+            px(hemX - 2, ty - 9, 10, 6, out);
+            px(hemX - 1, ty - 8, 8, 5, cloakMain);
+            px(hemX - 1, ty - 8, 4, 5, cloakShade);
+
+            // 3) Front Leg
+            drawLimb(legF[0] + tx, legF[1] + ty, legF[2] + tx, legF[3] + ty, 3, cloakMain, out);
+            drawLimb(legF[2] + tx, legF[3] + ty, legF[4] + tx, legF[5] + ty, 2, metalDark, metal);
+            px(legF[4] + tx - 1, legF[5] + ty - 1, 4, 3, out);
+
+            // ── 4) PERFECT PROPORTIONATE BALD ASURA HEAD (100% BALD CRANIUM) ─────
+            // Smooth rounded bald dome (outline):
+            px(hx - 2, hy - 7, 5, 1, out); // Top rounded apex
+            px(hx - 4, hy - 6, 9, 2, out); // Upper skull dome
+            px(hx - 5, hy - 4, 11, 3, out); // Brow and temple width
+            px(hx - 5, hy - 1, 11, 7, out); // Lower face and jaw
+
+            // Flesh base (no hair!):
+            px(hx - 1, hy - 6, 3, 1, skin);
+            px(hx - 3, hy - 5, 7, 2, skin);
+            px(hx - 4, hy - 3, 9, 2, skin);
+            px(hx - 4, hy - 1, 9, 6, skin);
+
+            // Natural 3D dome highlights & contours:
+            px(hx - 4, hy - 5, 2, 10, skinDark);  // Rear shadow contour
+            px(hx, hy - 6, 2, 1, skinLight);     // Top apex glint
+            px(hx + 1, hy - 4, 3, 2, skinLight); // Forehead sheen
+            px(hx + 2, hy + 1, 2, 2, skinLight); // Cheek glint
+
+            // Cybernetic Chakra Receiver Studs embedded across the bald dome:
+            px(hx - 2, hy - 5, 1, 1, piercing);
+            px(hx, hy - 5, 1, 1, piercing);
+            px(hx + 2, hy - 4, 1, 1, piercing);
+            px(hx - 5, hy - 1, 1, 1, piercing);
+            px(hx - 5, hy + 2, 1, 1, piercing);
+
+            // Amegakure Rogue Headband wrapped across lower brow:
+            px(hx - 5, hy - 2, 11, 2, bandCloth);
+            px(hx - 2, hy - 2, 7, 2, bandMetal);
+            px(hx - 1, hy - 2, 4, 1, '#ffffff');  // Metal plate glint
+            px(hx - 2, hy - 1, 7, 1, out);        // Rogue cross-scratch line!
+
+            // Concentric Rinnegan Eye (Purple divine ripple rings):
+            px(hx, hy + 1, 4, 2, out);
+            px(hx + 1, hy + 1, 3, 2, rinneDark);
+            px(hx + 1, hy + 1, 2, 1, rinneIris);
+            px(hx + 2, hy + 1, 1, 1, '#ffffff'); // Glint
+
+            // Nose bridge chakra studs:
+            px(hx + 3, hy + 1, 1, 1, piercing);
+            px(hx + 4, hy + 2, 1, 1, piercing);
+
+            // Broad square cybernetic jaw with bare teeth:
+            px(hx + 1, hy + 3, 4, 2, out);
+            px(hx + 1, hy + 3, 3, 1, '#ffffff'); // Bare teeth
+            px(hx + 2, hy + 5, 1, 1, piercing);  // Chin chakra spike
+
+            // ── 5) FRONT ARM: COLOSSAL CYBERNETIC ROCKET CANNON / FIST ─────────────
+            if (asura.state === 'strike') {
+                // High-velocity rocket cannon arm fully launched forward!
+                drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 5, cloakMain, cloakShade);
+                // Cylindrical rocket exhaust chamber at elbow
+                px(armF[2] + tx - 3, armF[3] + ty - 3, 6, 6, metalDark);
+                px(armF[2] + tx - 2, armF[3] + ty - 2, 4, 4, metalBright);
+
+                // Extended mechanical piston shaft
+                drawLimb(armF[2] + tx, armF[3] + ty, armF[4] + tx - 5, armF[5] + ty, 4, metal, metalDark);
+                px(armF[4] + tx - 7, armF[5] + ty - 2, 4, 3, metalBright);
+
+                // Heavy Armored Cybernetic Rocket Fist:
+                px(armF[4] + tx - 4, armF[5] + ty - 4, 8, 8, out);
+                px(armF[4] + tx - 3, armF[5] + ty - 3, 7, 7, metalDark);
+                px(armF[4] + tx - 2, armF[5] + ty - 2, 5, 4, metalBright);
+
+                // RADIANT PURPLE CHAKRA CORONA & KNUCKLE SPIKES
+                px(armF[4] + tx + 2, armF[5] + ty - 3, 3, 5, flameMid);
+                px(armF[4] + tx + 4, armF[5] + ty - 2, 2, 3, flameCore);
+
+                // Purple chakra energy arcs around fist
+                px(armF[4] + tx - 2, armF[5] + ty - 5, 4, 1, flameOuter);
+                px(armF[4] + tx - 2, armF[5] + ty + 4, 4, 1, flameOuter);
+            } else {
+                drawLimb(armF[0] + tx, armF[1] + ty, armF[2] + tx, armF[3] + ty, 4, cloakMain, cloakShade);
+                drawLimb(armF[2] + tx, armF[3] + ty, armF[4] + tx, armF[5] + ty, 3, metal, metalDark);
+                px(armF[4] + tx, armF[5] + ty, 3, 3, out);
+            }
+
+            ctx.imageSmoothingEnabled = prevSmooth;
+            ctx.restore();
+        }
+
         class Roadroller {
             constructor(x, y, caster, target) {
                 this.x = x;
@@ -17736,7 +18095,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         return;
                     }
                     if (this.type === 'pain') {
-                        this.attack('pain_ult');
+                        if (this.painLevitating || this.y < config.groundY - 20) {
+                            this.attack('pain_ult', opponent);
+                        } else {
+                            this.attack('pain_six_paths_starter', opponent);
+                        }
                         return;
                     }
                     if (this.type === 'swapper') {
@@ -17890,6 +18253,30 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 
 
 
+
+                if (this.type === 'pain' && type === 'pain_six_paths_starter') {
+                    if (this.isDead || this.isStunned || this.isBeingPulled) return;
+                    if (gameState.timestopActive && this !== gameState.timestopCaster) return;
+                    if (this.cooldown > 0) {
+                        announceText('COOLDOWN: ' + (this.cooldown / 60).toFixed(1) + 's', '#a55eea');
+                        return;
+                    }
+                    this.cooldown = this.maxCooldown; // Instantly deplete energy bar upon pressing B
+                    this.attacking = true;
+                    this.attackType = 'pain_six_paths_starter';
+                    this.attackMax = 22;
+                    this.attackTimer = 22;
+                    this.internalCooldown = 28;
+                    this.hitOnce = false;
+                    if (opponent) {
+                        this.facing = opponent.x >= this.x ? 1 : -1;
+                    }
+                    this.velX = this.facing * 14;
+                    gameState.pixelEffects.push(new PixelVFX('dust_puff', this.x, config.groundY, -this.facing, '#ffffff'));
+                    gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 30, this.facing, '#a55eea'));
+                    announceText('SIX PATHS: KOKUSHIN POKE!', '#a55eea');
+                    return;
+                }
 
                 if (this.type === 'pain' && type === 'pain_ult') {
                     if (this.isDead || this.isStunned || this.isBeingPulled) return;
@@ -18128,6 +18515,66 @@ function drawPixelSwapper(fighter, frozenInDraw) {
 
                 if (gameState.timestopActive && opponent !== gameState.timestopCaster) {
                     opponent.isBlocking = false;
+                }
+
+                if (this.attackType === 'pain_six_paths_starter') {
+                    if (this.hitOnce) return;
+                    const dist = Math.abs(this.x - opponent.x);
+                    if (dist < 115 && Math.abs(this.y - opponent.y) < 75) {
+                        this.hitOnce = true;
+                        if (opponent.isParrying) {
+                            opponent.reflectedThisFrame = true;
+                            this.health -= 15;
+                            this.velX = -this.facing * 16;
+                            this.velY = -4;
+                            if (this.health <= 0) { this.health = 0; triggerWin(opponent); }
+                            return;
+                        }
+                        if (opponent.type === 'sixeye' && opponent.isInfinityShieldActive) {
+                            return;
+                        }
+                        if (opponent.isSaiyanDodging) {
+                            return;
+                        }
+
+                        if (opponent.isBlocking) {
+                            // Guarded: chip damage only, stops dash, combo does NOT trigger
+                            const chipDmg = 4;
+                            opponent.health = Math.max(0, opponent.health - chipDmg);
+                            this.velX = 0;
+                            gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 45, this.facing, '#ffffff', { maxFrames: 14, P: 3 }));
+                            announceText('GUARDED!', '#bdc3c7');
+                            if (opponent.health <= 0) { opponent.health = 0; triggerWin(this); }
+                            return;
+                        }
+
+                        // Clean Hit! Opponent is pierced & pinned by Kokushin rod
+                        const starterDmg = 8;
+                        opponent.health = Math.max(0, opponent.health - starterDmg);
+                        this.velX = 0;
+                        opponent.velX = this.facing * 1.5;
+                        opponent.velY = 0;
+                        opponent.isStunned = true;
+                        opponent.stunTimer = 65; // Pin opponent for the assist rush
+
+                        gameState.shake = 16;
+                        gameState.flashAlpha = 0.35;
+                        gameState.flashColor = '#a55eea';
+
+                        gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 45, this.facing, '#a55eea', { maxFrames: 20, P: 3 }));
+                        gameState.slashes.push(new SlashEffect(opponent.x - 22 * this.facing, opponent.y - 45, opponent.x + 22 * this.facing, opponent.y - 45, '#a55eea', 4, true, false));
+
+                        if (opponent.health <= 0) {
+                            opponent.health = 0;
+                            triggerWin(this);
+                            return;
+                        }
+
+                        // Summon Asura Path (Shuradō - Tu La Đạo) for the follow-up strike!
+                        if (!gameState.painAssists) gameState.painAssists = [];
+                        gameState.painAssists.push(new PainAssistPath('asura', this, opponent));
+                    }
+                    return;
                 }
 
                 if (this.attackType === 'shinra_tensei') {
@@ -20362,6 +20809,35 @@ function drawPixelPain(fighter, frozenInDraw) {
             armF = [ 2, -17,  4, -14,  6, -12];
             cloakHemOffset = -1;
         }
+    } else if (drawAttacking && drawAttackType === 'pain_six_paths_starter') {
+        // TENDŌ PAIN KOKUSHIN THRUST (BLACK CHAKRA RECEIVER STARTER STRIKE)
+        expr = 'focus';
+        if (progress < 0.25) {
+            torsoLean = -2;
+            headX = -2; headY = -24;
+            armB = [-4, -18, -6, -15, -4, -13];
+            armF = [ 2, -18,  1, -16,  0, -15];
+            legB = [-3, -10, -4, -5, -5, 0];
+            legF = [ 2, -10,  3, -5,  4, 0];
+            cloakHemOffset = -1;
+        } else if (progress < 0.75) {
+            torsoLean = 4;
+            headX = 4; headY = -24;
+            bodyY = 1;
+            legB = [-5, -10, -8, -5, -9, 0];
+            legF = [ 3, -10,  7, -6,  9, 0];
+            armB = [-4, -18, -8, -14, -10, -12];
+            armF = [ 4, -18, 12, -17,  20, -17];
+            cloakHemOffset = -5;
+            cloakSpread = 2;
+        } else {
+            torsoLean = 1;
+            headX = 1; headY = -24;
+            armB = [-4, -18, -4, -15, -3, -13];
+            armF = [ 3, -18,  7, -16, 11, -15];
+            legB = [-4, -10, -5, -5, -6, 0];
+            legF = [ 2, -10,  4, -5,  5, 0];
+        }
     } else if (drawAttacking && drawAttackType === 'pain_chibaku_cast') {
         // TENDŌ PAIN CHIBAKU TENSEI PRAYER SEAL POSE
         expr = 'focus';
@@ -20612,6 +21088,15 @@ function drawPixelPain(fighter, frozenInDraw) {
     // Red fingernails & thumb ring
     px(armF[4] + tx, armF[5] + ty, 1, 1, nailPolish);
     px(armF[4] + tx - 1, armF[5] + ty, 1, 1, ringCol); // "Zero" (Rei 零) purple ring
+
+    // Kokushin (Black Receiver Chakra Rod) during pain_six_paths_starter
+    if (drawAttacking && drawAttackType === 'pain_six_paths_starter' && progress >= 0.2) {
+        const hx_rod = armF[4] + tx;
+        const hy_rod = armF[5] + ty;
+        px(hx_rod - 1, hy_rod - 1, 14, 2, '#111111');
+        px(hx_rod, hy_rod - 1, 12, 1, '#2c3e50');
+        px(hx_rod + 13, hy_rod - 1, 2, 1, '#a55eea');
+    }
 
     // Divine Repulsion Shockwave Ripple on Palm Thrust
     if (drawAttacking && drawAttackType === 'punch' && progress >= 0.3 && progress <= 0.75) {
@@ -25153,7 +25638,11 @@ function drawPixelMage(fighter, frozenInDraw) {
                             if ((p1.painChibakuWindow > 0 || (p1.hasLaunchedOpponent && oppInAir)) && !p1.painChargingUlt && !p1.painChibakuActive) {
                                 p1.attack('pain_chibaku', p2);
                             } else if (!p1.painChibakuActive) {
-                                p1.attack('pain_ult');
+                                if (p1.painLevitating || p1.y < config.groundY - 20) {
+                                    p1.attack('pain_ult');
+                                } else {
+                                    p1.attack('pain_six_paths_starter', p2);
+                                }
                             }
                         } else if (p1.painChargingUlt) {
                             p1.releasePainUlt();
@@ -25223,7 +25712,11 @@ function drawPixelMage(fighter, frozenInDraw) {
                             if ((p2.painChibakuWindow > 0 || (p2.hasLaunchedOpponent && oppInAir)) && !p2.painChargingUlt && !p2.painChibakuActive) {
                                 p2.attack('pain_chibaku', p1);
                             } else if (!p2.painChibakuActive) {
-                                p2.attack('pain_ult');
+                                if (p2.painLevitating || p2.y < config.groundY - 20) {
+                                    p2.attack('pain_ult');
+                                } else {
+                                    p2.attack('pain_six_paths_starter', p1);
+                                }
                             }
                         } else if (p2.painChargingUlt) {
                             p2.releasePainUlt();
@@ -25532,6 +26025,17 @@ function drawPixelMage(fighter, frozenInDraw) {
                         hb.update(); hb.draw();
                         if (!hb.active) gameState.hooperBalls.splice(i, 1);
                     }
+                    if (gameState.painAssists) {
+                        for (let i = gameState.painAssists.length - 1; i >= 0; i--) {
+                            const a = gameState.painAssists[i];
+                            if (a.owner === gameState.timestopCaster) {
+                                a.update(); a.draw();
+                            } else {
+                                a.draw();
+                            }
+                            if (!a.active) gameState.painAssists.splice(i, 1);
+                        }
+                    }
                     for (let i = gameState.particles.length - 1; i >= 0; i--) {
                         const p = gameState.particles[i];
                         if (p.color !== '#ffd700' && p.color !== '#bdc3c7') {
@@ -25655,6 +26159,13 @@ function drawPixelMage(fighter, frozenInDraw) {
                         const hb = gameState.hooperBalls[i];
                         hb.update(); hb.draw();
                         if (!hb.active) gameState.hooperBalls.splice(i, 1);
+                    }
+                    if (gameState.painAssists) {
+                        for (let i = gameState.painAssists.length - 1; i >= 0; i--) {
+                            const a = gameState.painAssists[i];
+                            a.update(); a.draw();
+                            if (!a.active) gameState.painAssists.splice(i, 1);
+                        }
                     }
                     for (let i = gameState.particles.length - 1; i >= 0; i--) {
                         const p = gameState.particles[i];
