@@ -1032,8 +1032,8 @@
         const CHARACTERS = [
             // ===== NORMAL TIER =====
 { id: 'martial', name: 'BRAWLER', tier: 'normal', color: '#2ecc71', p2Color: '#e74c3c',
-              desc: '16-Bit Pixel Martial Artist! Relentless 3-hit combo fists, gale kicks, Black Flash crits & Spirit Fist.',
-              stats: { atk: 3, def: 2, spd: 4, ult: 2 },
+              desc: '16-Bit Pixel Martial Artist! 3-hit combo fists, gale kicks, Black Flash crits & Spirit Fist.',
+              stats: { atk: 2, def: 2, spd: 3, ult: 2 },
               getPortrait(player) {
                   return (player === 2) ? `<svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
                       <!-- Ground shadow -->
@@ -3478,6 +3478,86 @@
               },
               get portrait() { return this.getPortrait(1); }
             },
+            { id: 'hemo', name: 'HEMO', tier: 'normal', color: '#2ecc71', p2Color: '#e74c3c',
+              desc: '16-Bit Blood Manipulator (+25% HP)! 0-dmg Touch stacks Blood Marks (max 4, Swordsman CD). Block+V spends 2 marks for 4s Stain DoT & heals 50% of dmg dealt. 4-mark B Siphons 25% foe HP & heals 20%!',
+              stats: { atk: 3, def: 4, spd: 4, ult: 5 },
+              getPortrait(player) {
+                  const isP2 = player === 2;
+                  const capeMain = isP2 ? '#6d0f3a' : '#9e0b22';
+                  const capeDark = isP2 ? '#450724' : '#5e0413';
+                  const capeTrim = isP2 ? '#ff4757' : '#d4af37';
+                  const eyeGlow  = isP2 ? '#ff4757' : '#ff1e38';
+                  const teamGem  = isP2 ? '#e74c3c' : '#2ecc71';
+                  return `<svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+                      <!-- Floating Crimson Blood Ring & Vial Drops -->
+                      <rect x="4" y="36" width="24" height="2" fill="#d61f3a" opacity="0.35"/>
+                      <rect x="2" y="13" width="2" height="3" fill="#ff1e38"/>
+                      <rect x="27" y="7" width="3" height="3" fill="#ff1e38"/>
+                      <rect x="28" y="8" width="1" height="1" fill="#ffffff"/>
+                      <rect x="28" y="11" width="2" height="2" fill="#9e0b22"/>
+
+                      <!-- Silver-White Twin-Swept Aristocratic Hair -->
+                      <rect x="7" y="2" width="16" height="5" fill="#10131a"/>
+                      <rect x="5" y="4" width="4" height="4" fill="#10131a"/>
+                      <rect x="6" y="4" width="3" height="3" fill="#bdc3c7"/>
+                      <rect x="8" y="2" width="14" height="4" fill="#ecf0f1"/>
+                      <rect x="10" y="2" width="6" height="2" fill="#ffffff"/>
+                      <rect x="19" y="3" width="4" height="3" fill="#bdc3c7"/>
+                      <!-- Crimson Hair Clasp Pin -->
+                      <rect x="12" y="4" width="3" height="2" fill="${capeTrim}"/>
+
+                      <!-- Pale Alchemist Face + Signature Blood Nose-Bridge Mark + Dark Veil -->
+                      <rect x="10" y="6" width="11" height="8" fill="#10131a"/>
+                      <rect x="11" y="7" width="9" height="4" fill="#f3d8cf"/>
+                      <rect x="11" y="7" width="2" height="4" fill="#cbb0a6"/>
+                      <rect x="13" y="8" width="2" height="2" fill="${eyeGlow}"/>
+                      <rect x="14" y="8" width="1" height="1" fill="#ffffff"/>
+                      <rect x="17" y="8" width="2" height="2" fill="${eyeGlow}"/>
+                      <rect x="18" y="8" width="1" height="1" fill="#ffffff"/>
+                      <!-- Crimson Blood-Bar across nose + Obsidian Lower Face Veil -->
+                      <rect x="12" y="10" width="7" height="1" fill="#c0142f"/>
+                      <rect x="11" y="11" width="9" height="3" fill="#1e2430"/>
+
+                      <!-- Flowed Crimson Velvet Mantle / Cape Behind Shoulders -->
+                      <rect x="3" y="14" width="6" height="15" fill="#10131a"/>
+                      <rect x="4" y="15" width="4" height="13" fill="${capeDark}"/>
+                      <rect x="5" y="15" width="3" height="10" fill="${capeMain}"/>
+
+                      <!-- Bone-White Inner Tunic + Winged Crimson Collar + Gold/Crimson Sash -->
+                      <rect x="8" y="13" width="15" height="5" fill="#10131a"/>
+                      <rect x="9" y="14" width="13" height="3" fill="${capeMain}"/>
+                      <rect x="10" y="14" width="11" height="1" fill="${capeTrim}"/>
+                      <rect x="9" y="17" width="11" height="11" fill="#10131a"/>
+                      <rect x="10" y="17" width="9" height="10" fill="#e8e5dc"/>
+                      <rect x="10" y="17" width="2" height="10" fill="#c7c1b3"/>
+                      <!-- Diagonal Leather Belt with Glowing Glass Blood-Vial Flask -->
+                      <rect x="10" y="21" width="9" height="2" fill="#2c1d24"/>
+                      <rect x="13" y="18" width="3" height="3" fill="${teamGem}"/>
+                      <rect x="14" y="19" width="1" height="1" fill="#ffffff"/>
+                      <rect x="16" y="22" width="4" height="5" fill="#10131a"/>
+                      <rect x="17" y="23" width="2" height="3" fill="#ff1e38"/>
+                      <rect x="17" y="23" width="1" height="1" fill="#ffffff"/>
+
+                      <!-- Outstretched Gauntlet Controlling Crimson Blood Whip -->
+                      <rect x="19" y="16" width="6" height="4" fill="#10131a"/>
+                      <rect x="20" y="17" width="4" height="2" fill="${capeMain}"/>
+                      <rect x="24" y="14" width="2" height="7" fill="#ff1e38"/>
+                      <rect x="26" y="12" width="4" height="4" fill="#ff1e38"/>
+                      <rect x="27" y="13" width="2" height="2" fill="#ffb3ba"/>
+
+                      <!-- Trousers & Crimson-Trimmed Boots -->
+                      <rect x="9" y="28" width="4" height="8" fill="#10131a"/>
+                      <rect x="10" y="28" width="2" height="6" fill="#252836"/>
+                      <rect x="15" y="28" width="4" height="8" fill="#10131a"/>
+                      <rect x="16" y="28" width="2" height="6" fill="#252836"/>
+                      <rect x="9" y="33" width="5" height="3" fill="${capeMain}"/>
+                      <rect x="15" y="33" width="5" height="3" fill="${capeMain}"/>
+                      <rect x="10" y="34" width="3" height="1" fill="${capeTrim}"/>
+                      <rect x="16" y="34" width="3" height="1" fill="${capeTrim}"/>
+                  </svg>`;
+              },
+              get portrait() { return this.getPortrait(1); }
+            },
             { id: 'pain', name: 'PAIN', tier: 'special', color: '#ff793f', p2Color: '#a55eea',
               desc: '★ 16-Bit God of Six Paths & Akatsuki Leader! Divine Rinnegan, Shinra Tensei repulsion shockwaves, mid-air levitation & catastrophic Chō Shinra Tensei.',
               stats: { atk: 5, def: 4, spd: 4, ult: 5 },
@@ -3844,7 +3924,7 @@
             canvas.style.display = 'block';
             ui.style.display = 'flex';
             
-            const classNames = {martial: 'BRAWLER', sword: 'SWORDSMAN', scythe: 'REAPER', lancer: 'LANCER', swapper: 'SWAPPER', mage: 'MAGE', taichi: 'TAI CHI', shinobi: 'SHINOBI', gunslinger: 'DUELIST', werewolf: 'WEREWOLF', fisherman: 'FISHERMAN', zookeeper: 'ZOOKEEPER', phantom: 'PHANTOM', sixeye: 'SIX EYES', saiyan: 'SAIYAN', dio: 'DIO', raijin: 'INVENTOR', slasher: 'SLASHER', miner: 'MINER', deidara: 'DEIDARA', hooper: 'HOOPER', pain: 'PAIN'};
+            const classNames = {martial: 'BRAWLER', sword: 'SWORDSMAN', scythe: 'REAPER', lancer: 'LANCER', swapper: 'SWAPPER', mage: 'MAGE', taichi: 'TAI CHI', shinobi: 'SHINOBI', gunslinger: 'DUELIST', werewolf: 'WEREWOLF', fisherman: 'FISHERMAN', zookeeper: 'ZOOKEEPER', phantom: 'PHANTOM', sixeye: 'SIX EYES', saiyan: 'SAIYAN', dio: 'DIO', raijin: 'INVENTOR', slasher: 'SLASHER', miner: 'MINER', deidara: 'DEIDARA', hooper: 'HOOPER', hemo: 'HEMO', pain: 'PAIN'};
             document.getElementById('p1-name').innerText = `P1: ${classNames[p1Class]}${isP1CPU ? ' (CPU)' : ''}`;
             document.getElementById('p2-name').innerText = `P2: ${classNames[p2Class]}${isCPUMode ? ' (CPU)' : ''}`;
 
@@ -3941,6 +4021,8 @@
                     kind === 'ki_spark' ? 12 :
                     kind === 'shinra_tensei_ring' ? 24 :
                     kind === 'shinra_ground_burst' ? 24 :
+                    kind === 'hemo_mark_pop' ? 16 :
+                    kind === 'hemo_siphon_stream' ? 22 :
                     kind === 'air_ring' ? 12 : 12
                 );
                 this.vx = opts.vx || 0;
@@ -3948,7 +4030,7 @@
                 this.P = opts.P || 3;
                 // Pre-generate pixel shards for bursts so they move deterministically on a pixel grid
                 this.shards = [];
-                if (kind === 'impact_burst' || kind === 'black_flash_pixel' || kind === 'taichi_palm_wave' || kind === 'taichi_crescent_sweep' || kind === 'taichi_qi_burst' || kind === 'sword_slash_arc' || kind === 'sword_omni_slash' || kind === 'lancer_thrust' || kind === 'lancer_final_pierce' || kind === 'phantom_claw_slash' || kind === 'phantom_void_nova' || kind === 'inventor_arc_beam' || kind === 'inventor_sky_thunder' || kind === 'wolf_claw_savagery' || kind === 'wolf_fang_jaw' || kind === 'wolf_roar_shockwave' || kind === 'reaper_scythe_arc' || kind === 'reaper_death_cleave' || kind === 'water_splash_arc' || kind === 'water_geyser' || kind === 'water_splash_burst') {
+                if (kind === 'impact_burst' || kind === 'black_flash_pixel' || kind === 'taichi_palm_wave' || kind === 'taichi_crescent_sweep' || kind === 'taichi_qi_burst' || kind === 'sword_slash_arc' || kind === 'sword_omni_slash' || kind === 'lancer_thrust' || kind === 'lancer_final_pierce' || kind === 'phantom_claw_slash' || kind === 'phantom_void_nova' || kind === 'inventor_arc_beam' || kind === 'inventor_sky_thunder' || kind === 'wolf_claw_savagery' || kind === 'wolf_fang_jaw' || kind === 'wolf_roar_shockwave' || kind === 'reaper_scythe_arc' || kind === 'reaper_death_cleave' || kind === 'water_splash_arc' || kind === 'water_geyser' || kind === 'water_splash_burst' || kind === 'hemo_mark_pop') {
                     const count = (kind === 'black_flash_pixel' || kind === 'phantom_void_nova' || kind === 'inventor_sky_thunder' || kind === 'wolf_roar_shockwave' || kind === 'reaper_death_cleave' || kind === 'water_geyser') ? 18 : (kind === 'lancer_final_pierce' || kind === 'wolf_fang_jaw' || kind === 'water_splash_burst' || kind === 'taichi_qi_burst' ? 14 : (kind === 'sword_slash_arc' || kind === 'lancer_thrust' || kind === 'phantom_claw_slash' || kind === 'inventor_arc_beam' || kind === 'wolf_claw_savagery' || kind === 'reaper_scythe_arc' || kind === 'water_splash_arc' || kind === 'taichi_palm_wave' || kind === 'taichi_crescent_sweep' ? 8 : 10));
                     for (let i = 0; i < count; i++) {
                         const ang = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
@@ -5363,6 +5445,51 @@
                         const sy = Math.round(s.dy * 1.3);
                         px(sx, sy, s.sz, s.sz, s.alt ? cCore : (i % 2 === 0 ? cMid : cDark));
                     }
+                }
+                else if (this.kind === 'hemo_mark_pop') {
+                    // 16-BIT CRIMSON BLOOD SEAL BURST
+                    const cDark = '#5c0010';
+                    const cMid  = '#d61f3a';
+                    const cLite = '#ff6b81';
+                    const rad = 2 + Math.floor(t * 7);
+                    if (t < 0.45) {
+                        px(-2, -3, 5, 7, cDark);
+                        px(-1, -2, 3, 5, cMid);
+                        px(-3, -1, 7, 3, cMid);
+                        px(-1, -1, 2, 2, cLite);
+                    } else {
+                        px(-rad, -1, 2, 2, cMid);
+                        px(rad - 1, -1, 2, 2, cMid);
+                        px(-1, -rad, 2, 2, cLite);
+                        px(-1, rad - 1, 2, 2, cDark);
+                    }
+                    for (let i = 0; i < this.shards.length; i++) {
+                        const s = this.shards[i];
+                        px(Math.round(s.dx * 1.1), Math.round(s.dy * 1.1), s.sz, s.sz, s.alt ? cLite : cMid);
+                    }
+                }
+                else if (this.kind === 'hemo_siphon_stream') {
+                    // 16-BIT CRIMSON BLOOD SIPHON BEAM FROM FOE -> CASTER
+                    const tx = (this.opts.targetX !== undefined ? this.opts.targetX : this.x);
+                    const ty = (this.opts.targetY !== undefined ? this.opts.targetY : this.y);
+                    const totalDx = tx - this.x;
+                    const totalDy = ty - this.y;
+                    ctx.restore();
+                    ctx.save();
+                    const prevSm2 = ctx.imageSmoothingEnabled;
+                    ctx.imageSmoothingEnabled = false;
+                    const P2 = 3;
+                    for (let k = 0; k <= 12; k++) {
+                        const u = k / 12;
+                        const wave = Math.sin(u * Math.PI) * (-18 + 6 * Math.sin(this.frame * 0.6 + k));
+                        const wx = Math.round((this.x + totalDx * u) / P2) * P2;
+                        const wy = Math.round((this.y + totalDy * u + wave) / P2) * P2;
+                        ctx.fillStyle = '#4a000d';
+                        ctx.fillRect(wx - P2, wy - P2, P2 * 3, P2 * 3);
+                        ctx.fillStyle = (k % 3 === 0) ? '#ff6b81' : '#ff1e38';
+                        ctx.fillRect(wx, wy, P2 * 2, P2 * 2);
+                    }
+                    ctx.imageSmoothingEnabled = prevSm2;
                 }
 
                 ctx.imageSmoothingEnabled = prevSmooth;
@@ -16266,7 +16393,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.id = id; this.type = type;
                 this.x = x; this.y = config.groundY; this.color = color;
                 this.velX = 0; this.velY = 0;
-                this._health = 100; // Track health internally for custom getter/setter
+                this.maxHealth = (type === 'hemo') ? 125 : 100; // Hemo has +25% base HP!
+                this._health = this.maxHealth; // Track health internally for custom getter/setter
                 this.facing = id === 1 ? 1 : -1;
                 this.attacking = false; this.isBlocking = false;
                 this.attackTimer = 0; this.attackMax = 0; this.attackType = ''; this.cooldown = 0;
@@ -16289,12 +16417,13 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 else if (type === 'miner') mCd = 540;  // 9s cooldown for the dig-up special (B)
                 else if (type === 'deidara') mCd = 900; // 15s cooldown for the clay dragon ult (B)
                 else if (type === 'hooper') mCd = 840;  // 14s cooldown for Zone Awakening + 9s Virtual Court
+                else if (type === 'hemo') mCd = 600;    // 10s cooldown for Blood Siphon (requires 4 Blood Marks)
                 else if (type === 'pain') mCd = 300;    // 5s cooldown for Pain's B (Shinra / Chibaku)
                 this.maxCooldown = mCd;
                 this.launcherKickCooldown = 0;          // Cooldown for launcher kick after enemy lands on ground
                 
                 this.isDead = false; this.isDashing = false;
-                this.jumpCount = 0; this.maxJumps = (type === 'martial' || type === 'shinobi' || type === 'sixeye' || type === 'saiyan' || type === 'dio' || type === 'raijin' || type === 'phantom' || type === 'slasher' || type === 'deidara' || type === 'hooper' || type === 'pain') ? 2 : 1;
+                this.jumpCount = 0; this.maxJumps = (type === 'martial' || type === 'shinobi' || type === 'sixeye' || type === 'saiyan' || type === 'dio' || type === 'raijin' || type === 'phantom' || type === 'slasher' || type === 'deidara' || type === 'hooper' || type === 'hemo' || type === 'pain') ? 2 : 1;
                 this.painLevitating = false;
                 this.painBanshoPull = false;
                 this.painPinnedDown = false;
@@ -16326,7 +16455,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 this.painWallSplat = false;
                 this.painWallStuck = false;
                 this.painWallTimer = 0;
-                this.painWallSide = 0; 
+                this.painWallSide = 0;
+                this.bloodMarks = 0;         // Stacked by Hemo's 0-dmg Touch (0..4)
+                this.bloodMarkCaster = null;
+                this.bloodStainTimer = 0;    // 4s (240f) DoT applied by Hemo Block+V
+                this.bloodStainCaster = null;
 
                 if (type === 'saiyan') {
                     this.color = id === 1 ? '#00d2ff' : '#ff2e4c';
@@ -16561,6 +16694,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 if (this.type === 'hooper') {
                     const frozenInDraw = gameState.timestopActive && this !== gameState.timestopCaster;
                     drawPixelHooper(this, frozenInDraw);
+                    return;
+                }
+                if (this.type === 'hemo') {
+                    const frozenInDraw = gameState.timestopActive && this !== gameState.timestopCaster;
+                    drawPixelHemo(this, frozenInDraw);
                     return;
                 }
 
@@ -17591,6 +17729,36 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.particles.push(new Particle(this.x + (Math.random() - 0.5) * 45, this.y - 45 + (Math.random() - 0.5) * 60, '#7f8c8d', 0.2));
                     }
                     return; 
+                }
+
+                // Hemo Crimson Stain DoT: drains HP gradually over 4s (240f), dynamically scaled by remaining bloodMarks!
+                if (!this.isDead && this.bloodStainTimer > 0) {
+                    const marks = Math.max(0, Math.min(4, this.bloodMarks || 0));
+                    const stainPctTable = [0.03, 0.07, 0.12, 0.18, 0.25];
+                    const stepFrames = Math.min(this.bloodStainTimer, 1 * config.timeScale);
+                    const tickDmg = ((this.maxHealth || 100) * stainPctTable[marks] / 240) * stepFrames;
+                    const actualStainDrain = Math.min(this.health, tickDmg);
+                    this.health = Math.max(0, this.health - actualStainDrain);
+                    const stainHealer = this.bloodStainCaster || opponent;
+                    if (actualStainDrain > 0 && stainHealer && !stainHealer.isDead) {
+                        stainHealer.health = Math.min(stainHealer.maxHealth || 100, stainHealer.health + actualStainDrain * 0.5);
+                    }
+                    this.bloodStainTimer -= stepFrames;
+                    if (Math.floor(this.bloodStainTimer) % 12 === 0 && this.bloodStainTimer > 0) {
+                        gameState.particles.push(new Particle(this.x + (Math.random() - 0.5) * 18, this.y - 38 + (Math.random() - 0.5) * 20, '#d61f3a', 0.55));
+                        if (actualStainDrain > 0 && stainHealer && !stainHealer.isDead && stainHealer.health < (stainHealer.maxHealth || 100)) {
+                            gameState.particles.push(new Particle(stainHealer.x + (Math.random() - 0.5) * 16, stainHealer.y - 42 + (Math.random() - 0.5) * 16, '#ff4d6d', 0.5));
+                        }
+                    }
+                    if (this.health <= 0) {
+                        this.health = 0;
+                        triggerWin(this.bloodStainCaster || opponent);
+                        return;
+                    }
+                    if (this.bloodStainTimer <= 0) {
+                        this.bloodStainTimer = 0;
+                        this.bloodStainCaster = null;
+                    }
                 }
 
                 if (this.type === 'saiyan' && this.isCinematicActive) {
@@ -18869,10 +19037,12 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                                     createExplosion(p.x, p.y, p.color, 20, 1.6);
                                 }
                             } else {
-                                if (target.health <= 20) {
+                                const blastExec = (shooter && shooter.type === 'martial') ? 15 : 20;
+                                const blastDmg = (shooter && shooter.type === 'martial') ? (target.isBlocking ? 5 : 16) : (target.isBlocking ? 7 : 21);
+                                if (target.health <= blastExec) {
                                     triggerFinisher('blast', p.x, p.y, target, shooter);
                                 } else {
-                                    target.health -= (target.isBlocking ? 7 : 21);
+                                    target.health -= blastDmg;
                                     target.velX = p.facing * 12; 
                                     if (isPixelProj || (shooter && (shooter.type === 'martial' || shooter.type === 'phantom' || shooter.type === 'sword' || shooter.type === 'lancer'))) {
                                         gameState.pixelEffects.push(new PixelVFX('impact_burst', p.x, p.y, p.facing, p.color, { maxFrames: 18 }));
@@ -19456,7 +19626,7 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     if (gameState.timestopActive && this !== gameState.timestopCaster) return;
                     const opponent = p1.id === this.id ? p2 : p1;
 
-                    // V — headlamp blinding FLASH: 0.19s stun, 10s cooldown (own timer, doesn't share with B)
+                    // V — headlamp blinding FLASH: 0.38s stun (2x buffed), 10s cooldown (own timer, doesn't share with B)
                     if (type === 'miner_flash') {
                         if (this.minerFlashCooldown > 0) return;
                         if (this.attacking) return;
@@ -19488,8 +19658,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             && !opponent.isDead;
                         if (canBeStunned) {
                             opponent.isStunned = true;
-                            // 0.19s @ 60fps ≈ 11.4 frames
-                            opponent.stunTimer = Math.max(opponent.stunTimer || 0, 11.4);
+                            // 0.38s @ 60fps ≈ 22.8 frames (2x buffed stun!)
+                            opponent.stunTimer = Math.max(opponent.stunTimer || 0, 22.8);
                             opponent.velX = 0;
                             // small confirmation explosion on the opponent
                             createExplosion(opponent.x, opponent.y - 45, '#fff7c0', 6, 0.7);
@@ -19683,6 +19853,90 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         gameState.hooperCutsceneTimer = 115;
                         gameState.hooperCutsceneCaster = this;
                         gameState.shake = 18;
+                        return;
+                    }
+                }
+
+                // ============== HEMO (BLOOD MANIPULATOR) SPECIAL MOVES ==============
+                if (this.type === 'hemo' && (type === 'hemo_stain_kick' || type === 'special' || type === 'hemo_ult')) {
+                    const allowedWhileBlocking = (type === 'hemo_stain_kick');
+                    if (this.attacking || this.isDead || (this.isBlocking && !allowedWhileBlocking) || this.internalCooldown > 0 || this.isCharging || this.isParrying || this.isTransforming || this.isBeingPulled || this.isStunned) return;
+                    if (gameState.timestopActive && this !== gameState.timestopCaster) return;
+
+                    // Block + V: consumes 2 Blood Marks & kicks + inflicts 4s Stain DoT
+                    if (type === 'hemo_stain_kick') {
+                        if (!opponent || (opponent.bloodMarks || 0) < 2) return;
+                        this.isBlocking = false;
+                        this.attacking = true;
+                        this.attackType = 'hemo_stain_kick';
+                        this.attackMax = 18;
+                        this.attackTimer = 18;
+                        this.internalCooldown = 42;
+                        this.hitOnce = false;
+                        this.facing = (opponent.x >= this.x) ? 1 : -1;
+                        const gap = Math.abs(opponent.x - this.x);
+                        if (gap > 35 && this.y >= config.groundY - 5) {
+                            this.x += this.facing * Math.min(gap - 30, 24);
+                        }
+                        gameState.pixelEffects.push(new PixelVFX('gale_kick', this.x + 28 * this.facing, this.y - 44, this.facing, '#d61f3a'));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 18 * this.facing, this.y - 36, this.facing, '#ff1e38'));
+                        if (!opponent.isDead && !(opponent.type === 'sixeye' && opponent.isInfinityShieldActive) && !opponent.isSaiyanDodging && !(opponent.isParrying && Math.abs(opponent.x - this.x) < 120)) {
+                            opponent.bloodMarks = Math.max(0, opponent.bloodMarks - 2);
+                            opponent.bloodStainTimer = 240; // Exact 4.0 seconds @ 60fps
+                            opponent.bloodStainCaster = this;
+                            gameState.pixelEffects.push(new PixelVFX('hemo_mark_pop', opponent.x, opponent.y - 45, this.facing, '#8b0000'));
+                            for (let i = 0; i < 8; i++) {
+                                gameState.particles.push(new Particle(opponent.x + (Math.random() - 0.5) * 20, opponent.y - 42 + (Math.random() - 0.5) * 24, i % 2 === 0 ? '#ff1e38' : '#5c0010', 0.9));
+                            }
+                            announceText('CRIMSON STAIN (4.0S)!', '#d61f3a');
+                        }
+                        return;
+                    }
+
+                    // Chiêu B (Ult): requires 4 Blood Marks; drains 20% foe HP & heals +15% own HP
+                    if (type === 'special' || type === 'hemo_ult') {
+                        if (this.cooldown > 0) return;
+                        if (!opponent || (opponent.bloodMarks || 0) < 4) {
+                            announceText('NEED 4 MARKS (' + (opponent ? (opponent.bloodMarks || 0) : 0) + '/4)!', '#ff2e4d');
+                            return;
+                        }
+                        if (opponent.isDead || (opponent.type === 'sixeye' && opponent.isInfinityShieldActive) || opponent.isSaiyanDodging) return;
+                        this.cooldown = this.maxCooldown;
+                        this.facing = opponent.x >= this.x ? 1 : -1;
+                        this.attacking = true;
+                        this.attackType = 'hemo_ult';
+                        this.attackMax = 24;
+                        this.attackTimer = 24;
+                        this.internalCooldown = 36;
+                        this.hitOnce = true;
+
+                        opponent.bloodMarks = 0; // Consumes all 4 marks
+                        const drainAmt = (opponent.maxHealth || 100) * 0.25;
+                        const healAmt  = (this.maxHealth || 100) * 0.20;
+                        opponent.health = Math.max(0, opponent.health - drainAmt);
+                        if (!opponent.isParrying) {
+                            this.health = Math.min(this.maxHealth || 100, this.health + healAmt);
+                            opponent.isStunned = true;
+                            opponent.stunTimer = Math.max(opponent.stunTimer || 0, 22);
+                            opponent.velX = (this.x >= opponent.x ? 1 : -1) * 4;
+                        }
+                        gameState.pixelEffects.push(new PixelVFX('hemo_siphon_stream', opponent.x, opponent.y - 45, this.facing, '#ff1e38', { targetX: this.x, targetY: this.y - 45 }));
+                        gameState.pixelEffects.push(new PixelVFX('hemo_mark_pop', opponent.x, opponent.y - 45, this.facing, '#ff1e38'));
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 45, this.facing, '#ff6b81'));
+                        for (let i = 0; i < 12; i++) {
+                            const frac = i / 12;
+                            const pxPos = opponent.x + (this.x - opponent.x) * frac;
+                            const pyPos = opponent.y - 45 + (Math.random() - 0.5) * 18;
+                            gameState.particles.push(new Particle(pxPos, pyPos, i % 2 === 0 ? '#ff1e38' : '#8b0000', 1.1));
+                        }
+                        gameState.flashAlpha = 0.35;
+                        gameState.flashColor = '#8b0000';
+                        gameState.shake = 18;
+                        announceText('BLOOD SIPHON! -25% / +20% HP', '#ff2e4d');
+                        if (opponent.health <= 0) {
+                            opponent.health = 0;
+                            triggerWin(this);
+                        }
                         return;
                     }
                 }
@@ -20335,6 +20589,21 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                 }
 
                 if (type === 'punch') {
+                    if (this.type === 'hemo') {
+                        this.attacking = true;
+                        this.attackType = 'hemo_touch';
+                        this.attackMax = 18;
+                        this.attackTimer = 18;
+                        this.internalCooldown = 50; // Same cooldown as Swordsman
+                        this.hitOnce = false;
+                        if (opponent) this.facing = opponent.x >= this.x ? 1 : -1;
+                        if (this.y >= config.groundY - 5 && opponent) {
+                            const gap = Math.abs(opponent.x - this.x);
+                            if (gap > 45) this.x += this.facing * Math.min(gap - 38, 18);
+                        }
+                        gameState.pixelEffects.push(new PixelVFX('air_ring', this.x + 24 * this.facing, this.y - 44, this.facing, '#d61f3a'));
+                        return;
+                    }
                     if (this.type === 'pain') {
                         if (this.painShinraCooldown > 0) {
                             announceText('SHINRA TENSEI: ' + (this.painShinraCooldown / 60).toFixed(1) + 's', '#a55eea');
@@ -20459,9 +20728,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                                     this.airComboTotalDmg = 0;
                                 }
                                 this.brawlerAirStep = this.airComboCount; // 1, 2, 3, or 4 (distinct air animations!)
-                                this.attackMax = 11;
-                                this.attackTimer = 11;
-                                this.internalCooldown = 13; // Fast Storm-4 aerial combo cadence
+                                this.attackMax = 14;
+                                this.attackTimer = 14;
+                                this.internalCooldown = 19; // Nerfed Storm-4 aerial combo cadence
                                 // Storm 4 Magnetic Air Lock-on: keep attacker & opponent aligned in mid-air
                                 if (opponent && !opponent.isDead && !this.airComboEnded) {
                                     this.facing = opponent.x >= this.x ? 1 : -1;
@@ -20491,6 +20760,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                                 }
                             } else {
                                 // Normal ground punch OR standard jump punch (when jumping without kicking opponent up)
+                                this.attackMax = 15;
+                                this.attackTimer = 15;
+                                this.internalCooldown = 44; // Slower grounded Brawler cadence
                                 this.brawlerAirStep = 0;
                                 this.brawlerComboStep = ((this.brawlerComboStep === undefined ? -1 : this.brawlerComboStep) + 1) % 3;
                                 if (!isAirborneAttack) {
@@ -20520,7 +20792,9 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                     }
                 }
                 else if (type === 'kick') {
-                    this.attackMax = 15; this.attackTimer = 15; this.internalCooldown = (this.type === 'werewolf' && this.isWerewolf) ? 30 : ((this.type === 'sixeye') ? 20 : 42);
+                    this.attackMax = (this.type === 'martial') ? 17 : 15;
+                    this.attackTimer = this.attackMax;
+                    this.internalCooldown = (this.type === 'werewolf' && this.isWerewolf) ? 30 : ((this.type === 'sixeye') ? 20 : (this.type === 'martial' ? 50 : 42));
                     if (this.type === 'taichi') {
                         const isP1 = (this.id === 1 || this === window.p1 || this.color === '#ffffff');
                         const tCol = isP1 ? '#ffffff' : '#050505';
@@ -20537,6 +20811,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         this.velX = this.facing * 12;
                         gameState.pixelEffects.push(new PixelVFX('gale_kick', this.x + 28 * this.facing, this.y - 40, this.facing, this.color));
                         gameState.pixelEffects.push(new PixelVFX('air_ring', this.x, this.y - 36, this.facing, this.color));
+                    } else if (this.type === 'hemo') {
+                        gameState.pixelEffects.push(new PixelVFX('gale_kick', this.x + 28 * this.facing, this.y - 44, this.facing, '#d61f3a'));
                     } else if (this.type === 'fisherman') {
                         gameState.pixelEffects.push(new PixelVFX('water_splash_arc', this.x + 26 * this.facing, this.y - 44, this.facing, '#00cec9', { comboStep: 0 }));
                         gameState.pixelEffects.push(new PixelVFX('water_splash_burst', this.x + 38 * this.facing, this.y - 44, this.facing, '#74b9ff'));
@@ -20612,6 +20888,74 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                         // Summon Asura Path (Shuradō - Tu La Đạo) for the follow-up strike!
                         if (!gameState.painAssists) gameState.painAssists = [];
                         gameState.painAssists.push(new PainAssistPath('asura', this, opponent));
+                    }
+                    return;
+                }
+
+                if (this.type === 'hemo' && this.attackType === 'hemo_touch') {
+                    if (this.hitOnce || this.attackTimer > 11) return;
+                    const dist = Math.abs(this.x - opponent.x);
+                    const forward = (opponent.x - this.x) * this.facing >= -18;
+                    if (dist < 105 && forward && Math.abs(this.y - opponent.y) < 90) {
+                        this.hitOnce = true;
+                        if (opponent.isParrying) {
+                            opponent.reflectedThisFrame = true;
+                            this.health -= 15;
+                            this.velX = -this.facing * 15;
+                            this.velY = -4;
+                            if (this.health <= 0) { this.health = 0; triggerWin(opponent); }
+                            return;
+                        }
+                        if ((opponent.type === 'sixeye' && opponent.isInfinityShieldActive) || opponent.isSaiyanDodging) {
+                            return;
+                        }
+                        // Touch deals 0 damage and plants 1 small Blood Mark (max 4)
+                        opponent.bloodMarks = Math.min(4, (opponent.bloodMarks || 0) + 1);
+                        opponent.bloodMarkCaster = this;
+                        opponent.velX = this.facing * 2.5;
+                        opponent.isStunned = true;
+                        opponent.stunTimer = Math.max(opponent.stunTimer || 0, 8);
+                        gameState.pixelEffects.push(new PixelVFX('hemo_mark_pop', opponent.x, opponent.y - 46, this.facing, '#ff1e38', { marks: opponent.bloodMarks }));
+                        for (let i = 0; i < 6; i++) {
+                            gameState.particles.push(new Particle(opponent.x + (Math.random() - 0.5) * 16, opponent.y - 44 + (Math.random() - 0.5) * 20, i % 2 === 0 ? '#ff1e38' : '#8b0000', 0.8));
+                        }
+                        gameState.shake = Math.max(gameState.shake || 0, 4);
+                        announceText(`BLOOD MARK (${opponent.bloodMarks}/4)`, '#ff2e4d');
+                    }
+                    return;
+                }
+
+                if (this.type === 'hemo' && this.attackType === 'hemo_stain_kick') {
+                    if (this.hitOnce || this.attackTimer > 12) return;
+                    const dist = Math.abs(this.x - opponent.x);
+                    if (dist < 118 && Math.abs(this.y - opponent.y) < 90) {
+                        this.hitOnce = true;
+                        if (opponent.isParrying) {
+                            opponent.reflectedThisFrame = true;
+                            this.health -= 18;
+                            this.velX = -this.facing * 16;
+                            this.velY = -4;
+                            if (this.health <= 0) { this.health = 0; triggerWin(opponent); }
+                            return;
+                        }
+                        if ((opponent.type === 'sixeye' && opponent.isInfinityShieldActive) || opponent.isSaiyanDodging) {
+                            return;
+                        }
+                        const kDmg = opponent.isBlocking ? 3 : 9;
+                        const actualKickDrain = Math.min(opponent.health, kDmg);
+                        opponent.health = Math.max(0, opponent.health - actualKickDrain);
+                        if (actualKickDrain > 0 && !this.isDead) {
+                            this.health = Math.min(this.maxHealth || 100, this.health + actualKickDrain * 0.5);
+                        }
+                        opponent.velX = this.facing * (opponent.isBlocking ? 4 : 9);
+                        opponent.isStunned = true;
+                        opponent.stunTimer = Math.max(opponent.stunTimer || 0, 14);
+                        gameState.pixelEffects.push(new PixelVFX('impact_burst', opponent.x, opponent.y - 42, this.facing, '#d61f3a'));
+                        gameState.shake = Math.max(gameState.shake || 0, 10);
+                        if (opponent.health <= 0) {
+                            opponent.health = 0;
+                            triggerWin(this);
+                        }
                     }
                     return;
                 }
@@ -20769,7 +21113,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             } else {
                                 dmg = this.type === 'scythe' ? (opponent.isBlocking ? 10 : 25) :
                                       (this.type === 'lancer' ? (opponent.isBlocking ? 4 : 12) :
-                                      (opponent.isBlocking ? 3 : 10));
+                                      (this.type === 'miner' ? (opponent.isBlocking ? 3.75 : 12.5) :
+                                      (opponent.isBlocking ? 3 : 10)));
                             }
                         }
                     }
@@ -20824,6 +21169,8 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                             }
                         } else if (this.type === 'raijin') {
                             dmg = opponent.isBlocking ? 3.5 : 10;
+                        } else if (this.type === 'hemo') {
+                            dmg = opponent.isBlocking ? 3 : 9;
                         } else if (this.type === 'phantom') {
                             dmg = opponent.isBlocking ? 3 : 9;
                         } else if (this.type === 'zookeeper') {
@@ -20884,12 +21231,11 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                                 if (isAirCombo) {
                                     const hitNum = Math.min(4, Math.max(1, this.brawlerAirStep || this.airComboCount || 1));
                                     // Brawler Storm 4 Air Combo damage scaling:
-                                    // Total 4 hits with full Sét Đen (Black Flash crits) = EXACTLY 35% HP (35 HP out of 100 max HP):
-                                    // Hit 1: 7.5 HP, Hit 2: 8.0 HP, Hit 3: 9.0 HP, Hit 4: 10.5 HP -> Sum = 35.0 HP!
-                                    // Normal hits (no Sét Đen):
-                                    // Hit 1: 3.0 HP, Hit 2: 3.2 HP, Hit 3: 3.8 HP, Hit 4: 4.5 HP -> Sum = 14.5 HP!
-                                    const airBaseDmgTable = [0, 3.0, 3.2, 3.8, 4.5];
-                                    const airCritDmgTable = [0, 7.5, 8.0, 9.0, 10.5];
+                                    // Nerfed Storm 4 Air Combo damage scaling (~24% lower):
+                                    // Normal hits: Hit 1: 2.2, Hit 2: 2.5, Hit 3: 2.8, Hit 4: 3.5 -> Sum = 11.0 HP
+                                    // With Hit 4 Black Flash: 2.2 + 2.5 + 2.8 + 8.0 = 15.5 HP
+                                    const airBaseDmgTable = [0, 2.2, 2.5, 2.8, 3.5];
+                                    const airCritDmgTable = [0, 5.5, 6.0, 7.0, 8.0];
 
                                     // Nerf: First 3 hits of the 4-hit aerial combo cannot trigger Black Flash; only Hit 4 rolls Black Flash!
                                     if (hitNum === 4) {
@@ -20897,31 +21243,32 @@ function drawPixelSwapper(fighter, frozenInDraw) {
                                         const bfRoll = (typeof window._testBlackFlashRoll === 'number') ? window._testBlackFlashRoll : Math.random();
                                         const isCrit = (bfRoll < currentChance);
                                         if (isCrit) {
-                                            dmg = opponent.isBlocking ? ((airCritDmgTable[hitNum] || 10.5) * 0.35) : (airCritDmgTable[hitNum] || 10.5);
+                                            dmg = opponent.isBlocking ? ((airCritDmgTable[hitNum] || 8.0) * 0.35) : (airCritDmgTable[hitNum] || 8.0);
                                             isBlackFlashHit = true;
                                             this.blackFlashChance = Math.min(0.70, currentChance + 0.36);
                                         } else {
-                                            dmg = opponent.isBlocking ? ((airBaseDmgTable[hitNum] || 4.5) * 0.35) : (airBaseDmgTable[hitNum] || 4.5);
+                                            dmg = opponent.isBlocking ? ((airBaseDmgTable[hitNum] || 3.5) * 0.35) : (airBaseDmgTable[hitNum] || 3.5);
                                             this.blackFlashChance = 0.19;
                                         }
                                     } else {
-                                        dmg = opponent.isBlocking ? ((airBaseDmgTable[hitNum] || 3.5) * 0.35) : (airBaseDmgTable[hitNum] || 3.5);
+                                        dmg = opponent.isBlocking ? ((airBaseDmgTable[hitNum] || 2.5) * 0.35) : (airBaseDmgTable[hitNum] || 2.5);
                                     }
-                                    // Guaranteed hard cap: cumulative air combo damage can never exceed 35% HP (35 HP)
+                                    // Guaranteed hard cap: cumulative air combo damage can never exceed 25% HP (25 HP)
                                     const currentAirDmg = this.airComboTotalDmg || 0;
-                                    if (currentAirDmg + dmg > 35) {
-                                        dmg = Math.max(0, 35 - currentAirDmg);
+                                    if (currentAirDmg + dmg > 25) {
+                                        dmg = Math.max(0, 25 - currentAirDmg);
                                     }
                                     this.airComboTotalDmg = currentAirDmg + dmg;
                                 } else {
+                                    const martialGroundBase = opponent.isBlocking ? 1.5 : 6;
                                     let currentChance = this.blackFlashChance;
                                     const bfRoll = (typeof window._testBlackFlashRoll === 'number') ? window._testBlackFlashRoll : Math.random();
                                     if (bfRoll < currentChance) {
-                                        dmg = baseDmg * 3.6;
+                                        dmg = martialGroundBase * 2.8;
                                         isBlackFlashHit = true;
                                         this.blackFlashChance = Math.min(0.70, currentChance + 0.36);
                                     } else {
-                                        dmg = baseDmg;
+                                        dmg = martialGroundBase;
                                         this.blackFlashChance = 0.19;
                                     }
                                 }
@@ -21992,6 +22339,292 @@ function drawPixelSwapper(fighter, frozenInDraw) {
         ];
 
         
+
+// ============ 16-BIT PIXEL ART FIGHTER: HEMO ("CRIMSON ALCHEMIST / BLOOD MANIPULATOR") ============
+function drawPixelHemo(fighter, frozenInDraw) {
+    const P = 3;
+    const baseX = Math.round(fighter.x / P) * P;
+    const baseY = Math.round(fighter.y / P) * P;
+    const f = fighter.facing || 1;
+    const timeMs = frozenInDraw ? 0 : Date.now();
+    const isP1 = (fighter.id === 1 || fighter.color === '#2ecc71');
+
+    // Unique Palette: Silver-white swept hair + Cream/Bone tunic + Royal Burgundy cape + Glowing hip Blood Vial
+    const out       = '#10131a';
+    const hairLight = '#f5f7fa';
+    const hairMid   = '#c8d0dc';
+    const hairDark  = '#8e9aaf';
+    const skin      = '#f3d8cf';
+    const veilCol   = '#1e2430';
+    const tunicMain = '#eae6dc';
+    const tunicShade= '#c5bfb2';
+    const capeMain  = isP1 ? '#9e0b22' : '#6d0f3a';
+    const capeDark  = isP1 ? '#5e0413' : '#400621';
+    const capeTrim  = isP1 ? '#d4af37' : '#ff4757';
+    const pantsCol  = '#252836';
+    const pantsDark = '#171a24';
+    const teamGem   = isP1 ? '#2ecc71' : '#e74c3c';
+    const bloodMain = '#ff1e38';
+    const bloodGlow = '#ffb3ba';
+
+    ctx.save();
+    const prevSmooth = ctx.imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = false;
+
+    const px = (gx, gy, gw, gh, col) => {
+        if (!col || gw <= 0 || gh <= 0) return;
+        ctx.fillStyle = col;
+        const rx = f === 1 ? Math.round(gx) : -Math.round(gx + gw);
+        ctx.fillRect(baseX + rx * P, baseY + Math.round(gy) * P, Math.round(gw) * P, Math.round(gh) * P);
+    };
+
+    const seg = (x0, y0, x1, y1, thick, col, outlineCol) => {
+        const steps = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0)));
+        const half = Math.floor(thick / 2);
+        if (outlineCol) {
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                px(Math.round(x0 + (x1 - x0) * t) - half - 1, Math.round(y0 + (y1 - y0) * t) - half - 1, thick + 2, thick + 2, outlineCol);
+            }
+        }
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            px(Math.round(x0 + (x1 - x0) * t) - half, Math.round(y0 + (y1 - y0) * t) - half, thick, thick, col);
+        }
+    };
+
+    if (fighter.isDead) {
+        if (fighter.isSliced) {
+            const sl = Math.min(20, (Date.now() - (fighter.deathTime || Date.now())) * 0.05);
+            const sG = Math.round(sl / P);
+            px(-4, -10, 8, 9, pantsDark);
+            px(-5 - sG, -22 + Math.floor(sG / 2), 9, 10, tunicMain);
+            px(-5 - sG, -28 + Math.floor(sG / 2), 8, 5, hairLight);
+        } else {
+            px(-13, -3, 26, 3, out);
+            px(-11, -5, 13, 4, capeMain);
+            px(-7, -5, 8, 3, tunicMain);
+            px(-14, -6, 6, 4, hairLight);
+        }
+        ctx.imageSmoothingEnabled = prevSmooth;
+        ctx.restore();
+        fighter.projectiles.forEach(p => p.draw());
+        return;
+    }
+
+    const groundBaseY = Math.round(config.groundY / P) * P;
+    const airShrink = Math.max(3, 8 - Math.floor((config.groundY - fighter.y) / 25));
+    ctx.fillStyle = 'rgba(20, 4, 10, 0.55)';
+    ctx.fillRect(baseX - airShrink * P, groundBaseY - P, airShrink * 2 * P, 2 * P);
+
+    const drawAttacking  = frozenInDraw ? false : fighter.attacking;
+    const drawAttackType = frozenInDraw ? '' : fighter.attackType;
+    const progress       = fighter.attackMax > 0 ? (1 - fighter.attackTimer / fighter.attackMax) : 0;
+    const isAirborne     = fighter.y < config.groundY - 2;
+    const isRunning      = !isAirborne && Math.abs(fighter.velX) > 0.45 && !fighter.isBlocking && !drawAttacking;
+    const isHitReact     = fighter.isStunned || (!drawAttacking && Math.abs(fighter.velX) > config.moveSpeed * 1.25);
+
+    const idleBob = (!isAirborne && !isRunning && !drawAttacking && !isHitReact) ? Math.round(Math.sin(timeMs * 0.006)) : 0;
+    let bodyX = 0, bodyY = idleBob;
+    let torsoLean = 0;
+    let headX = 0, headY = -24 + idleBob;
+    let legB = [-3, -10, -4, -5, -5, -1];
+    let legF = [ 3, -10,  4, -5,  5, -1];
+    let armB = [-4, -18, -7, -14, -6, -10];
+    let armF = [ 4, -18,  8, -16, 10, -19];
+    let capeBillow = 0;
+
+    if (isHitReact) {
+        bodyX = -2; bodyY = 1; torsoLean = -2; headX = -2; headY = -23;
+        armB = [-4, -18, -8, -21, -10, -23];
+        armF = [ 3, -17,  7, -19,   9, -15];
+        capeBillow = -2;
+    } else if (fighter.isBlocking) {
+        bodyY = 1; torsoLean = -1; headY = -23;
+        armB = [-3, -18,  3, -16,  5, -20];
+        armF = [ 3, -18,  7, -19,  5, -24];
+    } else if (drawAttacking && drawAttackType === 'hemo_touch') {
+        if (progress < 0.25) {
+            bodyX = -1; torsoLean = -1;
+            armF = [ 2, -18, -1, -17, -3, -16];
+            capeBillow = 1;
+        } else {
+            bodyX = 3; torsoLean = 3; headX = 2; headY = -23;
+            armF = [ 4, -18, 11, -17, 16, -17];
+            capeBillow = -3;
+        }
+    } else if (drawAttacking && (drawAttackType === 'kick' || drawAttackType === 'hemo_stain_kick' || drawAttackType === 'launcher_kick')) {
+        bodyX = -1; torsoLean = -2;
+        legB = [-3, -10, -4, -5, -4, -1];
+        const kickY = (drawAttackType === 'launcher_kick') ? -24 : -18;
+        legF = [ 2, -10,  9, -14, 16, kickY];
+        armF = [ 2, -18, -4, -14, -6, -11];
+        capeBillow = -3;
+    } else if (drawAttacking && drawAttackType === 'hemo_ult') {
+        bodyY = -2; torsoLean = 0; headY = -26;
+        armB = [-3, -19, -8, -24, -5, -28];
+        armF = [ 3, -19,  8, -24,  5, -28];
+        capeBillow = -4;
+    } else if (isAirborne) {
+        bodyY = -2; torsoLean = 1; headY = -25;
+        legB = [-3, -11, -6, -7, -5, -3];
+        legF = [ 3, -11,  6, -8,  5, -3];
+        capeBillow = -3;
+    } else if (isRunning) {
+        const s = Math.sin(fighter.walkCycle);
+        const liftB = s < 0 ? Math.round(-s * 4) : 0;
+        const liftF = s > 0 ? Math.round(s * 4) : 0;
+        const st = Math.round(s * 6);
+        bodyX = 2; torsoLean = 2; headX = 2; headY = -23;
+        legB = [-2 - Math.floor(st * 0.4), -10, -3 - Math.floor(st * 0.7), -5 - liftB, -4 - st, -1 - liftB];
+        legF = [ 2 + Math.floor(st * 0.4), -10,  4 + Math.floor(st * 0.7), -5 - liftF,  5 + st, -1 - liftF];
+        armB = [-3, -18, -6 - Math.floor(st * 0.5), -14, -8 - Math.floor(st * 0.5), -11];
+        armF = [ 3, -18,  7, -15,  9, -13];
+        capeBillow = -4;
+    }
+
+    const tx = bodyX + Math.floor(torsoLean / 2);
+    const ty = -21 + bodyY;
+    const wave = Math.round(Math.sin(timeMs * 0.008));
+
+    // 1) Flowing Tapered Royal Crimson Velvet Cape behind back (narrow at shoulder, flared hem!)
+    const capeX = tx - 7 + capeBillow;
+    px(capeX + 2, ty + 1, 4, 5, out);
+    px(capeX + 1, ty + 5, 5, 6, out);
+    px(capeX - 1, ty + 10, 7, 6, out);
+    px(capeX + 3, ty + 2, 3, 4, capeMain);
+    px(capeX + 2, ty + 5, 4, 6, capeMain);
+    px(capeX,     ty + 10, 5, 5, capeDark);
+    px(capeX + 1, ty + 10, 3, 4, capeMain);
+    px(capeX - 1, ty + 14 + (wave > 0 ? 1 : 0), 5, 2, capeTrim);
+
+    // 2) Back Arm & Back Leg (Silver-slate trousers + Crimson cuffed boot)
+    seg(armB[0], armB[1], armB[2], armB[3], 2, capeDark, out);
+    seg(armB[2], armB[3], armB[4], armB[5], 2, veilCol, out);
+    seg(legB[0], legB[1], legB[2], legB[3], 3, pantsDark, out);
+    seg(legB[2], legB[3], legB[4], legB[5], 2, capeDark, out);
+    px(legB[4] - 1, legB[5] - 1, 4, 2, out);
+
+    // 3) Torso: Bone-White Alchemist Tunic + Crimson Mantle Shoulders + Glowing Glass Blood-Vial Flask on Hip
+    px(tx - 5, ty, 10, 12, out);
+    px(tx - 4, ty + 1, 8, 10, tunicMain);
+    px(tx - 4, ty + 1, 2, 10, tunicShade);
+    // Crimson shoulder mantle + gold/team clasp
+    px(tx - 6, ty - 1, 12, 3, out);
+    px(tx - 5, ty, 10, 2, capeMain);
+    px(tx + 1, ty + 2, 2, 2, teamGem);
+    // Belt + Glowing Glass Blood-Vial Flask strapped to back hip
+    px(tx - 4, ty + 8, 8, 2, '#2c1d24');
+    px(tx - 6, ty + 6, 4, 5, out);
+    px(tx - 5, ty + 7, 2, 3, bloodMain);
+    px(tx - 5, ty + 7, 1, 1, '#ffffff');
+
+    // 4) Front Leg & Crimson-Trimmed High Boot
+    seg(legF[0], legF[1], legF[2], legF[3], 3, pantsCol, out);
+    seg(legF[2], legF[3], legF[4], legF[5], 2, capeMain, out);
+    px(legF[4] - 1, legF[5] - 1, 4, 2, capeTrim);
+
+    // 5) Head: Obsidian Half-Mask Veil, Pale Brow, Blood-Mark Nose Bridge, Ruby Eyes & Swept Silver-White Hair!
+    const hx = tx + (headX - bodyX);
+    const hy = ty + 1;
+    // Swept-back silver ponytail / twin lock behind head (zero overlap with Slasher/Brawler!)
+    px(hx - 8, hy - 8, 5, 5, out);
+    px(hx - 7, hy - 7, 4, 4, hairMid);
+    px(hx - 7, hy - 7, 2, 2, hairLight);
+    // Main head + half-mask veil + glowing crimson eyes
+    px(hx - 4, hy - 7, 8, 7, out);
+    px(hx - 3, hy - 6, 6, 3, skin);      // upper face
+    px(hx - 3, hy - 3, 6, 3, veilCol);   // lower obsidian mask veil
+    px(hx + 1, hy - 5, 2, 1, bloodMain); // sharp ruby eye
+    px(hx,     hy - 4, 2, 1, '#c0142f'); // Choso-style blood bridge stripe
+    // Voluminous Swept Silver-White Hair Crown + Crimson Pin
+    px(hx - 5, hy - 10, 10, 4, out);
+    px(hx - 4, hy - 9, 8, 3, hairLight);
+    px(hx + 2, hy - 9, 3, 2, hairMid);
+    px(hx - 1, hy - 8, 2, 1, capeTrim);
+
+    // 6) Front Arm (Crimson gauntlet sleeve) & Orbiting Floating Blood Droplet Ring
+    seg(armF[0], armF[1], armF[2], armF[3], 2, capeMain, out);
+    seg(armF[2], armF[3], armF[4], armF[5], 2, veilCol, out);
+
+    // Three animated orbiting liquid crimson drops around hand / strike point
+    const fxX = (drawAttacking && (drawAttackType === 'kick' || drawAttackType === 'hemo_stain_kick')) ? legF[4] : armF[4];
+    const fxY = (drawAttacking && (drawAttackType === 'kick' || drawAttackType === 'hemo_stain_kick')) ? legF[5] - 2 : armF[5] - 2;
+    const ang = timeMs * 0.008;
+    for (let d = 0; d < 3; d++) {
+        const a = ang + (d * Math.PI * 2) / 3;
+        const dx = fxX + Math.round(Math.cos(a) * 4);
+        const dy = fxY + Math.round(Math.sin(a) * 3);
+        px(dx - 1, dy - 1, 3, 3, capeDark);
+        px(dx, dy, 2, 2, bloodMain);
+        if (d === 0) px(dx, dy, 1, 1, bloodGlow);
+    }
+
+    if (fighter.inGiantBubble) {
+        drawPixelGiantBubble(ctx, baseX, baseY - 42, fighter.bubbleColor);
+    }
+
+    ctx.imageSmoothingEnabled = prevSmooth;
+    ctx.restore();
+    fighter.projectiles.forEach(p => p.draw());
+}
+
+// ============ UNIVERSAL OVERLAY: HEMO BLOOD MARKS & CRIMSON STAIN AURA ============
+function drawBloodMarksOverlay(fighter) {
+    if (!fighter || fighter.isDead) return;
+    const marks = fighter.bloodMarks || 0;
+    const stain = fighter.bloodStainTimer || 0;
+    if (marks <= 0 && stain <= 0) return;
+
+    const P = 3;
+    const cx = Math.round(fighter.x / P) * P;
+    const cy = Math.round(fighter.y / P) * P;
+    ctx.save();
+    const prevSmooth = ctx.imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = false;
+
+    // 1) Small 16-bit Blood Marks anchored neatly around victim torso + mini 4-pip gauge
+    if (marks > 0) {
+        const offsets = [
+            [-15, -56], [12, -56], [-18, -36], [15, -36]
+        ];
+        const pulse = (Math.floor(Date.now() / 160) % 2 === 0);
+        for (let i = 0; i < Math.min(4, marks); i++) {
+            const mx = cx + offsets[i][0];
+            const my = cy + offsets[i][1];
+            // Small dark-bordered crimson blood drop / diamond mark
+            ctx.fillStyle = '#380009';
+            ctx.fillRect(mx - P, my, P * 3, P * 3);
+            ctx.fillRect(mx, my - P, P, P);
+            ctx.fillStyle = pulse ? '#ff1e38' : '#d61f3a';
+            ctx.fillRect(mx, my, P * 2, P * 2);
+            ctx.fillStyle = '#ff9aa2';
+            ctx.fillRect(mx, my, P, P);
+        }
+        // Subtle 4-pip mark bar right above head
+        const barX = cx - 12;
+        const barY = cy - 108;
+        ctx.fillStyle = '#09070b';
+        ctx.fillRect(barX - 1, barY - 1, 26, 6);
+        for (let s = 0; s < 4; s++) {
+            ctx.fillStyle = (s < marks) ? '#ff1e38' : '#2b1820';
+            ctx.fillRect(barX + s * 6 + 1, barY + 1, 4, 3);
+        }
+    }
+
+    // 2) Active 4s Crimson Stain ground curse & dripping blood motes
+    if (stain > 0) {
+        const gy = Math.round(config.groundY / P) * P;
+        const flicker = Math.floor(Date.now() / 100) % 2;
+        ctx.fillStyle = '#5c0010';
+        ctx.fillRect(cx - 21 - flicker * 3, gy - P, 42 + flicker * 6, P * 2);
+        ctx.fillStyle = '#ff1e38';
+        ctx.fillRect(cx - 15, gy - P, 30, P);
+    }
+
+    ctx.imageSmoothingEnabled = prevSmooth;
+    ctx.restore();
+}
 
 // ============ 16-BIT PIXEL ART FIGHTER: HOOPER ("STREETBALL ANKLE-BREAKER") ============
 function drawPixelHooper(fighter, frozenInDraw) {
@@ -27263,8 +27896,8 @@ function drawPixelMage(fighter, frozenInDraw) {
 
             const dist        = Math.abs(me.x - opponent.x);
             const facingOpp   = (opponent.x > me.x) ? 1 : -1;
-            const myHPPct     = me.health / 100;
-            const oppHPPct    = opponent.health / 100;
+            const myHPPct     = me.health / (me.maxHealth || 100);
+            const oppHPPct    = opponent.health / (opponent.maxHealth || 100);
             const oppAttacking = opponent.attacking;
             const inRange     = dist < 130;
             const closeRange  = dist < 90;
@@ -27532,6 +28165,17 @@ function drawPixelMage(fighter, frozenInDraw) {
                     } else {
                         me.attack('deidara_punch');
                     }
+                } else if (me.type === 'hemo') {
+                    const marks = opponent.bloodMarks || 0;
+                    if (canSpecial && marks >= 4 && rand < 0.78) {
+                        me.attack('hemo_ult', opponent);
+                    } else if (marks >= 2 && !(opponent.bloodStainTimer > 0) && rand < 0.36) {
+                        me.attack('hemo_stain_kick', opponent);
+                    } else if (rand < 0.72) {
+                        me.attack('punch', opponent); // 0-dmg Touch (Reaper CD) to stack marks
+                    } else {
+                        me.attack('kick', opponent);
+                    }
                 } else if (me.type === 'hooper') {
                     const vReady = (me.hooperVCooldown || 0) <= 0;
                     const inZone = (me.hooperZoneTimer || 0) > 0;
@@ -27545,9 +28189,10 @@ function drawPixelMage(fighter, frozenInDraw) {
                     }
                 } else if (me.type === 'pain') {
                     const oppInAir = opponent.y < config.groundY - 20;
+                    const canLauncher = (me.launcherKickCooldown || 0) <= 0;
                     if ((me.painChibakuWindow > 0 || (me.hasLaunchedOpponent && oppInAir)) && !me.painChibakuActive) {
                         me.attack('pain_chibaku', opponent);
-                    } else if (!oppInAir && dist < 95 && rand < 0.35) {
+                    } else if (canLauncher && !oppInAir && dist < 95 && rand < 0.24) {
                         me.attack('launcher_kick', opponent);
                     } else if (canSpecial && rand < 0.35) {
                         me.attack('special', opponent);
@@ -27557,12 +28202,12 @@ function drawPixelMage(fighter, frozenInDraw) {
                         me.attack('kick', opponent);
                     }
                 } else if (me.type === 'martial') {
-                    const noLegKick = ['inventor', 'raijin', 'duelist', 'gunslinger', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                     const oppInAir = opponent.y < config.groundY - 25;
+                    const canLauncher = (me.launcherKickCooldown || 0) <= 0;
                     if (oppInAir && dist < 120) {
                         if (me.y >= config.groundY - 1) me.jump();
                         me.attack('punch'); // Aerial juggle!
-                    } else if (!oppInAir && dist < 95 && rand < 0.32) {
+                    } else if (canLauncher && !oppInAir && dist < 95 && rand < 0.22) {
                         me.attack('launcher_kick'); // Launcher kick!
                     } else if (canSpecial && rand < 0.35) {
                         me.attack('special');
@@ -27614,6 +28259,23 @@ function drawPixelMage(fighter, frozenInDraw) {
         const cpu1Vel     = { v: 0 };
         const cpu2Vel     = { v: 0 };
 
+        function handlePlayerBlockKick(fighter, opp, holdingBlock, pressKick) {
+            const noLegKick = ['inventor', 'raijin', 'duelist', 'gunslinger', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
+            if ((holdingBlock || fighter.isBlocking) && pressKick && !noLegKick.includes(fighter.type)) {
+                fighter.isBlocking = false;
+                if (fighter.type === 'hemo' && opp && (opp.bloodMarks || 0) >= 2) {
+                    fighter.attack('hemo_stain_kick', opp);
+                } else {
+                    fighter.attack('launcher_kick');
+                }
+                // Keep block active & avoid falling through to a 42f normal kick if launcher/stain is on CD
+                if (!fighter.attacking) fighter.isBlocking = holdingBlock;
+                return true;
+            }
+            fighter.isBlocking = holdingBlock;
+            return false;
+        }
+
         function handleInput() {
             if (!gameState.isStarted) return;
             if (gameState.domainClashActive || gameState.hooperCutsceneActive) return; // input locked during cutscenes
@@ -27650,17 +28312,8 @@ function drawPixelMage(fighter, frozenInDraw) {
                 cpu1Vel.v = runCPU(p1, p2, cpu1Counter, cpu1Vel);
                 applyVelocity(p1, cpu1Vel.v);
             } else {
-                const noLegKick = ['inventor', 'raijin', 'duelist', 'gunslinger', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                 const p1HoldingBlock = !!keys['KeyS'];
-                const p1PressKick = !!keys['KeyV'];
-
-                // Block + Kick: Launcher Kick for all characters with leg kick
-                if ((p1HoldingBlock || p1.isBlocking) && p1PressKick && !noLegKick.includes(p1.type)) {
-                    p1.isBlocking = false;
-                    p1.attack('launcher_kick');
-                } else {
-                    p1.isBlocking = p1HoldingBlock;
-                }
+                const p1UsedBlockKick = handlePlayerBlockKick(p1, p2, p1HoldingBlock, !!keys['KeyV']);
                 if (p1.isParrying || p1.isTransforming || p1.isBeingPulled || p1.isCinematicActive || p1.phantomChargingB || p1.slasherUltActive || p1.isRidingDragon) {
                     p1.velX = 0;
                 } else if (p1.isStunned) {
@@ -27686,8 +28339,8 @@ function drawPixelMage(fighter, frozenInDraw) {
                         if (keys['KeyV']) p1.attack('hooper_v');
                         if (keys['KeyB']) p1.attack('hooper_ult');
                     } else {
-                    if (keys['KeyC']) p1.attack(p1.type === 'gunslinger' ? 'slash' : ((p1.type === 'martial' || p1.type === 'taichi' || p1.type === 'werewolf' || p1.type === 'sixeye' || p1.type === 'saiyan' || p1.type === 'dio' || p1.type === 'raijin' || p1.type === 'phantom' || p1.type === 'zookeeper' || p1.type === 'pain') ? 'punch' : 'slash'));
-                    if (keys['KeyV']) p1.attack(p1.type === 'phantom' ? 'phantom_speed_boost' : (p1.type === 'miner' ? 'miner_flash' : 'kick'));
+                    if (keys['KeyC']) p1.attack(p1.type === 'gunslinger' ? 'slash' : ((p1.type === 'martial' || p1.type === 'taichi' || p1.type === 'werewolf' || p1.type === 'sixeye' || p1.type === 'saiyan' || p1.type === 'dio' || p1.type === 'raijin' || p1.type === 'phantom' || p1.type === 'zookeeper' || p1.type === 'pain' || p1.type === 'hemo') ? 'punch' : 'slash'));
+                    if (keys['KeyV'] && !p1UsedBlockKick && !p1HoldingBlock) p1.attack(p1.type === 'phantom' ? 'phantom_speed_boost' : (p1.type === 'miner' ? 'miner_flash' : 'kick'));
                     if (p1.type === 'phantom') {
                         if (keys['KeyB']) {
                             p1.attack('phantom_blast');
@@ -27724,17 +28377,8 @@ function drawPixelMage(fighter, frozenInDraw) {
                 cpu2Vel.v = runCPU(p2, p1, cpu2Counter, cpu2Vel);
                 applyVelocity(p2, cpu2Vel.v);
             } else {
-                const noLegKick = ['inventor', 'raijin', 'duelist', 'gunslinger', 'miner', 'deidara', 'hooper', 'slasher', 'dio', 'phantom'];
                 const p2HoldingBlock = !!keys['ArrowDown'];
-                const p2PressKick = !!keys['KeyK'];
-
-                // Block + Kick: Launcher Kick for all characters with leg kick
-                if ((p2HoldingBlock || p2.isBlocking) && p2PressKick && !noLegKick.includes(p2.type)) {
-                    p2.isBlocking = false;
-                    p2.attack('launcher_kick');
-                } else {
-                    p2.isBlocking = p2HoldingBlock;
-                }
+                const p2UsedBlockKick = handlePlayerBlockKick(p2, p1, p2HoldingBlock, !!keys['KeyK']);
                 if (p2.isParrying || p2.isTransforming || p2.isBeingPulled || p2.isCinematicActive || p2.phantomChargingB || p2.slasherUltActive || p2.isRidingDragon) {
                     p2.velX = 0;
                 } else if (p2.isStunned) {
@@ -27760,8 +28404,8 @@ function drawPixelMage(fighter, frozenInDraw) {
                         if (keys['KeyK']) p2.attack('hooper_v');
                         if (keys['KeyL']) p2.attack('hooper_ult');
                     } else {
-                    if (keys['KeyJ']) p2.attack(p2.type === 'gunslinger' ? 'slash' : ((p2.type === 'martial' || p2.type === 'taichi' || p2.type === 'werewolf' || p2.type === 'sixeye' || p2.type === 'saiyan' || p2.type === 'raijin' || p2.type === 'dio' || p2.type === 'phantom' || p2.type === 'zookeeper' || p2.type === 'pain') ? 'punch' : 'slash'));
-                    if (keys['KeyK']) p2.attack(p2.type === 'phantom' ? 'phantom_speed_boost' : (p2.type === 'miner' ? 'miner_flash' : 'kick'));
+                    if (keys['KeyJ']) p2.attack(p2.type === 'gunslinger' ? 'slash' : ((p2.type === 'martial' || p2.type === 'taichi' || p2.type === 'werewolf' || p2.type === 'sixeye' || p2.type === 'saiyan' || p2.type === 'raijin' || p2.type === 'dio' || p2.type === 'phantom' || p2.type === 'zookeeper' || p2.type === 'pain' || p2.type === 'hemo') ? 'punch' : 'slash'));
+                    if (keys['KeyK'] && !p2UsedBlockKick && !p2HoldingBlock) p2.attack(p2.type === 'phantom' ? 'phantom_speed_boost' : (p2.type === 'miner' ? 'miner_flash' : 'kick'));
                     if (p2.type === 'phantom') {
                         if (keys['KeyL']) {
                             p2.attack('phantom_blast');
@@ -28129,8 +28773,8 @@ function drawPixelMage(fighter, frozenInDraw) {
 
                     // Draw frozen opponent on top of the dark arena veil so they remain crisp & readable,
                     // with a subtle frozen-time slate tint over their silhouette
-                    if (p1 !== gameState.timestopCaster) p1.draw();
-                    if (p2 !== gameState.timestopCaster) p2.draw();
+                    if (p1 !== gameState.timestopCaster) { p1.draw(); drawBloodMarksOverlay(p1); }
+                    if (p2 !== gameState.timestopCaster) { p2.draw(); drawBloodMarksOverlay(p2); }
                     ctx.fillStyle = 'rgba(18, 26, 48, 0.24)';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -28176,8 +28820,8 @@ function drawPixelMage(fighter, frozenInDraw) {
                         r.update(); r.draw();
                         if (!r.active) gameState.roadrollers.splice(i, 1);
                     }
-                    if (p1 === gameState.timestopCaster) p1.draw();
-                    if (p2 === gameState.timestopCaster) p2.draw();
+                    if (p1 === gameState.timestopCaster) { p1.draw(); drawBloodMarksOverlay(p1); }
+                    if (p2 === gameState.timestopCaster) { p2.draw(); drawBloodMarksOverlay(p2); }
 
                     for (let i = gameState.particles.length - 1; i >= 0; i--) {
                         const p = gameState.particles[i];
@@ -28205,6 +28849,8 @@ function drawPixelMage(fighter, frozenInDraw) {
                     }
                     p1.draw();
                     p2.draw();
+                    drawBloodMarksOverlay(p1);
+                    drawBloodMarksOverlay(p2);
                     if (gameState.chibakuTensei) {
                         gameState.chibakuTensei.forEach(ct => ct.drawFront());
                     }
@@ -28308,8 +28954,8 @@ function drawPixelMage(fighter, frozenInDraw) {
 
 
 
-                document.getElementById('p1-health').style.width = `${Math.max(0, p1.health)}%`;
-                document.getElementById('p2-health').style.width = `${Math.max(0, p2.health)}%`;
+                document.getElementById('p1-health').style.width = `${Math.max(0, Math.min(100, (p1.health / (p1.maxHealth || 100)) * 100))}%`;
+                document.getElementById('p2-health').style.width = `${Math.max(0, Math.min(100, (p2.health / (p2.maxHealth || 100)) * 100))}%`;
 
                 let p1CDPct = (p1.cooldown / p1.maxCooldown) * 100;
                 let p2CDPct = (p2.cooldown / p2.maxCooldown) * 100;
